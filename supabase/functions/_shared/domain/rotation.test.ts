@@ -134,4 +134,36 @@ describe('generatePlan', () => {
       }
     }
   });
+
+  test('floating heavy moved when busy is the preferred day', () => {
+    const result = plan({
+      members: [member('a', [0])],
+      chores: [chore('heavy', 3, 'weekly')],
+    });
+    expect(result.assignments).toHaveLength(1);
+    const a = result.assignments[0];
+    expect(a.day).not.toBe(0); // day 0 is preferred but busy
+    expect(a.reason).toEqual({ code: 'busy_moved', busyDay: 0 });
+  });
+
+  test('fixed-day heavy never has busy_moved reason', () => {
+    const result = plan({
+      members: [member('a', [2]), member('b')],
+      chores: [chore('daily_heavy', 3, 'daily')],
+    });
+    for (const a of result.assignments) {
+      expect(a.reason.code).not.toBe('busy_moved');
+    }
+  });
+
+  test('when busy day is not preferred, reason is not busy_moved', () => {
+    const result = plan({
+      members: [member('a', [6])],
+      chores: [chore('heavy', 3, 'weekly')],
+    });
+    expect(result.assignments).toHaveLength(1);
+    const a = result.assignments[0];
+    expect(a.day).toBe(0); // day 0 is preferred and not busy
+    expect(a.reason.code).not.toBe('busy_moved');
+  });
 });

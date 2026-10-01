@@ -58,15 +58,34 @@ export function generatePlan(input: PlanInput): PlanResult {
   const allowedDays = Array.from({ length: 7 - fromDay }, (_, i) => (fromDay + i) as Weekday);
   const over = (userId: string) => totals[userId] - target.get(userId)!;
 
-  const explain = (choreId: string, userId: string, day: Weekday, effort: Effort): Reason => {
+  const explain = (choreId: string, userId: string, day: Weekday, effort: Effort, instanceDay: Weekday | null): Reason => {
     const m = members.find((x) => x.userId === userId)!;
-    if (effort === 3) {
-      const busyInRange = allowedDays.filter((d) => busy.get(userId)!.has(d));
-      if (busyInRange.length > 0) {
-        const nearest = busyInRange.reduce((a, b) => (Math.abs(b - day) < Math.abs(a - day) ? b : a));
-        return { code: 'busy_moved', busyDay: nearest };
+
+    // busy_moved only for floating heavy chores where busy actually changed placement
+    if (effort === 3 && instanceDay === null) {
+      // Find cheapest day for this member, ignoring busy skip
+      let cheapestIgnoringBusy: Weekday | null = null;
+      let cheapestCost = Infinity;
+
+      for (const d of allowedDays) {
+        let cost = over(userId) + effort;
+        if (lastWeek.get(choreId) === userId) cost += 1;
+        if (heavyOn.get(userId)![d] > 0) cost += 2;
+        cost += dayLoad[d] * 0.05;
+
+        // Strict tie-break: first day wins ties
+        if (cost < cheapestCost - 1e-9) {
+          cheapestCost = cost;
+          cheapestIgnoringBusy = d;
+        }
+      }
+
+      // If cheapest day is busy, the busy rule moved them off it
+      if (cheapestIgnoringBusy !== null && busy.get(userId)!.has(cheapestIgnoringBusy)) {
+        return { code: 'busy_moved', busyDay: cheapestIgnoringBusy };
       }
     }
+
     const previous = lastWeek.get(choreId);
     if (previous && previous !== userId) return { code: 'turn', previousUserId: previous };
     const debt = clampDebt(m.balance);
@@ -108,7 +127,7 @@ export function generatePlan(input: PlanInput): PlanResult {
     if (effort === 3) heavyOn.get(best.userId)![best.day] += 1;
     assignments.push({
       choreId: inst.chore.id, userId: best.userId, day: best.day, effort,
-      reason: reason ?? explain(inst.chore.id, best.userId, best.day, effort),
+      reason: reason ?? explain(inst.chore.id, best.userId, best.day, effort, inst.day),
     });
   }
 
