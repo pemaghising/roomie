@@ -36,7 +36,7 @@ PWA (React, Vite, TS) ── supabase-js ──► Supabase
   │  Realtime subscription per household                 ├─ Postgres + Row-Level Security (household isolation)
   │  Service worker: offline shell + Web Push            ├─ RPC functions (security definer) for every state change
   │                                                       ├─ Edge Functions: plan generator, push sender, SMS hook (later)
-  └─ shared/rotation.ts  ◄── same file ──►               └─ pg_cron: Saturday draft, Sunday lock, hourly sweep, 08:00 digest
+  └─ shared/rotation.ts  ◄── same file ──►               └─ pg_cron: every 10 min → tick (Saturday draft, Sunday lock, sweep, expiry, streak, 08:00 digest, push)
 ```
 
 **Units and boundaries**
@@ -81,6 +81,7 @@ PWA (React, Vite, TS) ── supabase-js ──► Supabase
 **Properties enforced by tests:** no Heavy on a busy day when any alternative exists; each member's total within 1 point of target when the chore set allows; ledger balance changes the next week's totals in the right direction; deterministic; handles 1–8 members, 0–40 chores.
 
 ### 4.2 Plan lifecycle (pg_cron + Edge Function)
+- One Edge Function, `tick`, runs every 10 minutes and decides per household what is due (idempotent, so a missed run is simply caught up by the next).
 - **Saturday 18:00 (household tz):** generate next week's plan.
   - `review` mode → status `draft`, push "Next week's plan is ready — take a look". Members can **Approve** or **Request a swap**. Locks when everyone approves or Sunday 18:00, whichever first.
   - `auto` mode → status `locked` immediately, push "Your week is planned".
@@ -89,7 +90,7 @@ PWA (React, Vite, TS) ── supabase-js ──► Supabase
 - **First week:** a household created mid-week gets an immediate plan for the remaining days.
 
 ### 4.3 Missed, claimed, ledger, streak
-- **Sweep (hourly):** when a household's local time passes `day_ends_at`, that day's `todo` assignments become `missed` → appear in **Missed by roommates** for everyone except the owner; push "Up for grabs: Mop bathroom floor" (once per batch).
+- **Sweep (every tick):** when a household's local time passes `day_ends_at`, that day's `todo` assignments become `missed` → appear in **Missed by roommates** for everyone except the owner; push "Up for grabs: Mop bathroom floor" (once per batch).
 - **Claim** (`claim_assignment` RPC, row-locked; first claim wins, others see "Priya already grabbed this"): status `claimed`, `claimed_by` set. Claimer completes it → `done`. Ledger: missed person `+effort`, claimer `−effort`. Missed person gets a private push in their tone: "Aman covered the bathroom — you'll get one extra Light task next week."
 - **Expiry:** unclaimed missed items expire 24 h after the day ended → status `expired`, ledger `+effort` for the missed person only.
 - **Streak (household):** a day is *kept* when all its assignments are `done` (by anyone) by the time its pool closes. Kept ⇒ `current + 1`; any `expired` item ⇒ `current = 0`. `best` tracked. Shown as the sprout on Home; no per-person numbers anywhere.
@@ -149,7 +150,7 @@ Visual system = the hi-fi screens: Playfair Display headlines, Inter UI, lavende
 ## 6. Error handling
 - Every RPC returns typed errors (`not_member`, `already_claimed`, `plan_locked`, `household_full`, `invalid_code`, `rate_limited`) mapped to human copy in `copy.ts`.
 - Claim races resolved server-side with row locks; the loser's optimistic update rolls back with a friendly toast.
-- Plan generation failure → retried by the next cron tick; household sees last week's chores as "unplanned" tasks rather than nothing; logged to the `activity` table with kind `system_error` (owner-only visibility).
+- Plan generation failure → logged in the function logs and retried automatically by the next tick (≤ 10 minutes); one household's failure never blocks the others.
 - Push failures: 404/410 endpoints deleted; others retried once.
 - Auth: expired session refreshes silently; OTP throttling surfaced as "Try again in 30 s".
 
