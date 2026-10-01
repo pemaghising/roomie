@@ -166,4 +166,15 @@ describe('generatePlan', () => {
     expect(a.day).toBe(0); // day 0 is preferred and not busy
     expect(a.reason.code).not.toBe('busy_moved');
   });
+
+  test('repro: busy immediately after preferred day does not trigger busy_moved', () => {
+    const result = plan({
+      members: [member('a', [1])],
+      chores: [chore('heavy', 3, 'weekly')],
+    });
+    expect(result.assignments).toHaveLength(1);
+    const a = result.assignments[0];
+    expect(a.day).toBe(0); // day 0 is preferred and not busy
+    expect(a.reason.code).not.toBe('busy_moved');
+  });
 });
