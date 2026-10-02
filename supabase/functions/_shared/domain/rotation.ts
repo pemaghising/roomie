@@ -58,7 +58,7 @@ export function generatePlan(input: PlanInput): PlanResult {
   const allowedDays = Array.from({ length: 7 - fromDay }, (_, i) => (fromDay + i) as Weekday);
   const over = (userId: string) => totals[userId] - target.get(userId)!;
 
-  const explain = (choreId: string, userId: string, day: Weekday, effort: Effort, instanceDay: Weekday | null, cheapestIgnoringBusyDay: Weekday | null): Reason => {
+  const explain = (choreId: string, userId: string, _day: Weekday, effort: Effort, instanceDay: Weekday | null, cheapestIgnoringBusyDay: Weekday | null): Reason => {
     const m = members.find((x) => x.userId === userId)!;
 
     // busy_moved only for floating heavy chores where the preferred day (ignoring busy) is actually busy
