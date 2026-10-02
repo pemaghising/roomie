@@ -1,8 +1,8 @@
-import { Bell, CalendarDays } from 'lucide-react';
+import { Bell, CalendarDays, Repeat } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf } from '@domain/time.ts';
-import { choreMap, myTasksOn, nextUp, pendingDraft, pool, roommates, unreadCount } from '../../lib/selectors';
+import { choreMap, incomingSwaps, myTasksOn, namesOf, nextUp, pendingDraft, pool, roommates, unreadCount } from '../../lib/selectors';
 import { useMe } from '../../lib/state';
 import type { Assignment } from '../../lib/types';
 import { Avatar } from '../../ui/Avatar';
@@ -29,6 +29,7 @@ export default function Home() {
   const upFor = pool(state, me);
   const next = nextUp(state, me, state.today);
   const draft = pendingDraft(state);
+  const swaps = incomingSwaps(state, me);
   const unread = unreadCount(state, me);
   const streak = state.streak?.current ?? 0;
   const first = state.profile.name.split(' ')[0];
@@ -67,6 +68,12 @@ export default function Home() {
 
       {draft && !draft.approved_by.includes(me) && (
         <Link to="/plan" className="banner banner--plan"><CalendarDays size={18} aria-hidden /> Next week's plan is ready — take a look</Link>
+      )}
+
+      {swaps.length > 0 && (
+        <Link to="/plan" className="banner banner--plan"><Repeat size={18} aria-hidden />
+          {swaps.length === 1 ? `${namesOf(state)[swaps[0].from_user] ?? 'A roommate'} wants to swap — take a look` : `${swaps.length} swap requests — take a look`}
+        </Link>
       )}
 
       <section className="section" aria-label="Today's tasks">

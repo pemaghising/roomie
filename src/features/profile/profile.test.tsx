@@ -58,3 +58,8 @@ test('rotating the invite code needs a second tap', async () => {
   await userEvent.click(screen.getByRole('button', { name: /old code stops working/i }));
   await waitFor(() => expect(db.rpc).toHaveBeenCalledWith('rotate_invite_code', undefined));
 });
+
+test('profile always links to the whole-week plan', () => {
+  renderWithState(<Profile />, { state: fixture(), route: '/profile' });
+  expect(screen.getByRole('link', { name: /see the whole week/i })).toHaveAttribute('href', '/plan');
+});

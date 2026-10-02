@@ -8,7 +8,9 @@ export interface Chore { id: string; name: string; icon: string; effort: Effort;
 export interface Plan { id: string; week_start: string; status: 'draft' | 'locked'; lock_at: string; approved_by: string[] }
 export interface Assignment {
   id: string; plan_id: string; chore_id: string; user_id: string; day: string; effort: Effort;
-  status: AssignmentStatus; claimed_by: string | null; done_at: string | null; reason: Reason;
+  status: AssignmentStatus; claimed_by: string | null; done_at: string | null;
+  /** Null on roommates' rows whose reason came from their private balance (get_state hides it). */
+  reason: Reason | null;
 }
 export interface SwapRequest { id: string; from_assignment: string; to_assignment: string; from_user: string; to_user: string; status: 'pending' }
 export interface ActivityItem { id: number; kind: string; actor: string | null; payload: Record<string, unknown>; created_at: string }

@@ -21,3 +21,23 @@ export function gateFor(
   if (!state.data.household) return 'needs_household';
   return 'ready';
 }
+
+/**
+ * Has the state been confirmed by the server since this page load? Data restored from the persisted cache may be
+ * from an earlier session (e.g. still "needs_household" from onboarding), so it must not drive a redirect away
+ * from a deep link until the first fetch settles. Offline (paused) or failed fetches fall back to the cache.
+ */
+export function confirmedSince(
+  state: { dataUpdatedAt?: number; errorUpdatedAt?: number; fetchStatus?: string },
+  since: number,
+): boolean {
+  return (state.dataUpdatedAt ?? 0) >= since || (state.errorUpdatedAt ?? 0) >= since || state.fetchStatus === 'paused';
+}
+
+/** What a route guard does: render, wait, or redirect. Only a confirmed gate may redirect. */
+export function guardAction(gate: Gate, allow: Gate[], confirmed: boolean): 'render' | 'wait' | 'redirect' {
+  if (gate === 'loading') return 'wait';
+  if (allow.includes(gate)) return 'render';
+  if (gate !== 'signed_out' && gate !== 'error' && !confirmed) return 'wait'; // signed_out comes from auth, not the cache
+  return 'redirect';
+}

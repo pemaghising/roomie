@@ -1,5 +1,5 @@
 import { Share, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { canInstall, promptInstall, pushStatus, type PushStatus } from '../../lib/platform';
 import { enablePush } from '../../lib/push';
 import { Button } from '../../ui/Button';
@@ -11,14 +11,15 @@ const snoozed = () => { try { return Number(localStorage.getItem(KEY) ?? 0) > Da
 
 export function InstallPrimer() {
   const toast = useToast();
-  const [status, setStatus] = useState<PushStatus>(pushStatus);
+  const [status, setStatus] = useState<PushStatus | null>(null);
   const [hidden, setHidden] = useState(snoozed);
   const [busy, setBusy] = useState(false);
+  useEffect(() => { pushStatus().then(setStatus); }, []);
   const dismiss = () => {
     try { localStorage.setItem(KEY, String(Date.now() + 7 * 86_400_000)); } catch { /* storage unavailable: just hide for now */ }
     setHidden(true);
   };
-  if (hidden || status === 'granted' || status === 'denied') return null;
+  if (hidden || !status || status === 'granted' || status === 'denied') return null;
 
   if (status === 'needs_install') {
     return (
@@ -56,7 +57,7 @@ export function InstallPrimer() {
         setBusy(true);
         const ok = await enablePush().catch(() => false);
         setBusy(false);
-        setStatus(pushStatus());
+        setStatus(await pushStatus());
         toast.show(ok ? "Reminders on. We'll keep it gentle." : 'Reminders stay off — you can turn them on in Profile.');
       }}>Turn on reminders</Button>
       {canInstall() && <Button variant="ghost" onClick={promptInstall}>Install the app</Button>}

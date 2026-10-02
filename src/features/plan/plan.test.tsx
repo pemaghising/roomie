@@ -80,3 +80,29 @@ test('accepting a swap confirms with a toast', async () => {
   await userEvent.click(within(screen.getByRole('region', { name: 'Swap request' })).getByRole('button', { name: 'Accept' }));
   expect(await screen.findByText("Swapped — it's on your list.")).toBeInTheDocument();
 });
+
+test('a locked plan (auto mode, no draft) still takes swap requests', async () => {
+  const s = fixture();
+  s.household!.plan_mode = 'auto';
+  s.assignments.push({ ...s.assignments[2], id: 'a-p-fri', day: '2026-10-02', effort: 1 });
+  renderWithState(<PlanReview />, { state: s, route: '/plan' });
+  expect(screen.getByText('Locked')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Swap a chore' }));
+  const sheet = await screen.findByRole('dialog', { name: 'Swap a chore' });
+  await userEvent.click(within(sheet).getByRole('radio', { name: /take out trash · thu/i }));
+  await userEvent.click(within(sheet).getByRole('radio', { name: /take out trash · fri · priya/i }));
+  await userEvent.click(within(sheet).getByRole('button', { name: 'Send request' }));
+  await waitFor(() => expect(db.rpc).toHaveBeenCalledWith('request_swap', { p_from: 'a-trash', p_to: 'a-p-fri' }));
+});
+
+test('with a draft and this week both around, I can switch back to this week', async () => {
+  const s = withDraft();
+  s.plans.find((p) => p.id === 'plan-next')!.approved_by = ['p', 'me'];
+  s.swaps = [{ id: 'sw1', from_assignment: 'a-p-trash', to_assignment: 'a-trash', from_user: 'p', to_user: 'me', status: 'pending' }];
+  renderWithState(<PlanReview />, { state: s, route: '/plan' });
+  expect(screen.getByText(/you approved · locking soon/i)).toBeInTheDocument(); // approver status stays visible after I approve
+  expect(screen.getByRole('region', { name: 'Swap request' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('tab', { name: 'This week' }));
+  expect(screen.getByRole('heading', { name: 'This week' })).toBeInTheDocument();
+  expect(screen.getByText('Locked')).toBeInTheDocument();
+});

@@ -99,3 +99,17 @@ test('completing an already-done task does nothing (guard is unreachable via the
   expect(db.rpc).not.toHaveBeenCalled();
   expect(result.current.celebration).toBeNull();
 });
+
+test('an incoming swap request shows a banner to the plan, even without push', () => {
+  const s = fixture();
+  s.swaps = [{ id: 'sw1', from_assignment: 'a-p-trash', to_assignment: 'a-sweep', from_user: 'p', to_user: 'me', status: 'pending' }];
+  renderWithState(<Home />, { state: s });
+  expect(screen.getByRole('link', { name: /priya wants to swap/i })).toHaveAttribute('href', '/plan');
+});
+
+test('no swap banner for my own outgoing requests', () => {
+  const s = fixture();
+  s.swaps = [{ id: 'sw1', from_assignment: 'a-sweep', to_assignment: 'a-p-trash', from_user: 'me', to_user: 'p', status: 'pending' }];
+  renderWithState(<Home />, { state: s });
+  expect(screen.queryByRole('link', { name: /wants to swap/i })).toBeNull();
+});

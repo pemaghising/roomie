@@ -135,6 +135,7 @@ export default function Profile() {
       </section>
 
       <nav className="section links" aria-label="More">
+        <Link to="/plan" className="link-row">See the whole week <ChevronRight size={18} aria-hidden /></Link>
         <Link to="/profile/household" className="link-row">Household settings <ChevronRight size={18} aria-hidden /></Link>
         <Link to="/activity" className="link-row">Activity <ChevronRight size={18} aria-hidden /></Link>
       </nav>

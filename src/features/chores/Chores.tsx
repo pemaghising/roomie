@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { CalendarDays, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf, weekStartOf } from '@domain/time.ts';
@@ -79,6 +79,9 @@ export default function Chores() {
         </>
       )}
 
+      {tab === 'week' && (
+        <Link to="/plan" className="banner banner--plan"><CalendarDays size={18} aria-hidden /> See the whole week — everyone's chores, swaps</Link>
+      )}
       {tab === 'week' && weekDates(weekStartOf(state.today)).filter((d) => d >= state.today).map((d) => {
         const list = myTasksOn(state, me, d);
         return (

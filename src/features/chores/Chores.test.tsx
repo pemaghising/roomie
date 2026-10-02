@@ -44,3 +44,25 @@ test('all chores lists the household’s chores with effort', async () => {
   const list = screen.getByRole('list', { name: 'Household chores' });
   expect(within(list).getAllByRole('listitem')).toHaveLength(3);
 });
+
+test('this week always links to the whole-week plan', async () => {
+  renderWithState(<Chores />, { state: fixture(), route: '/chores' });
+  await userEvent.click(screen.getByRole('tab', { name: 'This week' }));
+  expect(screen.getByRole('link', { name: /see the whole week/i })).toHaveAttribute('href', '/plan');
+});
+
+test('why-me on a chore I am covering thanks me and never shows the owner’s reason', async () => {
+  const { WhySheet } = await import('./WhySheet');
+  const s = fixture();
+  const covering = { ...s.assignments[3], status: 'claimed' as const, claimed_by: 'me', reason: { code: 'debt' as const, coveredBy: 'me' } };
+  renderWithState(<WhySheet assignment={covering} onClose={() => {}} />, { state: s });
+  expect(screen.getByText("You're covering for Priya. Thanks.")).toBeInTheDocument();
+  expect(screen.queryByText(/a little extra|covered for you/i)).toBeNull();
+});
+
+test('why-me copes with a reason the server kept private', async () => {
+  const { WhySheet } = await import('./WhySheet');
+  const s = fixture();
+  renderWithState(<WhySheet assignment={{ ...s.assignments[2], reason: null }} onClose={() => {}} />, { state: s });
+  expect(screen.getByText('Shared out fairly by effort.')).toBeInTheDocument();
+});

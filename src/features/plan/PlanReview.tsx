@@ -10,6 +10,7 @@ import { EffortChip } from '../../ui/EffortChip';
 import { EmptyState } from '../../ui/EmptyState';
 import { useToast } from '../../ui/Toast';
 import { SwapSheet } from './SwapSheet';
+import '../chores/chores.css';
 import './plan.css';
 
 const fmt = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
@@ -30,7 +31,11 @@ export default function PlanReview() {
   const names = namesOf(state);
   const chores = choreMap(state);
   const thisWeek = weekStartOf(state.today);
-  const plan = pendingDraft(state) ?? planForWeek(state, thisWeek);
+  const current = planForWeek(state, thisWeek);
+  const next = planForWeek(state, addDays(thisWeek, 7));
+  // a draft waiting for review comes first; otherwise this week (auto mode, locked plans, swaps)
+  const [week, setWeek] = useState(() => (pendingDraft(state) ?? current ?? next)?.week_start);
+  const plan = planForWeek(state, week ?? '') ?? pendingDraft(state) ?? current ?? next;
 
   const approve = useAction<{ p_plan: string; me: string }>('approve_plan', {
     optimistic: (s, { p_plan, me: who }) => ({ ...s, plans: s.plans.map((p) => (p.id === p_plan ? { ...p, approved_by: [...p.approved_by, who] } : p)) }),
@@ -63,6 +68,14 @@ export default function PlanReview() {
       <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Back"><ArrowLeft size={20} /></button>
       <p className="eyebrow">{isDraft ? lockCopy(plan.lock_at, state.household?.tz ?? 'UTC') : 'Locked'}</p>
       <h1>{plan.week_start > thisWeek ? 'Next week' : 'This week'}</h1>
+      {current && next && (
+        <div className="seg seg--tabs" role="tablist" aria-label="Which week">
+          {([[current, 'This week'], [next, 'Next week']] as const).map(([p, label]) => (
+            <button key={p.id} role="tab" aria-selected={plan.id === p.id} className={`seg__opt${plan.id === p.id ? ' is-on' : ''}`}
+              onClick={() => setWeek(p.week_start)}>{label}</button>
+          ))}
+        </div>
+      )}
       <p className="muted">{fmt(plan.week_start)} – {fmt(addDays(plan.week_start, 6))} · balanced by effort, busy days respected</p>
 
       {incomingSwaps(state, me).map((w) => {

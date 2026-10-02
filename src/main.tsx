@@ -14,7 +14,8 @@ registerSW({ immediate: true });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24, buster: 'v1' }}>
+    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24, buster: 'v1' }}
+      onSuccess={() => queryClient.resumePausedMutations().then(() => queryClient.invalidateQueries())}>
       <AuthProvider>
         <ToastProvider>
           <App />

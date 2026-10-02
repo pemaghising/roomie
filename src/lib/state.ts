@@ -5,6 +5,7 @@ import { supabase } from './supabase';
 import type { AppState } from './types';
 import { useToast } from '../ui/Toast';
 import { useAuth } from '../features/auth/AuthProvider';
+import { queryClient } from './queryClient';
 
 export const STATE_KEY = ['app-state'] as const;
 
@@ -40,15 +41,30 @@ export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown
   return data as T;
 }
 
+/** Every RPC called through useAction. Mutations are keyed by name so paused ones can resume after an app restart. */
+export const ACTION_RPCS = [
+  'archive_chore', 'undo_complete', 'complete_assignment', 'claim_assignment', 'approve_plan', 'respond_swap',
+  'request_swap', 'update_household', 'update_profile', 'update_busy_days', 'remove_member',
+] as const;
+export type ActionRpc = (typeof ACTION_RPCS)[number];
+
+/** Only `p_` keys go to the server; the rest (e.g. `me`) are for the optimistic update. */
+export const pickP = (args: Record<string, unknown>) => Object.fromEntries(Object.entries(args).filter(([k]) => k.startsWith('p_')));
+export const actionFn = (fn: ActionRpc) => (args: Record<string, unknown>) => rpc(fn, pickP(args));
+
+// Registered at module load, before the persister restores: a restored paused mutation has no hook to give it a mutationFn.
+for (const fn of ACTION_RPCS) queryClient.setMutationDefaults(['rpc', fn], { mutationFn: actionFn(fn) });
+
 /** Optimistic RPC: apply the change to the cached state instantly, roll back with a friendly toast on error. */
 export function useAction<A extends Record<string, unknown>>(
-  fn: string,
+  fn: ActionRpc,
   opts: { optimistic?: (s: AppState, args: A) => AppState; onSuccess?: (data: unknown, args: A) => void } = {},
 ) {
   const qc = useQueryClient();
   const toast = useToast();
   return useMutation({
-    mutationFn: (args: A) => rpc(fn, Object.fromEntries(Object.entries(args).filter(([k]) => k.startsWith('p_')))),
+    mutationKey: ['rpc', fn],
+    mutationFn: actionFn(fn),
     onMutate: async (args: A) => {
       await qc.cancelQueries({ queryKey: STATE_KEY });
       const prev = qc.getQueryData<AppState>(STATE_KEY);

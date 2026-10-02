@@ -8,6 +8,12 @@ import { EffortChip } from '../../ui/EffortChip';
 import { Sheet } from '../../ui/Sheet';
 import './chores.css';
 
+function whyText(a: Assignment, me: string, names: Record<string, string>): string {
+  // covering someone else's chore: their reason is theirs (and may be private), so speak to the person covering
+  if (a.claimed_by === me && a.user_id !== me) return `You're covering for ${names[a.user_id] ?? 'a roommate'}. Thanks.`;
+  return a.reason ? reasonText(a.reason, names) : 'Shared out fairly by effort.';
+}
+
 export function WhySheet({ assignment, onClose }: { assignment: Assignment | null; onClose: () => void }) {
   const { me, state } = useMe();
   if (!assignment) return null;
@@ -21,7 +27,7 @@ export function WhySheet({ assignment, onClose }: { assignment: Assignment | nul
     <Sheet open onClose={onClose} title={chore?.name ?? 'Chore'}>
       <div className="why">
         <EffortChip effort={assignment.effort} size="md" />
-        <p className="why__reason">{reasonText(assignment.reason, names)}</p>
+        <p className="why__reason">{whyText(assignment, me, names)}</p>
         <p className="eyebrow">This week's effort</p>
         <ul className="why__bars">
           {people.map((m) => (

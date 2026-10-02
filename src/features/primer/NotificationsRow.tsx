@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { pushStatus, type PushStatus } from '../../lib/platform';
 import { disablePush, enablePush } from '../../lib/push';
 import { Button } from '../../ui/Button';
@@ -14,12 +14,13 @@ const COPY: Record<PushStatus, string> = {
 
 export function NotificationsRow() {
   const toast = useToast();
-  const [status, setStatus] = useState<PushStatus>(pushStatus);
+  const [status, setStatus] = useState<PushStatus | null>(null);
   const [busy, setBusy] = useState(false);
+  useEffect(() => { pushStatus().then(setStatus); }, []);
   const run = async (fn: () => Promise<PushStatus | void>, fail: string) => {
     if (busy) return;
     setBusy(true);
-    try { const next = await fn(); setStatus(next ?? pushStatus()); } catch { toast.show(fail); setStatus(pushStatus()); }
+    try { const next = await fn(); setStatus(next ?? await pushStatus()); } catch { toast.show(fail); setStatus(await pushStatus()); }
     setBusy(false);
   };
   const turnOn = async () => {
@@ -29,7 +30,7 @@ export function NotificationsRow() {
   return (
     <section className="section" aria-label="Reminders">
       <h2>Reminders</h2>
-      <p className="muted">{COPY[status]}</p>
+      <p className="muted">{status ? COPY[status] : ' '}</p>
       {status === 'default' && <Button variant="secondary" loading={busy} disabled={busy} onClick={() => run(turnOn, "Couldn't turn reminders on. Try again in a moment.")}>Turn on</Button>}
       {status === 'granted' && <Button variant="ghost" loading={busy} disabled={busy} onClick={() => run(turnOff, "Couldn't turn reminders off. Try again in a moment.")}>Turn off on this device</Button>}
     </section>

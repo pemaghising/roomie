@@ -8,10 +8,15 @@ export const isStandalone = () =>
 
 export type PushStatus = 'unsupported' | 'needs_install' | 'default' | 'granted' | 'denied';
 
-export function pushStatus(): PushStatus {
+/** 'granted' only when this device really holds a subscription: permission alone survives sign-out and unsubscribing. */
+export async function pushStatus(): Promise<PushStatus> {
   if (isIOS() && !isStandalone()) return 'needs_install'; // iOS only delivers web push to Home Screen apps
   if (!('serviceWorker' in navigator) || typeof window.PushManager === 'undefined' || typeof window.Notification === 'undefined') return 'unsupported';
-  return Notification.permission as PushStatus;
+  const permission = Notification.permission as PushStatus;
+  if (permission !== 'granted') return permission;
+  const reg = await navigator.serviceWorker.getRegistration().catch(() => undefined);
+  const sub = await reg?.pushManager?.getSubscription().catch(() => null);
+  return sub ? 'granted' : 'default';
 }
 
 let deferred: BeforeInstallPromptEvent | null = null;

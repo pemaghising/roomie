@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useParams } from 'react-router';
-import { gateFor, type Gate, HOME_OF } from './lib/gate';
+import { confirmedSince, gateFor, type Gate, guardAction, HOME_OF } from './lib/gate';
 import { useAppState, useRealtime } from './lib/state';
 import { useAuth } from './features/auth/AuthProvider';
 import { Splash } from './ui/Splash';
@@ -23,19 +23,17 @@ import HouseholdSettings from './features/profile/HouseholdSettings';
 import Activity from './features/activity/Activity';
 import { OfflineBanner } from './ui/OfflineBanner';
 
-function useGate(): Gate {
-  const auth = useAuth();
-  const state = useAppState();
-  return gateFor(auth, state);
-}
+const PAGE_LOADED_AT = Date.now();
 
 function Guard({ allow, children }: { allow: Gate[]; children: ReactNode }) {
-  const gate = useGate();
+  const auth = useAuth();
   const state = useAppState();
-  if (gate === 'loading') return <Splash />;
+  const gate = gateFor(auth, state);
+  const action = guardAction(gate, allow, confirmedSince(state, PAGE_LOADED_AT));
+  if (action === 'wait') return <Splash />;
+  if (action === 'render') return <>{children}</>;
   if (gate === 'error') return <Splash error onRetry={() => state.refetch()} />;
-  if (allow.includes(gate)) return <>{children}</>;
-  return <Navigate to={HOME_OF[gate]} replace />;
+  return <Navigate to={HOME_OF[gate as keyof typeof HOME_OF]} replace />;
 }
 
 function Root() {

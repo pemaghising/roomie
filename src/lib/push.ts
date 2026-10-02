@@ -19,9 +19,15 @@ export async function enablePush(): Promise<boolean> {
   return true;
 }
 
+/** This device's live push subscription, if any. Never waits on `serviceWorker.ready`, which hangs when no worker is registered. */
+export async function currentSubscription(): Promise<PushSubscription | null> {
+  if (!('serviceWorker' in navigator)) return null;
+  const reg = await navigator.serviceWorker.getRegistration();
+  return (await reg?.pushManager?.getSubscription()) ?? null;
+}
+
 export async function disablePush(): Promise<void> {
-  const reg = await navigator.serviceWorker.ready;
-  const sub = await reg.pushManager.getSubscription();
+  const sub = await currentSubscription();
   if (!sub) return;
   await rpc('delete_push_subscription', { p_endpoint: sub.endpoint });
   await sub.unsubscribe();

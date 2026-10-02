@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { errorText } from '@domain/copy.ts';
 import { DAY_NAMES, type Weekday } from '@domain/time.ts';
 import { planNow, rpc, RpcError, STATE_KEY } from '../../lib/state';
+import type { AppState } from '../../lib/types';
 import { Button } from '../../ui/Button';
 import { useToast } from '../../ui/Toast';
 import { clearDraft, useDraft } from './draft';
@@ -36,6 +37,10 @@ export default function BusyStep() {
       await planNow().catch(() => {}); // the 10-minute tick catches up if this call fails
       clearDraft();
       await qc.invalidateQueries({ queryKey: STATE_KEY });
+      if (isJoin) {
+        const name = qc.getQueryData<AppState>(STATE_KEY)?.household?.name;
+        toast.show(name ? `Welcome to ${name}!` : 'Welcome home!');
+      }
       navigate(isJoin ? '/' : '/onboarding/invite', { replace: true });
     } catch (err) {
       toast.show(errorText(err instanceof RpcError ? err.code : 'unknown'));
