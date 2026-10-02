@@ -5,7 +5,7 @@ import { safeTarget } from './lib/safeUrl';
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<{ url: string; revision: string | null }> };
 precacheAndRoute(self.__WB_MANIFEST);
 // SPA deep links (/chores, /plan, notification clicks) offline: serve the precached shell
-registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html')));
+registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html'), { denylist: [/^\/privacy\.html$/] }));
 
 // autoUpdate never posts SKIP_WAITING, so take over as soon as a new worker installs
 self.addEventListener('install', () => { self.skipWaiting(); });
