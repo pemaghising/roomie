@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { urlBase64ToUint8Array } from './push';
+import { disablePush, urlBase64ToUint8Array } from './push';
 import { pushStatus } from './platform';
+const rpc = vi.hoisted(() => vi.fn());vi.mock('./state', () => ({ rpc }));
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -36,4 +37,12 @@ test('permission granted but no subscription on this device reads as off', async
 test('a live subscription reads as on', async () => {
   desktop({ endpoint: 'https://push.example/1' });
   expect(await pushStatus()).toBe('granted');
+});
+
+test('signing out offline still unsubscribes this device, so it stops getting the old user\'s pushes', async () => {
+  const unsubscribe = vi.fn(async () => true);
+  desktop({ endpoint: 'https://fcm.googleapis.com/fcm/send/x', unsubscribe });
+  rpc.mockRejectedValueOnce(new Error('offline'));
+  await expect(disablePush()).rejects.toThrow('offline');
+  expect(unsubscribe).toHaveBeenCalled();
 });

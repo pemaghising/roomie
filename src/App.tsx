@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useParams } from 'react-router';
 import { confirmedSince, gateFor, type Gate, guardAction, HOME_OF } from './lib/gate';
 import { useAppState, useRealtime } from './lib/state';
@@ -29,7 +29,11 @@ function Guard({ allow, children }: { allow: Gate[]; children: ReactNode }) {
   const auth = useAuth();
   const state = useAppState();
   const gate = gateFor(auth, state);
-  const action = guardAction(gate, allow, confirmedSince(state, PAGE_LOADED_AT));
+  const confirmed = confirmedSince(state, PAGE_LOADED_AT);
+  const action = guardAction(gate, allow, confirmed);
+  // a cache restored within staleTime won't refetch on its own, so waiting for confirmation would never end
+  const idle = action === 'wait' && !confirmed && state.fetchStatus === 'idle';
+  useEffect(() => { if (idle) void state.refetch(); }, [idle]); // eslint-disable-line react-hooks/exhaustive-deps
   if (action === 'wait') return <Splash />;
   if (action === 'render') return <>{children}</>;
   if (gate === 'error') return <Splash error onRetry={() => state.refetch()} />;

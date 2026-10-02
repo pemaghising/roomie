@@ -29,6 +29,7 @@ export async function currentSubscription(): Promise<PushSubscription | null> {
 export async function disablePush(): Promise<void> {
   const sub = await currentSubscription();
   if (!sub) return;
-  await rpc('delete_push_subscription', { p_endpoint: sub.endpoint });
-  await sub.unsubscribe();
+  // unsubscribe locally even if the server call fails (e.g. offline sign-out): the device must stop receiving this
+  // user's private pushes; the orphaned server row 410s on the next send and is deleted then
+  try { await rpc('delete_push_subscription', { p_endpoint: sub.endpoint }); } finally { await sub.unsubscribe(); }
 }
