@@ -19,7 +19,9 @@ export const SUGGESTED: DraftChore[] = [
 const KEY = 'roomie-onboarding';
 const fresh = (): Draft => ({ mode: 'create', homeName: '', code: '', busyDays: [], chores: SUGGESTED.map((c) => ({ ...c })) });
 
-export const loadDraft = (): Draft => ({ ...fresh(), ...JSON.parse(sessionStorage.getItem(KEY) ?? '{}') });
+export const loadDraft = (): Draft => {
+  try { return { ...fresh(), ...JSON.parse(sessionStorage.getItem(KEY) ?? '{}') }; } catch { return fresh(); }
+};
 export const saveDraft = (d: Draft) => sessionStorage.setItem(KEY, JSON.stringify(d));
 export const clearDraft = () => sessionStorage.removeItem(KEY);
 

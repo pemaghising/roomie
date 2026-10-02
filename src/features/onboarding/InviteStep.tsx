@@ -19,7 +19,10 @@ export default function InviteStep() {
     }
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
   };
-  const copy = async () => { await navigator.clipboard.writeText(link); toast.show('Invite link copied.'); };
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(link); toast.show('Invite link copied.'); }
+    catch { toast.show("Couldn't copy — long-press the code instead."); }
+  };
 
   return (
     <Step title="Invite your roommates" subtitle="Share this code. Everyone who joins is part of next week's plan." step={4} total={4} back={false}

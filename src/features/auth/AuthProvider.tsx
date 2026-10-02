@@ -21,5 +21,6 @@ export const useAuth = () => useContext(AuthContext);
 export async function signOut() {
   await supabase.auth.signOut();
   queryClient.clear();
+  sessionStorage.clear(); // onboarding draft + pending contact belong to this user only
   await persister.removeClient();
 }
