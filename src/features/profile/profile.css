@@ -14,9 +14,10 @@
 .day-chip input { position: absolute; opacity: 0; pointer-events: none; }
 .day-chip:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
 .styles { display: grid; gap: 10px; }
-.style-card { position: relative; isolation: isolate; display: grid; gap: 4px; text-align: left; padding: 16px; min-height: var(--tap); border-radius: var(--radius-m); border: 1.5px solid var(--line); background: #fff; cursor: pointer; }
+.style-card { position: relative; display: grid; gap: 4px; text-align: left; padding: 16px; min-height: var(--tap); border-radius: var(--radius-m); border: 1.5px solid var(--line); background: #fff; cursor: pointer; }
 /* the selection ring slides between the cards (layoutId) */
-.style-card__ring { position: absolute; inset: -1.5px; z-index: -1; border-radius: inherit; border: 1.5px solid var(--lav-ink); background: #faf5ff; }
+.style-card.is-on { background: #faf5ff; }
+.style-card__ring { position: absolute; inset: -1.5px; border-radius: inherit; border: 1.5px solid var(--lav-ink); pointer-events: none; }
 .style-card__preview { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
 .mates-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .mates-list li { display: flex; align-items: center; gap: 12px; }

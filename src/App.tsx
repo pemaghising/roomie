@@ -5,7 +5,7 @@ import {
   useNavigate, useNavigationType, useOutlet, useParams,
 } from 'react-router';
 import { confirmedSince, gateFor, type Gate, guardAction, HOME_OF } from './lib/gate';
-import { EASE_IN, EASE_OUT, SPRING } from './lib/motion';
+import { EASE_OUT, SPRING } from './lib/motion';
 import { isStandalone } from './lib/platform';
 import { EDGE, navDirection, stackKey, swipeBackCompletes } from './lib/stack';
 import { useAppState, useRealtime } from './lib/state';
@@ -109,7 +109,8 @@ function StackView({ entry, above, isTop, canSwipe, onGone, children }: {
   const swipe = canSwipe && isStandalone(); // in the browser, Safari's own back gesture owns the edge
   // the screen beneath follows the one above it: 30% behind and slightly dimmed, all the way through a drag
   useEffect(() => {
-    if (!above || reduced) { entry.x.set(0); ref.current?.style.setProperty('--dim', '0'); return; }
+    if (!above) return; // the top screen's own animation drives its x
+    if (reduced) { entry.x.set(0); return; } // crossfade only: nothing beneath moves
     const follow = (v: number) => {
       const p = Math.min(1, Math.max(0, 1 - v / window.innerWidth)); // 1 = fully covered
       entry.x.set(-0.3 * window.innerWidth * p);
@@ -162,12 +163,12 @@ function Tabs() {
   }, []);
   return (
     <>
-      {/* wait: the old tab is gone (80 ms) before the new one fades in, so two pages never show through each other */}
-      <AnimatePresence mode="wait" initial={false}>
+      {/* the old tab leaves at once and the new one fades up over it, so two pages never show through each other */}
+      <AnimatePresence initial={false}>
         <m.div key={pathname} className="tab-view"
           initial={{ opacity: 0, x: 8 }}
-          animate={{ opacity: 1, x: 0, transition: { x: SPRING.smooth, opacity: { duration: 0.2, ease: EASE_OUT } } }}
-          exit={{ opacity: 0, transition: { duration: 0.08, ease: EASE_IN } }}>
+          animate={{ opacity: 1, x: 0, transition: { x: SPRING.smooth, opacity: { duration: 0.16, ease: EASE_OUT } } }}
+          exit={{ opacity: 0, transition: { duration: 0 } }}>
           {/* no fallback: the tab bar stays put and the view fades in once its chunk is ready */}
           <Suspense fallback={null}><Frozen /></Suspense>
         </m.div>

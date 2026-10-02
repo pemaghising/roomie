@@ -41,9 +41,10 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 
 /* tab bar: the floating dark pill from the hi-fi screens, a touch translucent so content reads through as it scrolls under */
 .tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 14px); transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: var(--radius-pill); z-index: 40;
-  background: rgb(17 24 39 / .9); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); box-shadow: var(--shadow-float); }
-.tabbar__item { position: relative; isolation: isolate; min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); transition: scale var(--spring-snappy-dur) var(--spring-snappy), color .2s var(--ease-out); }
+  background: rgb(17 24 39 / .95); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); box-shadow: var(--shadow-float); }
+.tabbar__item { position: relative; min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); transition: scale var(--spring-snappy-dur) var(--spring-snappy), color .2s var(--ease-out); }
 .tabbar__item.is-active { color: var(--navy); }
+/* z -1 in the bar's stacking context (backdrop-filter makes one): in flight the pill passes under every label */
 .tabbar__pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #fff; }
 .tabbar__item svg.is-popping { animation: tab-pop .18s var(--ease-out); }
 @keyframes tab-pop { 45% { translate: 0 -2px; scale: 1.1; } }
@@ -100,7 +101,8 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 @keyframes breathe { 50% { opacity: .6; scale: .94; } }
 
 /* segmented controls: the white indicator slides between options (layoutId, snappy spring) */
-.seg__opt { position: relative; isolation: isolate; }
+.seg { isolation: isolate; } /* the pill slides under every label, not over its neighbours */
+.seg__opt { position: relative; }
 .seg__pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #fff; box-shadow: var(--shadow-card); }
 
 /* Press feedback (src/lib/press.ts marks [data-pressed]). `scale`, not transform, so it composes with Motion's drag
@@ -110,7 +112,12 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 }
 [data-pressed] { scale: .97; filter: brightness(.94); transition-duration: var(--press-in), var(--press-in), .15s, .15s, .15s, .15s; transition-timing-function: var(--ease-out); }
 [data-pressed="s"] { scale: .94; }
-.tabbar__item[data-pressed] { scale: .92; filter: none; }
+/* the press scales the pill and the label, not the item: a scaled item would become a stacking context and lift the
+   in-flight pill over its neighbours' labels */
+.tabbar__item[data-pressed] { scale: none; filter: none; }
+.tabbar__content { display: grid; place-items: center; gap: 2px; }
+.tabbar__content, .tabbar__pill { transition: scale var(--spring-snappy-dur) var(--spring-snappy); }
+.tabbar__item[data-pressed] :is(.tabbar__content, .tabbar__pill) { scale: .92; transition-duration: var(--press-in); transition-timing-function: var(--ease-out); }
 :is(.btn--primary, .claim-btn, .toast__action)[data-pressed] { filter: brightness(1.35); }
 /* the row card (pressed via its body button) also eases its done tint in after the tick draws */
 .task__card { transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .3s var(--ease-out) .15s, border-color .3s var(--ease-out) .15s; }

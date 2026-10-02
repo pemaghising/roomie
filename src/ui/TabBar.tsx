@@ -28,8 +28,10 @@ export function TabBar() {
             onClick={(e) => { if (active) { e.preventDefault(); scrollToTop(); } else setPopped(to); }}>
             {/* one white pill, handed from tab to tab with a shared layoutId */}
             {active && <m.span layoutId="tabbar-pill" className="tabbar__pill" transition={SPRING.smooth} aria-hidden />}
-            <Icon size={20} aria-hidden className={popped === to ? 'is-popping' : undefined} />
-            <span>{label}</span>
+            <span className="tabbar__content">
+              <Icon size={20} aria-hidden className={popped === to ? 'is-popping' : undefined} />
+              <span>{label}</span>
+            </span>
           </Link>
         );
       })}
