@@ -62,7 +62,7 @@ export function useAction<A extends Record<string, unknown>>(
 ) {
   const qc = useQueryClient();
   const toast = useToast();
-  return useMutation({
+  const mutation = useMutation({
     mutationKey: ['rpc', fn],
     mutationFn: actionFn(fn),
     onMutate: async (args: A) => {
@@ -71,13 +71,16 @@ export function useAction<A extends Record<string, unknown>>(
       if (prev && opts.optimistic) qc.setQueryData(STATE_KEY, opts.optimistic(prev, args));
       return { prev };
     },
-    onError: (err, _args, ctx) => {
+    onError: (err, args, ctx) => {
       if (ctx?.prev) qc.setQueryData(STATE_KEY, ctx.prev);
-      toast.show(errorText(err instanceof RpcError ? err.code : 'unknown'));
+      const code = err instanceof RpcError ? err.code : 'unknown';
+      // a dropped connection is worth one tap to retry; a refusal from the server is not
+      toast.show(errorText(code), code === 'unknown' ? { action: { label: 'Try again', onClick: () => mutation.mutate(args) } } : undefined);
     },
     onSuccess: opts.onSuccess,
     onSettled: () => qc.invalidateQueries({ queryKey: STATE_KEY }),
   });
+  return mutation;
 }
 
 /** Ask the server to plan/sweep this household now (after creating, joining or adding a chore). */
