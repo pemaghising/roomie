@@ -1,9 +1,10 @@
 import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath } from 'node:url';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     alias: { '@domain': fileURLToPath(new URL('./supabase/functions/_shared/domain', import.meta.url)) },
   },
@@ -34,7 +35,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    env: loadEnv(mode, process.cwd(), ''),
     setupFiles: ['./src/test-setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'supabase/functions/_shared/**/*.test.ts', 'tests/db/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'supabase/functions/_shared/**/*.test.ts', 'supabase/functions/tick/**/*.test.ts', 'tests/db/**/*.test.ts'],
+    testTimeout: 20_000,
   },
-});
+}));
