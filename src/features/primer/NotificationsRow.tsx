@@ -16,19 +16,22 @@ export function NotificationsRow() {
   const toast = useToast();
   const [status, setStatus] = useState<PushStatus>(pushStatus);
   const [busy, setBusy] = useState(false);
-  const run = async (fn: () => Promise<unknown>, fail: string) => {
+  const run = async (fn: () => Promise<PushStatus | void>, fail: string) => {
     if (busy) return;
     setBusy(true);
-    try { await fn(); } catch { toast.show(fail); }
+    try { const next = await fn(); setStatus(next ?? pushStatus()); } catch { toast.show(fail); setStatus(pushStatus()); }
     setBusy(false);
-    setStatus(pushStatus());
   };
+  const turnOn = async () => {
+    if (!(await enablePush())) toast.show('Reminders stay off — you can turn them on in Profile.');
+  };
+  const turnOff = async () => { await disablePush(); return 'default' as const; }; // permission stays 'granted' after unsubscribing
   return (
     <section className="section" aria-label="Reminders">
       <h2>Reminders</h2>
       <p className="muted">{COPY[status]}</p>
-      {status === 'default' && <Button variant="secondary" loading={busy} disabled={busy} onClick={() => run(enablePush, "Couldn't turn reminders on. Try again in a moment.")}>Turn on</Button>}
-      {status === 'granted' && <Button variant="ghost" loading={busy} disabled={busy} onClick={() => run(disablePush, "Couldn't turn reminders off. Try again in a moment.")}>Turn off on this device</Button>}
+      {status === 'default' && <Button variant="secondary" loading={busy} disabled={busy} onClick={() => run(turnOn, "Couldn't turn reminders on. Try again in a moment.")}>Turn on</Button>}
+      {status === 'granted' && <Button variant="ghost" loading={busy} disabled={busy} onClick={() => run(turnOff, "Couldn't turn reminders off. Try again in a moment.")}>Turn off on this device</Button>}
     </section>
   );
 }
