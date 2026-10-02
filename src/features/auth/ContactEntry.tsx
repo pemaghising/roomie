@@ -3,6 +3,7 @@ import { type FormEvent, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../ui/Button';
+import { isRateLimited } from './errors';
 import { savePending } from './pending';
 import './auth.css';
 
@@ -33,7 +34,7 @@ export default function ContactEntry() {
       ? await supabase.auth.signInWithOtp({ phone: contact })
       : await supabase.auth.signInWithOtp({ email: contact, options: { shouldCreateUser: true } });
     setBusy(false);
-    if (err) { setError(err.message.includes('rate') ? 'Too many codes requested. Try again in a minute.' : "We couldn't send a code. Try again."); return; }
+    if (err) { setError(isRateLimited(err) ? 'Too many codes requested. Try again in a minute.' : "We couldn't send a code. Try again."); return; }
     savePending({ method: isPhone ? 'phone' : 'email', contact });
     navigate('/verify');
   };

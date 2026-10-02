@@ -5,6 +5,7 @@ import { renderWithState } from '../../test-utils';
 import ContactEntry from './ContactEntry';
 import VerifyCode from './VerifyCode';
 import Welcome from './Welcome';
+import { isRateLimited } from './errors';
 import { loadPending, savePending } from './pending';
 
 const auth = vi.hoisted(() => ({
@@ -60,4 +61,46 @@ test('a wrong code says so and clears the boxes', async () => {
   await userEvent.type(screen.getByLabelText(/6-digit code/i), '999999');
   expect(await screen.findByText(/that code didn't work/i)).toBeInTheDocument();
   expect(screen.getByLabelText(/6-digit code/i)).toHaveValue('');
+});
+
+test('resend rate limit error is detected by isRateLimited', () => {
+  expect(isRateLimited({ status: 429 })).toBe(true);
+  expect(isRateLimited({ code: 'over_email_send_rate_limit' })).toBe(true);
+});
+
+test('verifyOtp rate limit shows "too many tries" copy', async () => {
+  auth.verifyOtp.mockResolvedValueOnce({ error: { status: 429 } } as never);
+  savePending({ method: 'email', contact: 'rahul@example.com' });
+  renderWithState(<VerifyCode />, { route: '/verify' });
+  await userEvent.type(screen.getByLabelText(/6-digit code/i), '123456');
+  expect(await screen.findByText(/too many tries/i)).toBeInTheDocument();
+});
+
+test('verifyOtp error thrown is caught with generic message', async () => {
+  auth.verifyOtp.mockRejectedValueOnce(new Error('Network error'));
+  savePending({ method: 'email', contact: 'rahul@example.com' });
+  renderWithState(<VerifyCode />, { route: '/verify' });
+  await userEvent.type(screen.getByLabelText(/6-digit code/i), '123456');
+  expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/6-digit code/i)).toHaveValue('');
+});
+
+test('isRateLimited detects status 429', () => {
+  expect(isRateLimited({ status: 429 })).toBe(true);
+});
+
+test('isRateLimited detects email rate limit code', () => {
+  expect(isRateLimited({ code: 'over_email_send_rate_limit' })).toBe(true);
+});
+
+test('isRateLimited detects sms rate limit code', () => {
+  expect(isRateLimited({ code: 'over_sms_send_rate_limit' })).toBe(true);
+});
+
+test('isRateLimited detects security purposes message', () => {
+  expect(isRateLimited({ message: 'For security purposes, you can only request this after 30 seconds' })).toBe(true);
+});
+
+test('isRateLimited returns false for non-rate errors', () => {
+  expect(isRateLimited({ status: 400, code: 'invalid', message: 'Invalid input' })).toBe(false);
 });

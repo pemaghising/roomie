@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from 'react-router';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../ui/Button';
 import { OtpInput } from '../../ui/OtpInput';
+import { isRateLimited } from './errors';
 import { clearPending, loadPending } from './pending';
 import './auth.css';
 
@@ -24,19 +25,51 @@ export default function VerifyCode() {
   if (!pending) return <Navigate to="/welcome" replace />;
 
   const verify = async (token: string) => {
+    if (busy) return;
     setBusy(true);
-    const { error: err } = pending.method === 'phone'
-      ? await supabase.auth.verifyOtp({ phone: pending.contact, token, type: 'sms' })
-      : await supabase.auth.verifyOtp({ email: pending.contact, token, type: 'email' });
-    setBusy(false);
-    if (err) { setError("That code didn't work. Check it, or send a new one."); setCode(''); return; }
-    clearPending(); // the auth listener updates the session; the route guard moves us on
+    try {
+      const { error: err } = pending.method === 'phone'
+        ? await supabase.auth.verifyOtp({ phone: pending.contact, token, type: 'sms' })
+        : await supabase.auth.verifyOtp({ email: pending.contact, token, type: 'email' });
+      if (err) {
+        if (isRateLimited(err)) {
+          setError('Too many tries. Wait a minute, then try again.');
+        } else if (
+          err.code === 'otp_expired' ||
+          err.code === 'invalid_credentials' ||
+          (err.status && err.status >= 400 && err.status < 500) ||
+          (typeof err.message === 'string' && /expired|invalid|token/i.test(err.message))
+        ) {
+          setError("That code didn't work. Check it, or send a new one.");
+        } else {
+          setError('Something went wrong. Check your connection and try again.');
+        }
+        setCode('');
+        return;
+      }
+      clearPending(); // the auth listener updates the session; the route guard moves us on
+    } catch {
+      setError('Something went wrong. Check your connection and try again.');
+      setCode('');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const resend = async () => {
-    setWait(30);
-    if (pending.method === 'phone') await supabase.auth.signInWithOtp({ phone: pending.contact });
-    else await supabase.auth.signInWithOtp({ email: pending.contact, options: { shouldCreateUser: true } });
+    try {
+      const { error: err } = pending.method === 'phone'
+        ? await supabase.auth.signInWithOtp({ phone: pending.contact })
+        : await supabase.auth.signInWithOtp({ email: pending.contact, options: { shouldCreateUser: true } });
+      if (err) {
+        setError(isRateLimited(err) ? "Couldn't send a new code. Try again in a minute." : "We couldn't send a new code. Check your connection and try again.");
+        return;
+      }
+      setWait(30);
+      setError(null);
+    } catch {
+      setError("We couldn't send a new code. Check your connection and try again.");
+    }
   };
 
   return (
