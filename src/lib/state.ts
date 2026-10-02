@@ -48,7 +48,7 @@ export function useAction<A extends Record<string, unknown>>(
   const qc = useQueryClient();
   const toast = useToast();
   return useMutation({
-    mutationFn: (args: A) => rpc(fn, args),
+    mutationFn: (args: A) => rpc(fn, Object.fromEntries(Object.entries(args).filter(([k]) => k.startsWith('p_')))),
     onMutate: async (args: A) => {
       await qc.cancelQueries({ queryKey: STATE_KEY });
       const prev = qc.getQueryData<AppState>(STATE_KEY);
