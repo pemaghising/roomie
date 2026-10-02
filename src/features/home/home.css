@@ -11,7 +11,7 @@
 .mate { flex: 0 0 31%; min-width: 104px; scroll-snap-align: start; display: grid; justify-items: center; gap: 4px; padding: 14px 8px; border-radius: var(--radius-m); font-size: 13px; color: var(--ink-2); }
 .mate strong { font-size: 15px; color: var(--ink); }
 .banner { display: flex; gap: 8px; align-items: center; margin-top: 18px; padding: 14px 16px; border-radius: var(--radius-m); text-decoration: none; font-weight: 600; min-height: var(--tap); }
-.banner:focus-visible, .home__bell:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+.banner:focus-visible, .home__bell:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .banner--plan { background: var(--lav); color: var(--lav-ink); }
 .banner--pool { background: #fff7ed; color: var(--heavy-ink); }
 .next-up { margin-top: 18px; display: flex; gap: 12px; align-items: center; padding: 16px; border-radius: var(--radius-m); background: #fff7ed; }

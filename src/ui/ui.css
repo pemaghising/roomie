@@ -1,5 +1,14 @@
+/* navigation stack: every screen is its own full-screen scroller, so a pushed screen can slide over the one beneath */
+.view { position: fixed; inset: 0; overflow-x: clip; overflow-y: auto; overscroll-behavior-y: contain; background: var(--bg); }
+.view::after { content: ''; position: absolute; inset: 0; background: #0b1020; opacity: var(--dim, 0); pointer-events: none; z-index: 100; }
+.view--swipe { touch-action: pan-y pinch-zoom; } /* horizontal moves reach the edge-swipe instead of the browser */
+.view--covered { overflow: hidden; }
+.view--top-pushed { box-shadow: -18px 0 36px -18px rgba(11, 16, 32, .35); }
+/* tabs crossfade inside the shared tab layout; each tab scrolls on its own */
+.tab-view { position: absolute; inset: 0; overflow-x: clip; overflow-y: auto; overscroll-behavior-y: contain; }
+
 /* buttons */
-.btn { min-height: var(--tap); display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 22px; border: 0; border-radius: var(--radius-pill); font-weight: 600; font-size: 16px; cursor: pointer; }
+.btn { min-height: var(--tap); display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 22px; border: 0; border-radius: var(--radius-pill); font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 .btn--primary { background: var(--navy); color: #fff; min-height: 54px; }
 .btn--secondary { background: var(--lav); color: var(--lav-ink); }
@@ -10,7 +19,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* effort chips */
-.chip { display: inline-flex; align-items: center; font: 600 12px/1 var(--font-ui); padding: 5px 9px; border-radius: 8px; }
+.chip { display: inline-flex; align-items: center; font: 600 12px/1 var(--font-ui); padding: 5px 9px; border-radius: var(--radius-xs); }
 .chip--md { font-size: 14px; padding: 9px 16px; border-radius: var(--radius-pill); }
 .chip--light { background: var(--light-bg); color: var(--light-ink); }
 .chip--medium { background: var(--medium-bg); color: var(--medium-ink); }
@@ -18,8 +27,8 @@
 
 /* sheet */
 .sheet-backdrop { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
-.sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; background: #fff; border-radius: 28px 28px 0 0; padding: 12px 24px calc(var(--safe-bottom) + 24px); box-shadow: var(--shadow-sheet); outline: none; }
-.sheet__handle { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto 16px; }
+.sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; overscroll-behavior: contain; background: #fff; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 12px calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 24px); box-shadow: var(--shadow-sheet); outline: none; }
+.sheet__handle { width: 40px; height: 5px; border-radius: 5px; background: var(--line); margin: 0 auto 16px; }
 .sheet__grab { margin: -12px -24px 0; padding: 12px 24px 0; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; } /* drag-to-dismiss lives here so the body still scrolls */
 .sheet__title { margin-bottom: 16px; }
 
@@ -27,18 +36,26 @@
 .toasts { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 104px); transform: translateX(-50%); display: grid; gap: 8px; z-index: 60; width: min(92vw, 440px); }
 /* while a sheet is up, toasts move to the top so they never cover it (the celebration in particular) */
 body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12px); }
-.toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 16px; box-shadow: var(--shadow-card); }
-.toast__action { background: none; border: 0; color: var(--lav-2); font-weight: 700; min-height: var(--tap); cursor: pointer; }
+.toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--navy); color: #fff; padding: 12px 16px; border-radius: var(--radius-s); box-shadow: var(--shadow-card); }
+.toast__action { background: none; border: 0; color: var(--lav-2); font-weight: 700; min-height: var(--tap); padding: 0 4px; cursor: pointer; }
 
-/* tab bar — the floating dark pill from the hi-fi screens */
-.tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 14px); transform: translateX(-50%); display: flex; gap: 4px; background: var(--navy); padding: 6px; border-radius: var(--radius-pill); box-shadow: 0 12px 32px -8px rgba(17, 24, 39, .45); z-index: 40; }
-.tabbar__item { min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); }
-.tabbar__item.is-active { background: #fff; color: var(--navy); }
+/* tab bar: the floating dark pill from the hi-fi screens, a touch translucent so content reads through as it scrolls under */
+.tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 14px); transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: var(--radius-pill); z-index: 40;
+  background: rgb(17 24 39 / .9); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); box-shadow: var(--shadow-float); }
+.tabbar__item { position: relative; isolation: isolate; min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); transition: scale var(--spring-snappy-dur) var(--spring-snappy), color .2s var(--ease-out); }
+.tabbar__item.is-active { color: var(--navy); }
+.tabbar__pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #fff; }
+.tabbar__item svg.is-popping { animation: tab-pop .18s var(--ease-out); }
+@keyframes tab-pop { 45% { translate: 0 -2px; scale: 1.1; } }
 
 /* avatar, skeleton, empty, progress, splash */
 .avatar { display: inline-grid; place-items: center; border-radius: 50%; font-weight: 700; color: var(--ink); flex: none; }
-.skeleton { border-radius: var(--radius-m); background: linear-gradient(90deg, #f3f4f6 25%, #eceef1 37%, #f3f4f6 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+.skeleton { border-radius: var(--radius-m); background: linear-gradient(90deg, #f3f4f6 25%, #e9ebef 37%, #f3f4f6 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
 @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.skeleton-screen { display: grid; gap: 14px; align-content: start; }
+.skeleton-screen__row { display: flex; gap: 10px; }
+.skeleton-screen__row > * { flex: 1; }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
 .empty { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 28px 12px; }
 .empty__title { font: 700 18px/1.2 var(--font-display); }
 .progress { height: 6px; background: var(--lav); border-radius: 6px; overflow: hidden; }
@@ -49,7 +66,7 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 .otp { position: relative; }
 .otp__input { position: absolute; inset: 0; opacity: 0; font-size: 16px; width: 100%; }
 .otp__boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; pointer-events: none; }
-.otp__box { height: 58px; display: grid; place-items: center; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); font: 700 24px var(--font-ui); }
+.otp__box { height: 58px; display: grid; place-items: center; border-radius: var(--radius-s); background: var(--surface); border: 1.5px solid var(--line); font: 700 24px var(--font-ui); font-variant-numeric: tabular-nums; }
 .otp__box.is-current { border-color: var(--lav-3); box-shadow: 0 0 0 3px var(--lav); }
 .otp:focus-within .otp__box.is-current { border-color: var(--lav-ink); }
 
@@ -64,10 +81,10 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 .task__name { font-weight: 600; }
 .task__meta { display: flex; gap: 8px; align-items: center; font-size: 13px; }
 .task.is-done .task__name { color: var(--muted); text-decoration: line-through; }
-.check { width: 30px; height: 30px; margin: 7px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; cursor: pointer; flex: none; display: grid; place-items: center; padding: 0; transition: background-color .15s, border-color .15s; }
+.check { width: 30px; height: 30px; margin: 7px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; cursor: pointer; flex: none; display: grid; place-items: center; padding: 0; }
 .check.is-checked { background: var(--navy); border-color: var(--navy); }
 
-.offline { position: fixed; top: calc(var(--safe-top) + 8px); left: 50%; transform: translateX(-50%); z-index: 70; padding: 8px 14px; border-radius: var(--radius-pill); background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-card); }
+.offline { position: fixed; top: calc(var(--safe-top) + 8px); left: 50%; transform: translateX(-50%); z-index: 70; padding: 8px 14px; border-radius: var(--radius-pill); background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-card); white-space: nowrap; max-width: calc(100vw - 24px); overflow: hidden; text-overflow: ellipsis; }
 
 /* the check: the circle fills (spring scale in TaskRow), then the tick draws itself */
 .check svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -76,19 +93,29 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 .task.is-done .task__card { background: var(--surface); border-color: transparent; }
 .task__swipe { opacity: var(--pull, 0); }
 .task__swipe-tick { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--light-ink); color: #fff; scale: calc(.6 + var(--pull, 0) * .4); }
-.task--enter { animation: row-in .32s var(--ease-out) backwards; animation-delay: min(calc(var(--i, 0) * 30ms), 150ms); }
+/* lists stagger in once, capped at 150 ms in total */
+.stagger { animation: row-in .32s var(--ease-out) backwards; animation-delay: min(calc(var(--i, 0) * 30ms), 150ms); }
 @keyframes row-in { from { opacity: 0; translate: 0 8px; } }
 .splash.is-loading .sprout { animation: breathe 1.8s ease-in-out infinite; }
 @keyframes breathe { 50% { opacity: .6; scale: .94; } }
-.tab-view { height: 100%; overflow-x: clip; } /* clip: the 8px route shift never makes the page scroll sideways */
 
-/* press feedback: `scale` (not transform) so it composes with Motion's drag and layout transforms */
-.btn, .choice-card, .chore-item, .invite-card, .task__card, .day-pick, .pick, .tabbar__item, .seg__opt, .claim-btn, .fab, .icon-btn, .icon-pick, .swatch, .seg--effort .chip, .banner, .effort-tap {
-  transition: scale .16s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
+/* segmented controls: the white indicator slides between options (layoutId, snappy spring) */
+.seg__opt { position: relative; isolation: isolate; }
+.seg__pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #fff; box-shadow: var(--shadow-card); }
+
+/* Press feedback (src/lib/press.ts marks [data-pressed]). `scale`, not transform, so it composes with Motion's drag
+   and layout transforms. In quickly; out on the snappy spring, which can retarget mid-flight. */
+:where(button, a[href], [role="button"], label) {
+  transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-:is(.btn, .choice-card, .chore-item, .invite-card, .task__card, .day-pick, .pick, .tabbar__item, .seg__opt, .claim-btn, .fab, .icon-btn, .icon-pick, .swatch, .seg--effort .chip, .banner, .effort-tap):active:not(:disabled) {
-  scale: .97; transition-duration: .1s;
-}
-.pick__tick { transition: background-color .15s, border-color .15s, color .15s; }
-/* after the tick draws, the finished row settles into a quieter tint */
-.task__card { transition: scale .16s var(--ease-out), background-color .3s var(--ease-out) .15s, border-color .3s var(--ease-out) .15s; }
+[data-pressed] { scale: .97; filter: brightness(.94); transition-duration: var(--press-in), var(--press-in), .15s, .15s, .15s, .15s; transition-timing-function: var(--ease-out); }
+[data-pressed="s"] { scale: .94; }
+.tabbar__item[data-pressed] { scale: .92; filter: none; }
+:is(.btn--primary, .claim-btn, .toast__action)[data-pressed] { filter: brightness(1.35); }
+/* the row card (pressed via its body button) also eases its done tint in after the tick draws */
+.task__card { transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .3s var(--ease-out) .15s, border-color .3s var(--ease-out) .15s; }
+.task__card[data-pressed] { transition-duration: var(--press-in), var(--press-in), .3s, .3s; }
+.check { transition: scale var(--spring-snappy-dur) var(--spring-snappy), background-color .15s, border-color .15s; }
+
+/* numbers that change shouldn't jitter */
+.tnum { font-variant-numeric: tabular-nums; }

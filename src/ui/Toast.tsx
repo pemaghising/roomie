@@ -1,6 +1,6 @@
 import { AnimatePresence, m } from 'motion/react';
 import { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
-import { SPRING } from './motion';
+import { SPRING } from '../lib/motion';
 
 interface ToastAction { label: string; onClick: () => void }
 interface ToastItem { id: number; message: string; action?: ToastAction }
@@ -24,7 +24,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           {items.map((t) => (
             <m.div key={t.id} className="toast" layout
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.15 } }}
-              transition={SPRING}>
+              transition={SPRING.smooth}>
               <span>{t.message}</span>
               {t.action && (
                 <button className="toast__action" onClick={() => { t.action!.onClick(); dismiss(t.id); }}>{t.action.label}</button>

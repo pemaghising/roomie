@@ -11,9 +11,11 @@ import App from './App';
 import { persister, queryClient } from './lib/queryClient';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { ToastProvider } from './ui/Toast';
-import { loadMotionFeatures } from './ui/motion';
+import { loadMotionFeatures } from './lib/motion';
+import { installPress } from './lib/press';
 
 registerSW({ immediate: true });
+installPress();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

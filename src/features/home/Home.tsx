@@ -8,7 +8,7 @@ import { useMe } from '../../lib/state';
 import type { Assignment } from '../../lib/types';
 import { Avatar } from '../../ui/Avatar';
 import { EmptyState } from '../../ui/EmptyState';
-import { useFirstMount } from '../../ui/motion';
+import { useFirstMount } from '../../lib/motion';
 import { Sprout } from '../../ui/Sprout';
 import { TaskRow } from '../../ui/TaskRow';
 import { useChoreActions } from '../chores/useChoreActions';

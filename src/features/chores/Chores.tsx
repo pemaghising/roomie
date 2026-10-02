@@ -12,7 +12,7 @@ import { EmptyState } from '../../ui/EmptyState';
 import { Sheet } from '../../ui/Sheet';
 import { TaskRow } from '../../ui/TaskRow';
 import { Button } from '../../ui/Button';
-import { useFirstMount } from '../../ui/motion';
+import { useFirstMount } from '../../lib/motion';
 import { AddChoreSheet } from './AddChoreSheet';
 import { Celebration } from './Celebration';
 import { useChoreActions } from './useChoreActions';

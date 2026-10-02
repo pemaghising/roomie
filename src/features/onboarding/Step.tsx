@@ -2,7 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { m } from 'motion/react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { EASE_OUT } from '../../ui/motion';
+import { EASE_OUT, SPRING } from '../../lib/motion';
 import { Progress } from '../../ui/Progress';
 import './onboarding.css';
 
@@ -19,7 +19,7 @@ export function Step({ title, subtitle, step, total, children, footer, back = tr
   const slide = from === undefined ? { initial: false as const } : {
     initial: { opacity: 0, x: step! > from ? 24 : -24 },
     animate: { opacity: 1, x: 0 },
-    transition: { duration: 0.28, ease: EASE_OUT },
+    transition: { x: SPRING.smooth, opacity: { duration: 0.2, ease: EASE_OUT } },
   };
   return (
     <main className="screen step">

@@ -1,7 +1,7 @@
 import { m } from 'motion/react';
 import { useState } from 'react';
 import { Button } from '../../ui/Button';
-import { EASE_OUT } from '../../ui/motion';
+import { EASE_OUT } from '../../lib/motion';
 import { Sheet } from '../../ui/Sheet';
 import { Sprout } from '../../ui/Sprout';
 

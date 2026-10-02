@@ -2,4 +2,4 @@
 .primer strong { font: 700 18px/1.2 var(--font-display); padding-right: 44px; }
 .primer ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
 .primer__close { position: absolute; top: 2px; right: 2px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
-.primer__close:focus-visible { outline: 3px solid var(--navy); outline-offset: -4px; }
+.primer__close:focus-visible { outline: 3px solid var(--focus); outline-offset: -4px; }

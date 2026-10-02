@@ -15,7 +15,7 @@
 .section { margin-top: 28px; display: grid; gap: 10px; }
 .section__title { display: flex; justify-content: space-between; align-items: baseline; }
 .claim-btn { min-height: 44px; padding: 0 18px; border-radius: var(--radius-pill); border: 0; background: var(--navy); color: #fff; font-weight: 600; cursor: pointer; }
-.claim-btn:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+.claim-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .task--pool .task__card { background: #fff7ed; border-color: transparent; }
 
 .chores h1 { font-size: 36px; }
