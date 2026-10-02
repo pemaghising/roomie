@@ -1,0 +1,25 @@
+.step { display: flex; flex-direction: column; gap: 14px; padding-bottom: calc(var(--safe-bottom) + 24px); }
+.step__back { margin-top: 6px; }
+.step__title { font-size: 30px; }
+.step__subtitle { margin-top: -6px; }
+.step__body { flex: 1; display: grid; gap: 10px; align-content: start; }
+.step__footer { position: sticky; bottom: calc(var(--safe-bottom) + 12px); display: grid; gap: 8px; }
+.pick { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 8px 6px 14px; border-radius: var(--radius-pill); border: 1.5px solid var(--line); background: #fff; cursor: pointer; }
+.pick.is-on { background: var(--sky-bg); border-color: transparent; color: var(--sky-ink); }
+.pick input { position: absolute; opacity: 0; pointer-events: none; }
+.pick__name { flex: 1; font-weight: 600; }
+.pick__tick { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #d1d5db; display: grid; place-items: center; }
+.pick.is-on .pick__tick { background: var(--navy); border-color: var(--navy); color: #fff; }
+.pick:focus-within { box-shadow: 0 0 0 3px var(--lav); }
+.effort-tap { border: 0; background: none; padding: 0; cursor: pointer; min-height: var(--tap); display: grid; place-items: center; }
+.day-pick { min-height: 52px; padding: 0 22px; border-radius: var(--radius-pill); display: flex; align-items: center; justify-content: space-between; background: var(--surface); font-weight: 600; cursor: pointer; position: relative; }
+.day-pick.is-on { background: var(--lav); color: var(--lav-ink); }
+.day-pick input { position: absolute; opacity: 0; pointer-events: none; }
+.day-pick:focus-within { box-shadow: 0 0 0 3px var(--lav-2); }
+.choice-card { display: grid; gap: 4px; text-align: left; padding: 20px; border-radius: var(--radius-l); border: 1.5px solid var(--line); background: #fff; cursor: pointer; min-height: 96px; }
+.choice-card strong { font: 700 20px/1.2 var(--font-display); }
+.choice-card:hover { border-color: var(--lav-3); }
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch { width: 48px; height: 48px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+.swatch.is-on { border-color: var(--navy); }
+.code-big { font: 700 44px/1 var(--font-ui); letter-spacing: .18em; text-align: center; padding: 26px; border-radius: var(--radius-l); background: var(--sky-bg); color: var(--sky-ink); }

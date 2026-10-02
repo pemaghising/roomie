@@ -70,7 +70,7 @@ const router = createBrowserRouter([
       { path: '/onboarding/join', element: <Guard allow={household}><JoinStep /></Guard> },
       { path: '/onboarding/home', element: <Guard allow={household}><HomeNameStep /></Guard> },
       { path: '/onboarding/chores', element: <Guard allow={household}><ChoresStep /></Guard> },
-      { path: '/onboarding/busy', element: <Guard allow={household}><BusyStep /></Guard> },
+      { path: '/onboarding/busy', element: <Guard allow={['needs_household', 'ready']}><BusyStep /></Guard> },
       { path: '/onboarding/invite', element: <Guard allow={ready}><InviteStep /></Guard> },
       {
         element: <Guard allow={ready}><Tabs /></Guard>,
