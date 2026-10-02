@@ -35,15 +35,18 @@ export function useChoreActions() {
   });
 
   const complete = (a: Assignment) => {
+    if (a.status === 'done') return;
     buzz();
     const s = qc.getQueryData<AppState>(STATE_KEY);
-    if (a.status === 'claimed') setCelebration('covered');
-    else if (s) {
-      const me = s.profile.id;
+    const me = s?.profile.id;
+    let kind: 'all_done' | 'covered' | null = null;
+    if (a.status === 'claimed' && a.claimed_by === me) kind = 'covered';
+    else if (s && me) {
       const stillOpen = myTasksOn(s, me, s.today).filter((x) => x.id !== a.id && x.status !== 'done');
-      if (a.day === s.today && stillOpen.length === 0) setCelebration('all_done');
+      if (a.day === s.today && stillOpen.length === 0) kind = 'all_done';
     }
-    completeAction.mutate({ p_id: a.id });
+    // celebrate only once the server accepted it; a failure rolls back with a toast and no sheet
+    completeAction.mutate({ p_id: a.id }, { onSuccess: () => { if (kind) setCelebration(kind); } });
   };
 
   const claim = (a: Assignment) => {
