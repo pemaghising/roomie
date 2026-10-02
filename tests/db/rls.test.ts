@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { admin, cleanup, hasDb, makeUser, seedHousehold } from './helpers';
+import { admin, cleanup, hasDb, makeUser, seedHousehold, seedPlan } from './helpers';
 
 describe.skipIf(!hasDb)('row-level security', () => {
   let a: Awaited<ReturnType<typeof makeUser>>;
@@ -64,6 +64,45 @@ describe.skipIf(!hasDb)('row-level security', () => {
     const none = await stranger.client.rpc('get_state');
     expect(none.data.household).toBeNull();
   });
+
+  test("a member cannot see another member's debt or credit reason", async () => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
+    const monday = new Date(Date.parse(today) - ((new Date(today).getUTCDay() + 6) % 7) * 86_400_000).toISOString().slice(0, 10);
+    const [aDebt, bCredit, bTurn] = await seedPlan(h, monday, [
+      { userId: a.id, day: today, choreName: 'Dishes' }, { userId: b.id, day: today, choreName: 'Bins' }, { userId: b.id, day: today, choreName: 'Mop' },
+    ]);
+    await admin().from('assignments').update({ reason: { code: 'debt', coveredBy: b.id } }).eq('id', aDebt);
+    await admin().from('assignments').update({ reason: { code: 'credit' } }).eq('id', bCredit);
+    await admin().from('assignments').update({ reason: { code: 'turn', previousUserId: a.id } }).eq('id', bTurn);
+    const reasonIn = (rows: { id: string; reason: unknown }[], id: string) => rows.find((r) => r.id === id)?.reason;
+
+    const asA = (await a.client.rpc('get_state')).data.assignments;
+    expect(reasonIn(asA, aDebt)).toEqual({ code: 'debt', coveredBy: b.id }); // my own reason, for my own Why me?
+    expect(reasonIn(asA, bCredit)).toBeNull();
+    expect(reasonIn(asA, bTurn)).toEqual({ code: 'turn', previousUserId: a.id }); // not balance-derived: still shown
+    const asB = (await b.client.rpc('get_state')).data.assignments;
+    expect(reasonIn(asB, aDebt)).toBeNull();
+    expect(reasonIn(asB, bCredit)).toEqual({ code: 'credit' });
+
+    // and not straight from the table either
+    const direct = await b.client.from('assignments').select('id, reason').eq('id', aDebt);
+    expect(direct.error?.code).toBe('42501');
+    expect((await b.client.from('assignments').select('id, status').eq('id', aDebt)).data).toHaveLength(1);
+  });
+
+  test('realtime still signals assignment changes with the reason column hidden', async () => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
+    const { data: row } = await admin().from('assignments').select('id').eq('household_id', h).limit(1).single();
+    let seen = false;
+    const ch = b.client.channel(`probe-${h}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assignments', filter: `household_id=eq.${h}` }, () => { seen = true; });
+    await new Promise<void>((res, rej) => ch.subscribe((s) => (s === 'SUBSCRIBED' ? res() : s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' ? rej(new Error(s)) : undefined)));
+    await new Promise((r) => setTimeout(r, 1500)); // let the subscription register server-side
+    await admin().from('assignments').update({ day: today, status: 'done' }).eq('id', row!.id);
+    for (let i = 0; i < 40 && !seen; i++) await new Promise((r) => setTimeout(r, 250));
+    await b.client.removeChannel(ch);
+    expect(seen).toBe(true);
+  }, 30_000);
 
   test('private helpers are not callable through the API', async () => {
     const res = await a.client.schema('private' as never).rpc('is_member', { h });
