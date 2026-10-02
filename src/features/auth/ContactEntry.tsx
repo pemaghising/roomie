@@ -30,10 +30,16 @@ export default function ContactEntry() {
       return;
     }
     setBusy(true);
-    const { error: err } = isPhone
-      ? await supabase.auth.signInWithOtp({ phone: contact })
-      : await supabase.auth.signInWithOtp({ email: contact, options: { shouldCreateUser: true } });
-    setBusy(false);
+    let err;
+    try {
+      ({ error: err } = isPhone
+        ? await supabase.auth.signInWithOtp({ phone: contact })
+        : await supabase.auth.signInWithOtp({ email: contact, options: { shouldCreateUser: true } }));
+    } catch (thrown) {
+      err = thrown;
+    } finally {
+      setBusy(false);
+    }
     if (err) { setError(isRateLimited(err) ? 'Too many codes requested. Try again in a minute.' : "We couldn't send a code. Try again."); return; }
     savePending({ method: isPhone ? 'phone' : 'email', contact });
     navigate('/verify');
