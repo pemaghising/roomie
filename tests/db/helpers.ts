@@ -27,12 +27,15 @@ export async function seedHousehold(ownerId: string, extraMemberIds: string[] = 
   const db = admin();
   const { data: h, error } = await db.from('households').insert({ name: 'Test flat', invite_code: code() }).select('id').single();
   if (error) throw error;
-  await db.from('members').insert([
-    { household_id: h.id, user_id: ownerId, role: 'owner' },
-    ...extraMemberIds.map((user_id) => ({ household_id: h.id, user_id, role: 'member' })),
+  const results = await Promise.all([
+    db.from('members').insert([
+      { household_id: h.id, user_id: ownerId, role: 'owner' },
+      ...extraMemberIds.map((user_id) => ({ household_id: h.id, user_id, role: 'member' })),
+    ]),
+    db.from('effort_ledger').insert([ownerId, ...extraMemberIds].map((user_id) => ({ household_id: h.id, user_id }))),
+    db.from('streaks').insert({ household_id: h.id }),
   ]);
-  await db.from('effort_ledger').insert([ownerId, ...extraMemberIds].map((user_id) => ({ household_id: h.id, user_id })));
-  await db.from('streaks').insert({ household_id: h.id });
+  for (const r of results) if (r.error) throw r.error;
   return h.id;
 }
 
@@ -47,9 +50,10 @@ export async function seedPlan(householdId: string, weekStart: string, rows: See
   if (error) throw error;
   const ids: string[] = [];
   for (const r of rows) {
-    const { data: chore } = await db.from('chores')
+    const { data: chore, error: ce } = await db.from('chores')
       .insert({ household_id: householdId, name: r.choreName ?? 'Bathroom', effort: r.effort ?? 1, created_week: weekStart })
       .select('id').single();
+    if (ce) throw ce;
     const { data: a, error: e } = await db.from('assignments').insert({
       plan_id: plan.id, household_id: householdId, chore_id: chore!.id, user_id: r.userId,
       day: r.day, effort: r.effort ?? 1, status: r.status ?? 'todo',
@@ -58,4 +62,11 @@ export async function seedPlan(householdId: string, weekStart: string, rows: See
     ids.push(a.id);
   }
   return ids;
+}
+
+/** Deletes test data. Households first (cascades members, ledger, plans, assignments, activity), then auth users (cascades profiles). */
+export async function cleanup({ userIds = [], householdIds = [] }: { userIds?: string[]; householdIds?: string[] }): Promise<void> {
+  const db = admin();
+  if (householdIds.length) await db.from('households').delete().in('id', householdIds);
+  for (const id of userIds) await db.auth.admin.deleteUser(id);
 }
