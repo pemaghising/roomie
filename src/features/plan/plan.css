@@ -1,0 +1,21 @@
+.plan h1 { margin: 6px 0 4px; }
+.person { margin-top: 22px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-l); }
+.person__head { display: flex; align-items: center; gap: 10px; }
+.person__pts { margin-left: auto; font-weight: 600; color: var(--muted); }
+.person__ok { color: var(--light-ink); }
+.person__list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.person__list li { display: grid; grid-template-columns: 36px 24px 1fr auto; align-items: center; gap: 8px; }
+.person__day { font-size: 13px; font-weight: 600; color: var(--muted); }
+.person__chore { font-weight: 500; }
+.plan__footer { position: sticky; bottom: calc(var(--safe-bottom) + 12px); margin-top: 24px; padding: 12px; background: rgba(255, 255, 255, .92); backdrop-filter: blur(12px); border-radius: var(--radius-l); box-shadow: var(--shadow-card); display: grid; gap: 8px; }
+.plan__buttons { display: grid; grid-auto-flow: column; gap: 8px; }
+.plan__status { text-align: center; color: var(--light-ink); font-weight: 600; }
+.swap-card { margin-top: 18px; padding: 16px; border-radius: var(--radius-l); background: var(--lav); color: var(--lav-ink); display: grid; gap: 12px; }
+.swap-card__actions { display: flex; gap: 8px; justify-content: flex-end; }
+.swap { display: grid; gap: 12px; }
+.swap__list { display: grid; gap: 8px; }
+.swap-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius-m); border: 1.5px solid var(--line); background: #fff; text-align: left; cursor: pointer; min-height: 56px; }
+.swap-opt.is-on { border-color: var(--lav-ink); background: var(--lav); }
+.swap-opt__name { flex: 1; display: grid; font-weight: 600; }
+.swap-opt__name small { font-weight: 400; }
+.swap__delta { padding: 12px 14px; border-radius: 14px; background: var(--surface); font-weight: 600; }
