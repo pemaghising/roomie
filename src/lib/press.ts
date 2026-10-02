@@ -6,8 +6,8 @@
  */
 const SEL = 'button:not(:disabled), a[href], [role="button"], label:has(input[type="checkbox"], input[type="radio"])';
 const SMALL = 100 * 100; // px²: chips, icon buttons, the FAB, tab items, day pills
-const DELAY = 50; // ms: like an iOS scroll view, wait a beat so a scroll that starts on a card doesn't flash it
-const MIN_VISIBLE = 90; // ms: a quick tap still shows the press
+const DELAY = 20; // ms: just enough that a scroll starting on a card doesn't flash it; longer reads as lag
+const MIN_VISIBLE = 70; // ms: a quick tap still shows the press
 
 export function installPress() {
   let el: HTMLElement | null = null;

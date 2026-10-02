@@ -89,7 +89,7 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 
 /* the check: the circle fills (spring scale in TaskRow), then the tick draws itself */
 .check svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.check svg path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .25s var(--ease-out) .05s; }
+.check svg path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .2s var(--ease-out); }
 .check.is-checked svg path { stroke-dashoffset: 0; }
 .task.is-done .task__card { background: var(--surface); border-color: transparent; }
 .task__swipe { opacity: var(--pull, 0); }
@@ -108,7 +108,7 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 /* Press feedback (src/lib/press.ts marks [data-pressed]). `scale`, not transform, so it composes with Motion's drag
    and layout transforms. In quickly; out on the snappy spring, which can retarget mid-flight. */
 :where(button, a[href], [role="button"], label) {
-  transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
+  transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .2s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
 }
 [data-pressed] { scale: .97; filter: brightness(.94); transition-duration: var(--press-in), var(--press-in), .15s, .15s, .15s, .15s; transition-timing-function: var(--ease-out); }
 [data-pressed="s"] { scale: .94; }
@@ -120,7 +120,7 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 .tabbar__item[data-pressed] :is(.tabbar__content, .tabbar__pill) { scale: .92; transition-duration: var(--press-in); transition-timing-function: var(--ease-out); }
 :is(.btn--primary, .claim-btn, .toast__action)[data-pressed] { filter: brightness(1.35); }
 /* the row card (pressed via its body button) also eases its done tint in after the tick draws */
-.task__card { transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .3s var(--ease-out) .15s, border-color .3s var(--ease-out) .15s; }
+.task__card { transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .2s var(--ease-out), border-color .2s var(--ease-out); }
 .task__card[data-pressed] { transition-duration: var(--press-in), var(--press-in), .3s, .3s; }
 .check { transition: scale var(--spring-snappy-dur) var(--spring-snappy), background-color .15s, border-color .15s; }
 

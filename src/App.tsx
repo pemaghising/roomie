@@ -122,7 +122,7 @@ function StackView({ entry, above, isTop, canSwipe, onGone, children }: {
   const covered = Boolean(above);
   const leaving = Boolean(entry.leaving);
   const motion = above ? {} : reduced
-    ? { initial: entry.pushed ? { opacity: 0 } : false as const, animate: { opacity: leaving ? 0 : 1 }, transition: { duration: 0.2, ease: EASE_OUT } }
+    ? { initial: entry.pushed ? { opacity: 0 } : false as const, animate: { opacity: leaving ? 0 : 1 }, transition: { duration: 0.15, ease: EASE_OUT } }
     : { animate: { x: leaving ? window.innerWidth : 0 }, transition: SPRING.smooth };
   return (
     <m.div ref={ref} className={`view${covered ? ' view--covered' : ''}${swipe ? ' view--swipe' : ''}${entry.pushed && !covered ? ' view--top-pushed' : ''}`}
@@ -167,7 +167,7 @@ function Tabs() {
       <AnimatePresence initial={false}>
         <m.div key={pathname} className="tab-view"
           initial={{ opacity: 0, x: 8 }}
-          animate={{ opacity: 1, x: 0, transition: { x: SPRING.smooth, opacity: { duration: 0.16, ease: EASE_OUT } } }}
+          animate={{ opacity: 1, x: 0, transition: { x: SPRING.smooth, opacity: { duration: 0.12, ease: EASE_OUT } } }}
           exit={{ opacity: 0, transition: { duration: 0 } }}>
           {/* no fallback: the tab bar stays put and the view fades in once its chunk is ready */}
           <Suspense fallback={null}><Frozen /></Suspense>

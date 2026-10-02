@@ -19,7 +19,7 @@ export function Step({ title, subtitle, step, total, children, footer, back = tr
   const slide = from === undefined ? { initial: false as const } : {
     initial: { opacity: 0, x: step! > from ? 24 : -24 },
     animate: { opacity: 1, x: 0 },
-    transition: { x: SPRING.smooth, opacity: { duration: 0.2, ease: EASE_OUT } },
+    transition: { x: SPRING.smooth, opacity: { duration: 0.15, ease: EASE_OUT } },
   };
   return (
     <main className="screen step">

@@ -2,7 +2,7 @@ import { AnimatePresence, m, type Variants } from 'motion/react';
 import { EASE_OUT, SPRING } from '../../lib/motion';
 
 // null = from wherever it is now: 0 -> 1.15 -> 1 when it appears, 1 -> 1.15 -> 1 when the count goes up
-const pop = { scale: [null, 1.15, 1], transition: { duration: 0.38, times: [0, 0.45, 1], ease: EASE_OUT } };
+const pop = { scale: [null, 1.15, 1], transition: { duration: 0.3, times: [0, 0.45, 1], ease: EASE_OUT } };
 const POP: Variants = { p0: pop, p1: pop };
 // the old count slides out as the new one slides in (up when it grows, down when it shrinks)
 const ROLL: Variants = {

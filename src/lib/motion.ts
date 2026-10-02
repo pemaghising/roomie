@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react';
  * Mirrored for CSS in tokens.css (--spring-snappy, --spring-smooth, --ease-ios, --ease-out).
  */
 export const SPRING = {
-  /** buttons, toggles, segmented controls: damping ratio ~0.78, settles in ~0.4 s, overshoot under 2% (not visible) */
-  snappy: { type: 'spring', stiffness: 500, damping: 35 },
-  /** sheets, navigation, the tab pill: damping ratio ~0.87, settles in ~0.5 s */
-  smooth: { type: 'spring', stiffness: 300, damping: 30 },
+  /** buttons, toggles, segmented controls: damping ratio ~0.79, settles in ~0.25 s, no visible overshoot */
+  snappy: { type: 'spring', stiffness: 700, damping: 42 },
+  /** sheets, navigation, the tab pill: damping ratio ~0.96, settles in ~0.33 s (iOS push feel) */
+  smooth: { type: 'spring', stiffness: 520, damping: 44 },
   /** celebration only (the sprout, the streak, the badge): damping ratio ~0.56, a slight overshoot is the point */
   gentle: { type: 'spring', stiffness: 320, damping: 20 },
 } as const;

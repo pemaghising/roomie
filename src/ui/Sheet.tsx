@@ -25,8 +25,8 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       {open && (
         <m.div key="sheet" className="sheet-backdrop" onClick={onClose}
           // the scrim fades by colour, not opacity, so the sheet itself stays solid while it rises
-          initial={{ backgroundColor: 'rgba(17, 24, 39, 0)' }} animate={{ backgroundColor: SCRIM, transition: { duration: 0.3, ease: EASE_IOS } }}
-          exit={{ backgroundColor: 'rgba(17, 24, 39, 0)', transition: { duration: 0.22, ease: EASE_IOS } }}>
+          initial={{ backgroundColor: 'rgba(17, 24, 39, 0)' }} animate={{ backgroundColor: SCRIM, transition: { duration: 0.22, ease: EASE_IOS } }}
+          exit={{ backgroundColor: 'rgba(17, 24, 39, 0)', transition: { duration: 0.16, ease: EASE_IOS } }}>
           <m.div className="sheet" role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={ref} onClick={(e) => e.stopPropagation()}
             initial={{ y: '100%' }}
             animate={{ y: 0, transition: SPRING.smooth }}
