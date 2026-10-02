@@ -1,7 +1,7 @@
 .plan h1 { margin: 6px 0 4px; }
 .person { margin-top: 22px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-l); }
 .person__head { display: flex; align-items: center; gap: 10px; }
-.person__pts { margin-left: auto; font-weight: 600; color: var(--muted); }
+.person__pts { margin-left: auto; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
 .person__ok { color: var(--light-ink); }
 .person__list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
 .person__list li { display: grid; grid-template-columns: 36px 24px 1fr auto; align-items: center; gap: 8px; }
@@ -18,4 +18,4 @@
 .swap-opt.is-on { border-color: var(--lav-ink); background: var(--lav); }
 .swap-opt__name { flex: 1; display: grid; font-weight: 600; }
 .swap-opt__name small { font-weight: 400; }
-.swap__delta { padding: 12px 14px; border-radius: 14px; background: var(--surface); font-weight: 600; }
+.swap__delta { padding: 12px 14px; border-radius: var(--radius-s); background: var(--surface); font-weight: 600; }

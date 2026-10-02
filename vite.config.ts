@@ -18,7 +18,8 @@ export default defineConfig(({ mode }) => ({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
-      injectManifest: { globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'] },
+      // launch images are fetched by iOS once, at Add to Home Screen; they don't belong in every install's precache
+      injectManifest: { globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'], globIgnores: ['**/apple-splash-*.png'] },
       manifest: {
         name: 'Roomie',
         short_name: 'Roomie',

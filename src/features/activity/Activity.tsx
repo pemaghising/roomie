@@ -1,8 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
-import { useEffect } from 'react';
+import { AnimatePresence, m } from 'motion/react';
+import { type CSSProperties, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { namesOf } from '../../lib/selectors';
+import { SPRING, useFirstMount } from '../../lib/motion';
+import { isUnread, namesOf } from '../../lib/selectors';
 import { rpc, STATE_KEY, useMe } from '../../lib/state';
 import { EmptyState } from '../../ui/EmptyState';
 import { activityText } from './text';
@@ -22,6 +24,9 @@ export default function Activity() {
   const qc = useQueryClient();
   const names = namesOf(state);
   const tz = state.household!.tz;
+  const unread = isUnread(state, me); // live: once mark-seen lands, the dots fade out
+  const stagger = useFirstMount('activity');
+  let n = 0;
 
   useEffect(() => {
     rpc('mark_activity_seen').then(() => qc.invalidateQueries({ queryKey: STATE_KEY })).catch(() => {});
@@ -42,14 +47,19 @@ export default function Activity() {
         <section key={label} className="feed" aria-label={label}>
           <p className="eyebrow">{label}</p>
           <ul>
+            <AnimatePresence initial={false}>
             {items.map((item) => (
-              <li key={item.id}>
-                <span>{activityText(item, names, me)}</span>
+              // stagger once on open; items arriving live slide in at the top and the rest glide down
+              <m.li key={item.id} layout="position" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={SPRING.smooth}
+                className={stagger ? 'stagger' : undefined} style={stagger ? ({ '--i': n++ } as CSSProperties) : undefined}>
+                <span className={`feed__dot${unread(item) ? ' is-on' : ''}`} aria-hidden />
+                <span className="feed__text">{unread(item) && <span className="sr-only">New: </span>}{activityText(item, names, me)}</span>
                 <time className="muted" dateTime={item.created_at}>
                   {new Date(item.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: tz })}
                 </time>
-              </li>
+              </m.li>
             ))}
+            </AnimatePresence>
           </ul>
         </section>
       ))}

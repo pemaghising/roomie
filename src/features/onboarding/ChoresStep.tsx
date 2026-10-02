@@ -1,4 +1,5 @@
-import { Plus } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
+import { haptic } from '../../lib/haptics';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { effortLabel } from '@domain/copy.ts';
@@ -29,8 +30,8 @@ export default function ChoresStep() {
       footer={<Button block disabled={!chores.some((c) => c.selected)} onClick={() => navigate('/onboarding/busy')}>Continue</Button>}>
       {chores.map((c) => (
         <div key={c.key} className={`pick${c.selected ? ' is-on' : ''}`}>
-          <label style={{ display: 'contents' }}>
-            <input type="checkbox" checked={c.selected} onChange={() => patch(c.key, { selected: !c.selected })} aria-label={c.name} />
+          <label style={{ display: 'contents' }} data-press-target=".pick">
+            <input type="checkbox" checked={c.selected} onChange={() => { haptic(); patch(c.key, { selected: !c.selected }); }} aria-label={c.name} />
             <span aria-hidden>{c.icon}</span>
             <span className="pick__name">{c.name}</span>
           </label>
@@ -38,7 +39,7 @@ export default function ChoresStep() {
             aria-label={`${c.name} effort: ${effortLabel(c.effort)}`}>
             <EffortChip effort={c.effort} />
           </button>
-          <span className="pick__tick" aria-hidden>{c.selected ? '✓' : ''}</span>
+          <span className="pick__tick" aria-hidden>{c.selected && <Check size={16} />}</span>
         </div>
       ))}
       {adding ? (

@@ -4,8 +4,7 @@ import { STATE_KEY, useAction } from '../../lib/state';
 import { myTasksOn } from '../../lib/selectors';
 import type { AppState, Assignment } from '../../lib/types';
 import { useToast } from '../../ui/Toast';
-
-const buzz = () => navigator.vibrate?.(10);
+import { haptic } from '../../lib/haptics';
 
 export function useChoreActions() {
   const qc = useQueryClient();
@@ -36,7 +35,7 @@ export function useChoreActions() {
 
   const complete = (a: Assignment) => {
     if (a.status === 'done') return;
-    buzz();
+    haptic('success');
     const s = qc.getQueryData<AppState>(STATE_KEY);
     const me = s?.profile.id;
     let kind: 'all_done' | 'covered' | null = null;
@@ -52,7 +51,7 @@ export function useChoreActions() {
   const claim = (a: Assignment) => {
     const me = qc.getQueryData<AppState>(STATE_KEY)?.profile.id;
     if (!me) return;
-    buzz();
+    haptic();
     claimAction.mutate({ p_id: a.id, me });
   };
 

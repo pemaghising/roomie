@@ -56,5 +56,8 @@ export const pendingDraft = (s: AppState): Plan | undefined =>
 export const incomingSwaps = (s: AppState, me: string): SwapRequest[] => s.swaps.filter((w) => w.to_user === me);
 export const outgoingSwaps = (s: AppState, me: string): SwapRequest[] => s.swaps.filter((w) => w.from_user === me);
 
-export const unreadCount = (s: AppState, me: string): number =>
-  s.activity.filter((x) => x.created_at > s.profile.activity_seen_at && x.actor !== me).length;
+/** New since I last opened Activity, and not something I did myself. */
+export const isUnread = (s: AppState, me: string) => (x: AppState['activity'][number]) =>
+  x.created_at > s.profile.activity_seen_at && x.actor !== me;
+
+export const unreadCount = (s: AppState, me: string): number => s.activity.filter(isUnread(s, me)).length;

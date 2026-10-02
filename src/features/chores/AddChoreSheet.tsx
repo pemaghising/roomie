@@ -1,4 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { m } from 'motion/react';
+import { SPRING } from '../../lib/motion';
 import { type FormEvent, useState } from 'react';
 import { errorText } from '@domain/copy.ts';
 import type { Cadence, Effort } from '@domain/types.ts';
@@ -60,7 +62,7 @@ export function AddChoreSheet({ open, onClose }: { open: boolean; onClose: () =>
         <p className="eyebrow">Rotation</p>
         <div className="seg" role="radiogroup" aria-label="How often">
           {CADENCES.map((c) => (
-            <button key={c.value} type="button" role="radio" aria-checked={cadence === c.value} className={`seg__opt${cadence === c.value ? ' is-on' : ''}`} onClick={() => setCadence(c.value)}>{c.label}</button>
+            <button key={c.value} type="button" role="radio" aria-checked={cadence === c.value} className={`seg__opt${cadence === c.value ? ' is-on' : ''}`} onClick={() => setCadence(c.value)}>{cadence === c.value && <m.span layoutId="seg-cadence" className="seg__pill" transition={SPRING.snappy} aria-hidden />}{c.label}</button>
           ))}
         </div>
         <p className="muted add-chore__note">Roomie assigns it fairly — heavy chores never land on someone's busy day.</p>

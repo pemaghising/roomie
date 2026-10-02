@@ -1,7 +1,6 @@
 import { CalendarDays, Plus } from 'lucide-react';
-import { LayoutGroup } from 'motion/react';
+import { LayoutGroup, m } from 'motion/react';
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf, weekStartOf } from '@domain/time.ts';
 import { choreMap, myTasksOn, namesOf, pendingDraft, pool, weekDates } from '../../lib/selectors';
@@ -12,7 +11,8 @@ import { EmptyState } from '../../ui/EmptyState';
 import { Sheet } from '../../ui/Sheet';
 import { TaskRow } from '../../ui/TaskRow';
 import { Button } from '../../ui/Button';
-import { useFirstMount } from '../../lib/motion';
+import { SPRING, useFirstMount } from '../../lib/motion';
+import { haptic } from '../../lib/haptics';
 import { AddChoreSheet } from './AddChoreSheet';
 import { Celebration } from './Celebration';
 import { useChoreActions } from './useChoreActions';
@@ -20,7 +20,7 @@ import { WhySheet } from './WhySheet';
 import './chores.css';
 
 type Tab = 'today' | 'week' | 'all';
-const CADENCE: Record<string, string> = { daily: 'Daily', weekly: 'Weekly', biweekly: 'Every 2 weeks' };
+const CADENCE: Record<string, string> = { daily: 'Daily', weekly: 'Weekly', biweekly: 'Bi-weekly' };
 
 export default function Chores() {
   const { me, state } = useMe();
@@ -59,12 +59,12 @@ export default function Chores() {
       <h1>To-do</h1>
       <div className="seg seg--tabs" role="tablist" aria-label="Chores view">
         {([['today', 'Today'], ['week', 'This week'], ['all', 'All chores']] as const).map(([value, label]) => (
-          <button key={value} role="tab" aria-selected={tab === value} className={`seg__opt${tab === value ? ' is-on' : ''}`} onClick={() => setTab(value)}>{label}</button>
+          <button key={value} role="tab" aria-selected={tab === value} className={`seg__opt${tab === value ? ' is-on' : ''}`} onClick={() => setTab(value)}>{tab === value && <m.span layoutId="seg-chores" className="seg__pill" transition={SPRING.snappy} aria-hidden />}{label}</button>
         ))}
       </div>
 
       {draft && !draft.approved_by.includes(me) && (
-        <Link to="/plan" className="banner banner--plan">Next week's plan is ready — review it</Link>
+        <Link to="/plan" className="banner banner--plan">Next week's plan is ready — take a look</Link>
       )}
 
       <LayoutGroup id="chores">
@@ -114,15 +114,14 @@ export default function Chores() {
         </ul>
       )}
 
-      {/* portaled: the route crossfade transforms the page, which would otherwise re-anchor this fixed button */}
-      {createPortal(<button className="fab" onClick={() => setAdding(true)} aria-label="Add chore"><Plus size={26} aria-hidden /></button>, document.body)}
+      <button className="fab" onClick={() => setAdding(true)} aria-label="Add chore"><Plus size={26} aria-hidden /></button>
       <AddChoreSheet open={adding} onClose={() => setAdding(false)} />
       <Sheet open={Boolean(editing)} onClose={closeEditing} title={editing?.name ?? ''}>
         {editing && (
           <div className="why">
             <EffortChip effort={editing.effort} size="md" />
             <p className="muted">{CADENCE[editing.cadence]} · shared fairly by effort.</p>
-            <Button variant="danger" block disabled={archive.isPending} onClick={() => { if (!confirmRemove) return setConfirmRemove(true); archive.mutate({ p_id: editing.id }); closeEditing(); }}>{confirmRemove ? 'Remove for everyone?' : 'Remove chore'}</Button>
+            <Button variant="danger" block disabled={archive.isPending} onClick={() => { if (!confirmRemove) return setConfirmRemove(true); haptic('warning'); archive.mutate({ p_id: editing.id }); closeEditing(); }}>{confirmRemove ? 'Remove for everyone?' : 'Remove chore'}</Button>
           </div>
         )}
       </Sheet>

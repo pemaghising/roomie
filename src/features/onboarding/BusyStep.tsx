@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { haptic } from '../../lib/haptics';
 import { useNavigate } from 'react-router';
 import { errorText } from '@domain/copy.ts';
 import { DAY_NAMES, type Weekday } from '@domain/time.ts';
@@ -19,8 +20,10 @@ export default function BusyStep() {
   const [busy, setBusy] = useState(false);
   const isJoin = draft.mode === 'join';
 
-  const toggle = (d: Weekday) =>
+  const toggle = (d: Weekday) => {
+    haptic();
     update({ busyDays: draft.busyDays.includes(d) ? draft.busyDays.filter((x) => x !== d) : [...draft.busyDays, d].sort() as Weekday[] });
+  };
 
   const finish = async () => {
     setBusy(true);

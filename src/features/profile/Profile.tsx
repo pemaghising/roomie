@@ -1,5 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight, Lock } from 'lucide-react';
+import { m } from 'motion/react';
+import { SPRING } from '../../lib/motion';
+import { haptic } from '../../lib/haptics';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { balanceSentence, errorText, nudge } from '@domain/copy.ts';
@@ -48,11 +51,13 @@ export default function Profile() {
   });
 
   const toggleDay = (d: Weekday) => {
+    haptic();
     const days = self.busy_days.includes(d) ? self.busy_days.filter((x) => x !== d) : [...self.busy_days, d].sort((a, b) => a - b);
     setBusy.mutate({ p_days: days }, { onSuccess: () => toast.show("Saved — applies from next week's plan.") });
   };
   const leave = async () => {
     if (leaveBusy) return;
+    haptic('warning');
     setLeaveBusy(true);
     try {
       await rpc('leave_household');
@@ -106,7 +111,8 @@ export default function Profile() {
             const on = state.profile.nudge_style === s.value;
             return (
               <button key={s.value} type="button" role="radio" aria-checked={on} aria-label={`${s.title}: ${s.body}`}
-                className={`style-card${on ? ' is-on' : ''}`} onClick={() => setNudge.mutate({ p_nudge: s.value })}>
+                className={`style-card${on ? ' is-on' : ''}`} onClick={() => { haptic(); setNudge.mutate({ p_nudge: s.value }); }}>
+                {on && <m.span layoutId="ring-nudge" className="style-card__ring" transition={SPRING.snappy} aria-hidden />}
                 <strong>{s.title}</strong>
                 <span className="muted">{s.body}</span>
                 <span className="style-card__preview">“{nudge('pool', s.value, { chore: 'Bathroom' }).body}”</span>
@@ -163,7 +169,7 @@ export default function Profile() {
         <p className="muted">Their upcoming chores go to “Missed by roommates” so anyone can claim them.</p>
         <div className="sheet-actions">
           <Button variant="ghost" onClick={() => setRemoving(null)}>Cancel</Button>
-          <Button variant="danger" disabled={remove.isPending} onClick={() => { remove.mutate({ p_user: removing!.user_id }); setRemoving(null); }}>Remove</Button>
+          <Button variant="danger" disabled={remove.isPending} onClick={() => { haptic('warning'); remove.mutate({ p_user: removing!.user_id }); setRemoving(null); }}>Remove</Button>
         </div>
       </Sheet>
 

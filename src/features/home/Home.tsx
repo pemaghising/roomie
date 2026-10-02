@@ -1,5 +1,5 @@
 import { Bell, CalendarDays, Repeat } from 'lucide-react';
-import { LayoutGroup } from 'motion/react';
+import { LayoutGroup, m, type Variants } from 'motion/react';
 import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf } from '@domain/time.ts';
@@ -8,7 +8,7 @@ import { useMe } from '../../lib/state';
 import type { Assignment } from '../../lib/types';
 import { Avatar } from '../../ui/Avatar';
 import { EmptyState } from '../../ui/EmptyState';
-import { useFirstMount } from '../../lib/motion';
+import { EASE_OUT, useFirstMount } from '../../lib/motion';
 import { Sprout } from '../../ui/Sprout';
 import { TaskRow } from '../../ui/TaskRow';
 import { useChoreActions } from '../chores/useChoreActions';
@@ -17,12 +17,31 @@ import '../chores/chores.css'; // .section and the sheet styles Home uses; the s
 import './home.css';
 
 const Celebration = lazy(() => import('../chores/Celebration').then((m) => ({ default: m.Celebration })));
+const Badge = lazy(() => import('./Badge'));
 const WhySheet = lazy(() => import('../chores/WhySheet').then((m) => ({ default: m.WhySheet })));
 
 const greeting = () => {
   const h = new Date().getHours();
   return h < 12 ? 'Good morning ✨' : h < 17 ? 'Good afternoon ☀️' : 'Good evening 🌙';
 };
+
+// a damped swing from the top, ~600 ms, once per new item; never loops
+const swing = { rotate: [0, 12, -9, 5, -2, 0], transition: { duration: 0.6, ease: EASE_OUT } };
+const SWING: Variants = { s0: swing, s1: swing };
+
+/** Unread badge + bell: the badge pops in, its number rolls, and the bell swings once when something new arrives. */
+function ActivityBell({ unread }: { unread: number }) {
+  const [seen, setSeen] = useState({ n: unread, bump: 0, dir: 1 });
+  if (seen.n !== unread) setSeen({ n: unread, bump: unread > seen.n ? seen.bump + 1 : seen.bump, dir: unread > seen.n ? 1 : -1 });
+  return (
+    <Link to="/activity" className="icon-btn home__bell" aria-label={unread ? `Activity, ${unread} new` : 'Activity'}>
+      <m.span className="home__bell-icon" style={{ originY: 0.1 }} initial={false} variants={SWING} animate={`s${seen.bump % 2}`}>
+        <Bell size={20} aria-hidden />
+      </m.span>
+      <Suspense fallback={null}><Badge unread={unread} bump={seen.bump} dir={seen.dir} /></Suspense>
+    </Link>
+  );
+}
 
 export default function Home() {
   const { me, state } = useMe();
@@ -46,9 +65,7 @@ export default function Home() {
           <p className="muted">{greeting()}</p>
           <h1>Hello, {first}.</h1>
         </div>
-        <Link to="/activity" className="icon-btn home__bell" aria-label={unread ? `Activity, ${unread} new` : 'Activity'}>
-          <Bell size={20} aria-hidden />{unread > 0 && <span className="dot" aria-hidden />}
-        </Link>
+        <ActivityBell unread={unread} />
       </header>
 
       <section className="streak" aria-label="Household streak">

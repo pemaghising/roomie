@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "splash": "node scripts/splash.mjs",
     "icons": "pwa-assets-generator --preset minimal-2023 public/roomie-icon.svg",
     "db:push": "supabase db push",
     "test:e2e": "playwright test"

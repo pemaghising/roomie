@@ -1,17 +1,19 @@
 .home__header { display: flex; justify-content: space-between; align-items: flex-start; }
 .home__header h1 { font-size: 34px; margin-top: 4px; }
 .home__bell { position: relative; text-decoration: none; color: var(--ink); }
-.dot { position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: #f97316; border: 2px solid var(--surface); }
+.home__bell-icon { display: grid; }
+.badge { position: absolute; top: 2px; right: 0; min-width: 19px; height: 19px; padding: 0 5px; border-radius: var(--radius-pill); background: var(--alert); color: #fff; border: 2px solid var(--bg); font: 700 11px/15px var(--font-ui); display: grid; overflow: hidden; }
+.badge__n { grid-area: 1 / 1; text-align: center; }
 .streak { margin-top: 22px; display: flex; justify-content: space-between; align-items: center; padding: 22px 24px; border-radius: var(--radius-l); background: linear-gradient(135deg, #e9d5ff, #c4b5fd); color: #3b2370; }
 .streak__label { font: 700 12px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
 .streak__value { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; font-weight: 600; }
-.streak__num { font: 700 56px/1 var(--font-display); }
+.streak__num { font: 700 56px/1 var(--font-display); font-variant-numeric: lining-nums tabular-nums; }
 .streak__sub { font-size: 13px; opacity: .8; margin-top: 4px; }
 .mates { list-style: none; margin: 16px -20px 0; padding: 0 20px 4px; display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; }
 .mate { flex: 0 0 31%; min-width: 104px; scroll-snap-align: start; display: grid; justify-items: center; gap: 4px; padding: 14px 8px; border-radius: var(--radius-m); font-size: 13px; color: var(--ink-2); }
 .mate strong { font-size: 15px; color: var(--ink); }
+.mate span { font-variant-numeric: tabular-nums; }
 .banner { display: flex; gap: 8px; align-items: center; margin-top: 18px; padding: 14px 16px; border-radius: var(--radius-m); text-decoration: none; font-weight: 600; min-height: var(--tap); }
-.banner:focus-visible, .home__bell:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .banner--plan { background: var(--lav); color: var(--lav-ink); }
 .banner--pool { background: #fff7ed; color: var(--heavy-ink); }
 .next-up { margin-top: 18px; display: flex; gap: 12px; align-items: center; padding: 16px; border-radius: var(--radius-m); background: #fff7ed; }

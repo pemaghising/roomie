@@ -1,5 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { m } from 'motion/react';
+import { SPRING } from '../../lib/motion';
+import { haptic } from '../../lib/haptics';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { errorText } from '@domain/copy.ts';
@@ -41,6 +44,7 @@ export default function HouseholdSettings() {
   const rotate = async () => {
     if (rotating) return;
     if (!confirmRotate) { setConfirmRotate(true); return; }
+    haptic('warning');
     setRotating(true);
     try {
       await rpc('rotate_invite_code');
@@ -67,12 +71,13 @@ export default function HouseholdSettings() {
       <section className="section" aria-label="Weekly plan">
         <h2>Weekly plan</h2>
         <div role="radiogroup" aria-label="Weekly plan" className="styles">
-          {MODES.map((m) => {
-            const on = h.plan_mode === m.value;
+          {MODES.map((mode) => {
+            const on = h.plan_mode === mode.value;
             return (
-              <button key={m.value} type="button" role="radio" aria-checked={on} aria-label={`${m.title}: ${m.body}`}
-                className={`style-card${on ? ' is-on' : ''}`} onClick={() => update.mutate({ p_plan_mode: m.value })}>
-                <strong>{m.title}</strong><span className="muted">{m.body}</span>
+              <button key={mode.value} type="button" role="radio" aria-checked={on} aria-label={`${mode.title}: ${mode.body}`}
+                className={`style-card${on ? ' is-on' : ''}`} onClick={() => { haptic(); update.mutate({ p_plan_mode: mode.value }); }}>
+                {on && <m.span layoutId="ring-plan-mode" className="style-card__ring" transition={SPRING.snappy} aria-hidden />}
+                <strong>{mode.title}</strong><span className="muted">{mode.body}</span>
               </button>
             );
           })}

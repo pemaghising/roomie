@@ -8,7 +8,7 @@ import { Sprout } from '../../ui/Sprout';
 type Kind = 'all_done' | 'covered';
 const COPY = {
   all_done: { title: 'Wonderful job.', body: "That's everything for today. The house noticed." },
-  covered: { title: 'Thanks for covering.', body: 'You took one off a roommate’s plate — it evens out next week.' },
+  covered: { title: 'Thanks for covering.', body: "You took one off a roommate's plate — it evens out next week." },
 };
 
 /**

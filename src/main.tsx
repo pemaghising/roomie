@@ -12,10 +12,9 @@ import { persister, queryClient } from './lib/queryClient';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { ToastProvider } from './ui/Toast';
 import { loadMotionFeatures } from './lib/motion';
-import { installPress } from './lib/press';
 
 registerSW({ immediate: true });
-installPress();
+void import('./lib/press').then((m) => m.installPress()); // its own tiny chunk: not needed for first paint
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

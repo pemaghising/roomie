@@ -1,4 +1,6 @@
 import { ArrowLeft, Check } from 'lucide-react';
+import { m } from 'motion/react';
+import { SPRING } from '../../lib/motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { addDays, DAY_NAMES, weekdayOf, weekStartOf } from '@domain/time.ts';
@@ -72,7 +74,7 @@ export default function PlanReview() {
         <div className="seg seg--tabs" role="tablist" aria-label="Which week">
           {([[current, 'This week'], [next, 'Next week']] as const).map(([p, label]) => (
             <button key={p.id} role="tab" aria-selected={plan.id === p.id} className={`seg__opt${plan.id === p.id ? ' is-on' : ''}`}
-              onClick={() => setWeek(p.week_start)}>{label}</button>
+              onClick={() => setWeek(p.week_start)}>{plan.id === p.id && <m.span layoutId="seg-week" className="seg__pill" transition={SPRING.snappy} aria-hidden />}{label}</button>
           ))}
         </div>
       )}
