@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { errorText } from '@domain/copy.ts';
 import { rpc, RpcError, STATE_KEY, useAction, useMe } from '../../lib/state';
@@ -23,6 +23,8 @@ export default function HouseholdSettings() {
   const isOwner = state.members.find((m) => m.user_id === me)?.role === 'owner';
   const [name, setName] = useState(h.name);
   const [confirmRotate, setConfirmRotate] = useState(false);
+  // iOS doesn't focus tapped buttons, so blur alone can't disarm: also disarm after 4s
+  useEffect(() => { if (!confirmRotate) return; const t = setTimeout(() => setConfirmRotate(false), 4000); return () => clearTimeout(t); }, [confirmRotate]);
   const [rotating, setRotating] = useState(false);
   const update = useAction<{ p_name?: string; p_plan_mode?: 'review' | 'auto'; p_day_ends_at?: string }>('update_household', {
     optimistic: (s, a) => ({
