@@ -21,6 +21,7 @@ import PlanReview from './features/plan/PlanReview';
 import Profile from './features/profile/Profile';
 import HouseholdSettings from './features/profile/HouseholdSettings';
 import Activity from './features/activity/Activity';
+import { OfflineBanner } from './ui/OfflineBanner';
 
 function useGate(): Gate {
   const auth = useAuth();
@@ -40,7 +41,7 @@ function Guard({ allow, children }: { allow: Gate[]; children: ReactNode }) {
 function Root() {
   const { data } = useAppState();
   useRealtime(data?.household?.id);
-  return <Outlet />;
+  return (<><OfflineBanner /><Outlet /></>);
 }
 
 function Tabs() {

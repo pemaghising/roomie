@@ -12,6 +12,7 @@ import { TaskRow } from '../../ui/TaskRow';
 import { Celebration } from '../chores/Celebration';
 import { useChoreActions } from '../chores/useChoreActions';
 import { WhySheet } from '../chores/WhySheet';
+import { InstallPrimer } from '../primer/InstallPrimer';
 import './home.css';
 
 const greeting = () => {
@@ -62,6 +63,7 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <InstallPrimer />
 
       {draft && !draft.approved_by.includes(me) && (
         <Link to="/plan" className="banner banner--plan"><CalendarDays size={18} aria-hidden /> Next week's plan is ready — take a look</Link>

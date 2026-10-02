@@ -69,3 +69,5 @@
 .check::after { content: ''; position: absolute; inset: 0; margin: auto; width: 8px; height: 14px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg) translate(-1px, -2px) scale(0); transition: transform .25s var(--ease); }
 .check.is-checked { background: var(--navy); border-color: var(--navy); }
 .check.is-checked::after { transform: rotate(45deg) translate(-1px, -2px) scale(1); }
+
+.offline { position: fixed; top: calc(var(--safe-top) + 8px); left: 50%; transform: translateX(-50%); z-index: 70; padding: 8px 14px; border-radius: var(--radius-pill); background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-card); }
