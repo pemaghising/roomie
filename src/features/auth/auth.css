@@ -4,9 +4,9 @@
 .auth__lede { font-size: 17px; max-width: 32ch; }
 .auth__actions { display: grid; gap: 10px; }
 .auth__fine { text-align: center; font-size: 13px; margin-top: 6px; }
-.auth__form { display: grid; gap: 16px; margin-top: 24px; }
+.auth__form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 24px; } /* minmax(0): the phone input's intrinsic width must not widen the column on 320px screens */
 .icon-btn { width: var(--tap); height: var(--tap); display: grid; place-items: center; border-radius: 50%; border: 0; background: var(--surface); cursor: pointer; }
-.field { display: grid; gap: 6px; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
 .field__label { font-weight: 600; font-size: 14px; }
 .field__control { display: flex; align-items: center; gap: 8px; min-height: 54px; padding: 0 16px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line); }
 .field__control:focus-within { border-color: var(--lav-3); box-shadow: 0 0 0 3px var(--lav); }
