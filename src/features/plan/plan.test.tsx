@@ -1,13 +1,15 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { fixture, renderWithState } from '../../test-utils';
 import type { AppState } from '../../lib/types';
 import PlanReview from './PlanReview';
 
 const db = vi.hoisted(() => ({ rpc: vi.fn(async () => ({ data: null, error: null })) }));
 vi.mock('../../lib/supabase', () => ({ supabase: db }));
-beforeEach(() => vi.clearAllMocks());
+// freeze only Date: the fixture's draft locks 2026-10-04, so the lock copy must not depend on the real clock
+beforeEach(() => { vi.clearAllMocks(); vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-01T09:15:00Z')); });
+afterEach(() => vi.useRealTimers());
 
 const withDraft = (): AppState => {
   const s = fixture();
