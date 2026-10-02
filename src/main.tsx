@@ -1,3 +1,4 @@
+import './styles/fonts.css'; // self-hosted fonts (see file)
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';

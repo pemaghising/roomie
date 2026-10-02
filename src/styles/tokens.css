@@ -1,6 +1,6 @@
 :root {
   --font-display: 'Playfair Display', Georgia, serif;
-  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
 
   --ink: #111827;
   --ink-2: #374151;
