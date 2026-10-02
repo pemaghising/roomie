@@ -25,7 +25,7 @@ export default function ChoresStep() {
   };
 
   return (
-    <Step title="Let's set up your chores." subtitle="We've suggested a few basics. Tap to keep or remove; tap the chip to set effort." step={2} total={4}
+    <Step title="Let's set up your chores." subtitle="We've suggested a few basics. Tap to keep or remove; tap the chip to set effort." step={3} total={5}
       footer={<Button block disabled={!chores.some((c) => c.selected)} onClick={() => navigate('/onboarding/busy')}>Continue</Button>}>
       {chores.map((c) => (
         <div key={c.key} className={`pick${c.selected ? ' is-on' : ''}`}>

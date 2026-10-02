@@ -1,9 +1,11 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test, vi } from 'vitest';
+import { Route, Routes } from 'react-router';
 import { renderWithState } from '../../test-utils';
 import BusyStep from './BusyStep';
 import ChoresStep from './ChoresStep';
+import HomeNameStep from './HomeNameStep';
 import JoinStep from './JoinStep';
 import { loadDraft, saveDraft } from './draft';
 
@@ -65,4 +67,16 @@ test('busy step (join) with an unknown code says so', async () => {
   renderWithState(<BusyStep />, { route: '/onboarding/busy' });
   await userEvent.click(screen.getByRole('button', { name: /continue/i }));
   expect(await screen.findByText(/doesn't match a household/i)).toBeInTheDocument();
+});
+
+test('name-your-home: entering a 6-character code switches to join mode and calls join_household', async () => {
+  renderWithState(
+    <Routes><Route path="home" element={<HomeNameStep />} /><Route path="busy" element={<BusyStep />} /></Routes>,
+    { route: '/onboarding/home', path: '/onboarding/*' },
+  );
+  expect(screen.getByLabelText('Home name')).toBeInTheDocument();
+  await userEvent.type(screen.getByLabelText('Household code'), 'abc123');
+  expect(loadDraft()).toMatchObject({ mode: 'join', code: 'ABC123' });
+  await userEvent.click(await screen.findByRole('button', { name: /continue/i }));
+  await waitFor(() => expect(api.rpc).toHaveBeenCalledWith('join_household', { p_code: 'ABC123', p_busy: [] }));
 });

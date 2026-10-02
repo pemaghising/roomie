@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -48,8 +49,8 @@ export default function BusyStep() {
   };
 
   return (
-    <Step title="Which days are you busiest?" subtitle="We won't assign you heavy tasks on these days."
-      step={isJoin ? 2 : 3} total={isJoin ? 2 : 4}
+    <Step title="Which days are you busiest?" subtitle={<>Help your roommates coordinate chores around your busiest days.<br /><small>We won't give you heavy chores on these days.</small></>}
+      step={isJoin ? 2 : 4} total={isJoin ? 2 : 5}
       footer={<Button block loading={busy} onClick={finish}>Continue</Button>}>
       {DAY_NAMES.map((name, i) => {
         const d = i as Weekday;
@@ -57,7 +58,7 @@ export default function BusyStep() {
         return (
           <label key={name} className={`day-pick${on ? ' is-on' : ''}`}>
             <input type="checkbox" checked={on} onChange={() => toggle(d)} aria-label={name} />
-            <span>{name}</span>{on && <span aria-hidden>✓</span>}
+            <span>{name}</span>{on && <Check size={18} aria-hidden />}
           </label>
         );
       })}

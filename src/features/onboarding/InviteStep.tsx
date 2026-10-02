@@ -1,4 +1,3 @@
-import { Copy, Share2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useMe } from '../../lib/state';
 import { Button } from '../../ui/Button';
@@ -20,15 +19,19 @@ export default function InviteStep() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
   };
   const copy = async () => {
-    try { await navigator.clipboard.writeText(link); toast.show('Invite link copied.'); }
+    try { await navigator.clipboard.writeText(code); toast.show('Code copied.'); }
     catch { toast.show("Couldn't copy — long-press the code instead."); }
   };
 
+  // no back button: /onboarding/busy would run create_household a second time
   return (
-    <Step title="Invite your roommates" subtitle="Share this code. Everyone who joins is part of next week's plan." step={4} total={4} back={false}
-      footer={<><Button block onClick={share}><Share2 size={18} aria-hidden /> Share invite</Button><Button block variant="ghost" onClick={() => navigate('/', { replace: true })}>Done</Button></>}>
-      <div className="code-big" aria-label={`Household code ${code.split('').join(' ')}`}>{code}</div>
-      <Button variant="secondary" onClick={copy}><Copy size={16} aria-hidden /> Copy link</Button>
+    <Step title="Invite your roommates." subtitle="Share this code with your housemates." step={5} total={5} back={false} bodyClass="step__body--center"
+      footer={<><Button block onClick={share}>Share Code</Button><Button block variant="ghost" onClick={() => navigate('/', { replace: true })}>I'll invite them later</Button></>}>
+      <button type="button" className="invite-card" onClick={copy} aria-label={`Household code ${code.split('').join(' ')}. Tap to copy.`}>
+        <span className="invite-card__label">HOUSEHOLD CODE</span>
+        <span className="code-big" aria-hidden>{code.slice(0, 3)} {code.slice(3)}</span>
+        <span className="invite-card__hint">Roommates can enter this code during onboarding to step right into your shared home.</span>
+      </button>
     </Step>
   );
 }

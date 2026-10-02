@@ -35,24 +35,24 @@ test('two roommates: create, join, miss, claim, cover — and the ledger stays p
   const aUserId = await newUser(aarav, 'aarav');
   await aarav.getByLabel('Your name').fill('Aarav');
   await aarav.getByRole('button', { name: 'Continue' }).click();
-  await aarav.getByRole('button', { name: /create a home/i }).click();
+  await aarav.getByRole('button', { name: /create a new home/i }).click();
   await aarav.getByLabel('Home name').fill('E2E Flat');
   await aarav.getByRole('button', { name: 'Continue' }).click();
   await aarav.getByRole('button', { name: 'Continue' }).click(); // keep the suggested chores
   await aarav.getByRole('checkbox', { name: 'Monday' }).check({ force: true }); // the real input is visually hidden under the pill
   await aarav.getByRole('button', { name: 'Continue' }).click();
-  const code = (await aarav.locator('.code-big').textContent())!.trim();
+  const code = (await aarav.locator('.code-big').textContent())!.replace(/\s/g, '');
   expect(code).toMatch(/^[A-Z0-9]{6}$/);
   const { data: hh } = await admin().from('households').select('id').eq('invite_code', code).single();
   householdId = hh!.id;
-  await aarav.getByRole('button', { name: 'Done' }).click();
+  await aarav.getByRole('button', { name: "I'll invite them later" }).click();
   await expect(aarav.getByRole('heading', { name: 'Hello, Aarav.' })).toBeVisible();
 
   // Priya joins with the code (typed messily on purpose)
   await newUser(priya, 'priya');
   await priya.getByLabel('Your name').fill('Priya');
   await priya.getByRole('button', { name: 'Continue' }).click();
-  await priya.getByRole('button', { name: /join with a code/i }).click();
+  await priya.getByRole('button', { name: /join an existing home/i }).click();
   await priya.getByLabel('Household code').fill(code.toLowerCase());
   await priya.getByRole('button', { name: 'Continue' }).click();
   await priya.getByRole('button', { name: 'Continue' }).click();
