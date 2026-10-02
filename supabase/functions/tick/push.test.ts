@@ -36,11 +36,22 @@ test('quiet hours leave the notification queued', async () => {
 });
 
 test('the daily cap counts pushes sent within the same batch', async () => {
-  const { client, calls } = db([note(1, { sentToday: 2 }), note(2, { sentToday: 2 }), note(3, { sentToday: 2, kind: 'covered', payload: { actor: 'A', chore: 'X', effort: 1 } })]);
+  // digests rather than pool: pool is exempt from the cap (see the next test)
+  const digest = { kind: 'digest', payload: { chores: ['Bins'] } };
+  const { client, calls } = db([note(1, { sentToday: 2, ...digest }), note(2, { sentToday: 2, ...digest }), note(3, { sentToday: 2, kind: 'covered', payload: { actor: 'A', chore: 'X', effort: 1 } })]);
   const send = vi.fn(async () => ({ gone: false }));
   await drainNotifications(client, send, NOON);
   expect(send).toHaveBeenCalledTimes(2); // #1 and the 'covered' one
   expect(calls).toContainEqual({ fn: 'srv_mark_notification', args: { p_id: 2, p_skipped: true } });
+});
+
+test('a pool push neither uses up nor is blocked by the daily cap, so the morning digest still goes out', async () => {
+  const digest = { kind: 'digest', payload: { chores: ['Bins'] } };
+  const { client, calls } = db([note(1, { sentToday: 2, payload: { chores: ['Mop', 'Bins'] } }), note(2, { sentToday: 2, ...digest }), note(3, { sentToday: 3 })]);
+  const send = vi.fn(async () => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(send).toHaveBeenCalledTimes(3);
+  expect(calls.filter((c) => c.fn === 'srv_mark_notification').every((c) => c.args!.p_skipped === false)).toBe(true);
 });
 
 test('expired subscriptions are deleted', async () => {

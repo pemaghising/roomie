@@ -31,6 +31,13 @@ describe('nudge — two tones, never nagging', () => {
     expect(nudge('pool', 'motivate', { chore: 'Mop bathroom floor' }).body).toBe('Up for grabs: Mop bathroom floor. Be a hero?');
     expect(nudge('pool', 'facts', { chore: 'Mop bathroom floor' }).body).toBe('Unclaimed: Mop bathroom floor.');
   });
+  test('pool batches one sweep into one push', () => {
+    expect(nudge('pool', 'motivate', { chores: ['Bins'] })).toEqual({ title: 'Up for grabs 🙌', body: 'Up for grabs: Bins. Be a hero?' });
+    expect(nudge('pool', 'facts', { chores: ['Bins'] })).toEqual({ title: 'Unclaimed chore', body: 'Unclaimed: Bins.' });
+    expect(nudge('pool', 'motivate', { chores: ['Bins', 'Dishes', 'Mop'] }))
+      .toEqual({ title: 'Up for grabs 🙌', body: 'Up for grabs: Bins, Dishes and Mop. Grab one?' });
+    expect(nudge('pool', 'facts', { chores: ['Bins', 'Dishes'] })).toEqual({ title: 'Unclaimed chores', body: 'Unclaimed: Bins and Dishes.' });
+  });
   test('covered is private and kind', () => {
     expect(nudge('covered', 'motivate', { actor: 'Aarav', chore: 'Bathroom', effort: 3 }).body)
       .toBe("Aarav covered the Bathroom — you'll pick up a little extra next week (+3 pts).");

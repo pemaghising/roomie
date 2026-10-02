@@ -36,8 +36,15 @@ export function nudge(kind: NudgeKind, style: NudgeStyle, p: NudgePayload): Copy
       return m
         ? { title: 'Good morning 🌱', body: `${chores.length} task${chores.length === 1 ? '' : 's'} today — ${list(chores)}.` }
         : { title: 'Today', body: `${list(chores)}.` };
-    case 'pool':
-      return m ? { title: 'Up for grabs 🙌', body: `Up for grabs: ${p.chore}. Be a hero?` } : { title: 'Unclaimed chore', body: `Unclaimed: ${p.chore}.` };
+    case 'pool': {
+      const items = chores.length ? chores : p.chore ? [p.chore] : []; // `chore` is the pre-batch payload
+      if (items.length <= 1) {
+        return m ? { title: 'Up for grabs 🙌', body: `Up for grabs: ${items[0]}. Be a hero?` } : { title: 'Unclaimed chore', body: `Unclaimed: ${items[0]}.` };
+      }
+      return m
+        ? { title: 'Up for grabs 🙌', body: `Up for grabs: ${list(items)}. Grab one?` }
+        : { title: 'Unclaimed chores', body: `Unclaimed: ${list(items)}.` };
+    }
     case 'plan_ready':
       return m ? { title: "Next week's plan 📋", body: '30 seconds to check it — swap anything that clashes.' } : { title: 'Plan ready', body: "Next week's plan is ready for review." };
     case 'plan_locked':

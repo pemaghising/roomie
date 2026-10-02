@@ -78,6 +78,21 @@ describe('planNewChore', () => {
     expect(calls.filter((c) => c.fn === 'srv_insert_plan').map((c) => c.args!.p_week)).toEqual(['2026-09-28', '2026-10-05']);
   });
 
+  test('added after the day has ended: starts tomorrow, not in the missed pile', async () => {
+    const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
+    await planNewChore(db, snap(), 'c1', new Date('2026-10-01T16:30:00Z')); // 22:15 Thursday
+    const rows = calls.find((c) => c.fn === 'srv_insert_plan')!.args!.p_assignments as { day: string }[];
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((r) => r.day >= '2026-10-02')).toBe(true);
+  });
+
+  test('added on Sunday after the day has ended: this week is skipped, next week still gets it', async () => {
+    const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
+    const s = snap({ plans: [...snap().plans, { id: 'n', weekStart: '2026-10-05', status: 'draft', approvals: 0, lockAt: '2026-10-04T12:15:00Z' }] });
+    await planNewChore(db, s, 'c1', new Date('2026-10-04T16:30:00Z')); // 22:15 Sunday
+    expect(calls.filter((c) => c.fn === 'srv_insert_plan').map((c) => c.args!.p_week)).toEqual(['2026-10-05']);
+  });
+
   test('falls back to a full plan when this week has none yet', async () => {
     const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
     await planNewChore(db, snap({ plans: [] }), 'c1', THU);

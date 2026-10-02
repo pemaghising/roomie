@@ -24,6 +24,15 @@ export type TickAction =
   | { kind: 'settle'; date: string; outcome: 'kept' | 'broken' | 'empty' }
   | { kind: 'digest'; date: string };
 
+/**
+ * First weekday of this week that can still get chores. Once today has ended its chores would be swept straight
+ * to missed, so start tomorrow; on Sunday after the end nothing is left of this week (null).
+ */
+export function firstPlannableDay(weekday: Weekday, nowMin: number, endMin: number): Weekday | null {
+  if (nowMin < endMin) return weekday;
+  return weekday === 6 ? null : ((weekday + 1) as Weekday);
+}
+
 export function decideTick(s: HouseholdSnapshot, now: Date): TickAction[] {
   const local = localParts(now, s.tz);
   const nowMin = local.hour * 60 + local.minute;
@@ -36,7 +45,8 @@ export function decideTick(s: HouseholdSnapshot, now: Date): TickAction[] {
   const poolClosed = (date: string) => date < yesterday || (date === yesterday && nowMin >= endMin);
   const actions: TickAction[] = [];
 
-  if (!hasPlan(thisWeek)) actions.push({ kind: 'generate', weekStart: thisWeek, status: 'locked', fromDay: local.weekday });
+  const fromDay = firstPlannableDay(local.weekday, nowMin, endMin);
+  if (!hasPlan(thisWeek) && fromDay !== null) actions.push({ kind: 'generate', weekStart: thisWeek, status: 'locked', fromDay });
   const draftWindow = (local.weekday === 5 && local.hour >= 18) || local.weekday === 6;
   if (draftWindow && !hasPlan(nextWeek)) {
     actions.push({ kind: 'generate', weekStart: nextWeek, status: s.planMode === 'auto' ? 'locked' : 'draft', fromDay: 0 });
@@ -72,6 +82,7 @@ export const PUSH_DAILY_CAP = 3;
 
 export function pushDecision(localHour: number, sentToday: number, kind: NudgeKind): 'send' | 'defer' | 'skip' {
   if (localHour >= 22 || localHour < 7) return 'defer';
-  if (sentToday >= PUSH_DAILY_CAP && kind !== 'covered') return 'skip';
+  // pool is exempt (and not counted): one per member per sweep, and its chores stay claimable after quiet hours
+  if (sentToday >= PUSH_DAILY_CAP && kind !== 'covered' && kind !== 'pool') return 'skip';
   return 'send';
 }

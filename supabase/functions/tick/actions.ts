@@ -1,7 +1,7 @@
-import type { HouseholdSnapshot, TickAction } from '../_shared/domain/tick.ts';
+import { firstPlannableDay, type HouseholdSnapshot, type TickAction } from '../_shared/domain/tick.ts';
 import { generatePlan } from '../_shared/domain/rotation.ts';
 import { settleDay, type Streak } from '../_shared/domain/streak.ts';
-import { addDays, dateOfWeekday, localParts, type Weekday, weekStartOf } from '../_shared/domain/time.ts';
+import { addDays, dateOfWeekday, localParts, minutesOf, type Weekday, weekStartOf } from '../_shared/domain/time.ts';
 import type { ChoreInput, HistoryItem, MemberInput } from '../_shared/domain/types.ts';
 
 /** The slice of supabase-js the tick needs — keeps this file testable without Deno. */
@@ -70,11 +70,12 @@ export async function runActions(db: RpcClient, s: HouseholdSnapshot, actions: T
 export async function planNewChore(db: RpcClient, s: HouseholdSnapshot, choreId: string, now: Date) {
   const local = localParts(now, s.tz);
   const thisWeek = weekStartOf(local.date);
+  const fromDay = firstPlannableDay(local.weekday, local.hour * 60 + local.minute, minutesOf(s.dayEndsAt));
   if (!s.plans.some((p) => p.weekStart === thisWeek)) {
-    await planWeek(db, s.id, thisWeek, 'locked', { fromDay: local.weekday, onlyIfNew: true, consume: true });
+    if (fromDay !== null) await planWeek(db, s.id, thisWeek, 'locked', { fromDay, onlyIfNew: true, consume: true });
     return;
   }
-  await planWeek(db, s.id, thisWeek, 'locked', { fromDay: local.weekday, choreIds: [choreId], onlyIfNew: false, consume: false });
+  if (fromDay !== null) await planWeek(db, s.id, thisWeek, 'locked', { fromDay, choreIds: [choreId], onlyIfNew: false, consume: false });
   const next = s.plans.find((p) => p.weekStart === addDays(thisWeek, 7));
   if (next) await planWeek(db, s.id, next.weekStart, next.status, { fromDay: 0, choreIds: [choreId], onlyIfNew: false, consume: false });
 }

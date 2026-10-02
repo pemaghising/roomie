@@ -58,6 +58,6 @@ export async function drainNotifications(db: RpcClient, send: SendPush, now = ne
     // Only skipped when every subscription was rejected by the allow-list (nothing user-visible happened).
     const blocked = n.subscriptions.length > 0 && n.subscriptions.every((s) => !isAllowedPushEndpoint(s.endpoint));
     await call(db, 'srv_mark_notification', { p_id: n.id, p_skipped: blocked });
-    if (delivered > 0) sent.set(n.userId, sentToday + 1);
+    if (delivered > 0 && n.kind !== 'pool') sent.set(n.userId, sentToday + 1); // pool doesn't use up the cap
   }
 }

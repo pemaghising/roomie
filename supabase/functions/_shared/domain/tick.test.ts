@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { decideTick, pushDecision, type HouseholdSnapshot } from './tick.ts';
+import { decideTick, firstPlannableDay, pushDecision, type HouseholdSnapshot } from './tick.ts';
 
 // Kathmandu is UTC+5:45. Thursday 2026-10-01; week starts Monday 2026-09-28; next week 2026-10-05.
 const at = (iso: string) => new Date(iso);
@@ -20,6 +20,19 @@ const kinds = (s: HouseholdSnapshot, now: Date) => decideTick(s, now).map((a) =>
 describe('plans', () => {
   test('a household without a plan this week gets one from today', () => {
     expect(decideTick(base({ plans: [] }), THU_1500)).toContainEqual({ kind: 'generate', weekStart: '2026-09-28', status: 'locked', fromDay: 3 });
+  });
+  test("set up after the day has ended: plans from tomorrow, so today's chores aren't instantly missed", () => {
+    expect(decideTick(base({ plans: [] }), THU_2205)).toContainEqual({ kind: 'generate', weekStart: '2026-09-28', status: 'locked', fromDay: 4 });
+    expect(decideTick(base({ plans: [] }), THU_2105)).toContainEqual({ kind: 'generate', weekStart: '2026-09-28', status: 'locked', fromDay: 3 });
+  });
+  test('Sunday after the day has ended skips the rest of this week and goes straight to next week', () => {
+    const actions = decideTick(base({ plans: [] }), at('2026-10-04T16:20:00Z')); // Sun 22:05
+    expect(actions.filter((a) => a.kind === 'generate')).toEqual([{ kind: 'generate', weekStart: '2026-10-05', status: 'draft', fromDay: 0 }]);
+  });
+  test('firstPlannableDay', () => {
+    expect(firstPlannableDay(3, 21 * 60, 22 * 60)).toBe(3);
+    expect(firstPlannableDay(3, 22 * 60, 22 * 60)).toBe(4);
+    expect(firstPlannableDay(6, 22 * 60, 22 * 60)).toBeNull();
   });
   test('Saturday 18:00 drafts next week in review mode', () => {
     expect(decideTick(base(), SAT_1805)).toContainEqual({ kind: 'generate', weekStart: '2026-10-05', status: 'draft', fromDay: 0 });
@@ -91,8 +104,10 @@ describe('pushDecision', () => {
     expect(pushDecision(6, 0, 'pool')).toBe('defer');
     expect(pushDecision(7, 0, 'pool')).toBe('send');
   });
-  test('daily cap skips everything except covered', () => {
-    expect(pushDecision(12, 3, 'pool')).toBe('skip');
+  test('daily cap skips everything except covered and pool', () => {
+    expect(pushDecision(12, 3, 'digest')).toBe('skip');
+    expect(pushDecision(12, 3, 'plan_ready')).toBe('skip');
     expect(pushDecision(12, 3, 'covered')).toBe('send');
+    expect(pushDecision(12, 3, 'pool')).toBe('send'); // one batched push per sweep; its chores are still claimable
   });
 });
