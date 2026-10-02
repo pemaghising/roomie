@@ -66,9 +66,9 @@ test('two roommates: create, join, miss, claim, cover — and the ledger stays p
   const { data: chore } = await admin().from('chores').select('name').eq('id', missed!.chore_id).single();
 
   // Priya claims and covers it
-  // in-app navigation: a full reload on a deep link bounces to / (see report)
-  await priya.reload();
-  await priya.getByRole('link', { name: 'Chores' }).click();
+  // a direct deep link: Guard must not bounce it to / while the persisted cache is being confirmed
+  await priya.goto('/chores');
+  await expect(priya).toHaveURL(/\/chores$/);
   await priya.getByRole('button', { name: `Claim ${chore!.name}` }).click();
   await priya.getByRole('region', { name: 'My tasks' }).getByRole('button', { name: `Mark ${chore!.name} done` }).click();
   await expect(priya.getByRole('dialog', { name: 'Thanks for covering.' })).toBeVisible();
