@@ -20,7 +20,7 @@
 .chores h1 { font-size: 36px; }
 .eyebrow--warm { color: var(--heavy-ink); }
 .seg { display: flex; gap: 6px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface); margin-top: 14px; }
-.seg__opt { flex: 1; min-height: 40px; border: 0; border-radius: var(--radius-pill); background: transparent; font-weight: 600; color: var(--muted); cursor: pointer; }
+.seg__opt { flex: 1; min-height: 44px; border: 0; border-radius: var(--radius-pill); background: transparent; font-weight: 600; color: var(--muted); cursor: pointer; }
 .seg__opt.is-on { background: #fff; color: var(--ink); box-shadow: var(--shadow-card); }
 .seg--effort { background: none; padding: 0; margin-top: 0; }
 .seg--effort .chip { flex: 1; justify-content: center; border: 2px solid transparent; cursor: pointer; min-height: 44px; }

@@ -26,6 +26,8 @@ export default function Chores() {
   const [why, setWhy] = useState<Assignment | null>(null);
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Chore | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false); // removing affects the whole house: two taps
+  const closeEditing = () => { setEditing(null); setConfirmRemove(false); };
   const archive = useAction<{ p_id: string }>('archive_chore', {
     optimistic: (s, { p_id }) => ({ ...s, chores: s.chores.filter((c) => c.id !== p_id) }),
   });
@@ -103,12 +105,12 @@ export default function Chores() {
 
       <button className="fab" onClick={() => setAdding(true)} aria-label="Add chore"><Plus size={26} aria-hidden /></button>
       <AddChoreSheet open={adding} onClose={() => setAdding(false)} />
-      <Sheet open={Boolean(editing)} onClose={() => setEditing(null)} title={editing?.name ?? ''}>
+      <Sheet open={Boolean(editing)} onClose={closeEditing} title={editing?.name ?? ''}>
         {editing && (
           <div className="why">
             <EffortChip effort={editing.effort} size="md" />
             <p className="muted">{CADENCE[editing.cadence]} · shared fairly by effort.</p>
-            <Button variant="danger" block disabled={archive.isPending} onClick={() => { archive.mutate({ p_id: editing.id }); setEditing(null); }}>Remove chore</Button>
+            <Button variant="danger" block disabled={archive.isPending} onClick={() => { if (!confirmRemove) return setConfirmRemove(true); archive.mutate({ p_id: editing.id }); closeEditing(); }}>{confirmRemove ? 'Remove for everyone?' : 'Remove chore'}</Button>
           </div>
         )}
       </Sheet>
