@@ -62,6 +62,53 @@ describe.skipIf(!hasDb)('srv_* server functions', () => {
     expect(all).toHaveLength(1);
   }, 30_000);
 
+  test('srv_sweep_day queues ONE pool notification per member, listing the chores, never to the person who missed them', async () => {
+    const [a, b, c] = await Promise.all([makeUser('PoolA'), makeUser('PoolB'), makeUser('PoolC')]);
+    userIds.push(a.id, b.id, c.id);
+    const h = await seedHousehold(a.id, [b.id, c.id]);
+    householdIds.push(h);
+    const today = localParts(new Date(), 'Asia/Kathmandu').date;
+    await seedPlan(h, weekStartOf(today), [
+      { userId: a.id, day: today, choreName: 'Bins' }, { userId: a.id, day: today, choreName: 'Dishes' },
+      { userId: b.id, day: today, choreName: 'Mop' }, { userId: c.id, day: today, choreName: 'Laundry', status: 'done' },
+    ]);
+    expect((await admin().rpc('srv_sweep_day', { p_household: h, p_day: today })).error).toBeNull();
+    const { data } = await admin().from('notifications').select('user_id, payload').eq('household_id', h).eq('kind', 'pool');
+    const byUser = Object.fromEntries(data!.map((n) => [n.user_id, (n.payload.chores as string[]).sort()]));
+    expect(data).toHaveLength(3);
+    expect(byUser[a.id]).toEqual(['Mop']);
+    expect(byUser[b.id]).toEqual(['Bins', 'Dishes']);
+    expect(byUser[c.id]).toEqual(['Bins', 'Dishes', 'Mop']);
+  }, 30_000);
+
+  test('pool pushes do not count toward the daily cap', async () => {
+    const u = await makeUser('Cap');
+    userIds.push(u.id);
+    const h = await seedHousehold(u.id);
+    householdIds.push(h);
+    const now = new Date().toISOString();
+    await admin().from('notifications').insert([
+      ...[1, 2, 3].map(() => ({ user_id: u.id, household_id: h, kind: 'pool', payload: { chores: ['Bins'] }, sent_at: now })),
+      { user_id: u.id, household_id: h, kind: 'digest', payload: { chores: ['Bins'] }, sent_at: now },
+      { user_id: u.id, household_id: h, kind: 'plan_ready', payload: {} },
+    ]);
+    const { data } = await admin().rpc('srv_pending_notifications');
+    const mine = (data as { userId: string; sentToday: number }[]).find((n) => n.userId === u.id)!;
+    expect(mine.sentToday).toBe(1);
+  }, 30_000);
+
+  test('day_ends_at must be in the evening (18:00–23:59)', async () => {
+    const u = await makeUser('Late');
+    userIds.push(u.id);
+    const { data: h } = await u.client.rpc('create_household', { p_name: 'Night owls', p_busy: [], p_chores: [] });
+    householdIds.push(h as string);
+    expect((await u.client.rpc('update_household', { p_day_ends_at: '00:30' })).error).not.toBeNull();
+    expect((await u.client.rpc('update_household', { p_day_ends_at: '17:59' })).error).not.toBeNull();
+    expect((await u.client.rpc('update_household', { p_day_ends_at: '23:00' })).error).toBeNull();
+    const { data: row } = await admin().from('households').select('day_ends_at').eq('id', h).single();
+    expect(row!.day_ends_at).toBe('23:00:00');
+  }, 30_000);
+
   test('snapshots emit every day including empty ones, and lockAt is ISO with Z', async () => {
     const u = await makeUser('Snap');
     userIds.push(u.id);

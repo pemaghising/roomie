@@ -386,6 +386,10 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# tick authenticates itself: cron sends the shared secret, users send their JWT (checked in the function).
+[functions.tick]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
