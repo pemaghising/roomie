@@ -3,7 +3,6 @@ import { type ReactNode, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { EASE_IOS, SPRING } from '../lib/motion';
 
-const SCRIM = 'rgba(17, 24, 39, 0.45)';
 
 /** Dragging the header closes the sheet past 120px, or on a downward fling. */
 export const sheetDismisses = (offset: number, velocity: number) => offset > 120 || velocity > 500;
@@ -23,10 +22,11 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   return createPortal(
     <AnimatePresence>
       {open && (
-        <m.div key="sheet" className="sheet-backdrop" onClick={onClose}
-          // the scrim fades by colour, not opacity, so the sheet itself stays solid while it rises
-          initial={{ backgroundColor: 'rgba(17, 24, 39, 0)' }} animate={{ backgroundColor: SCRIM, transition: { duration: 0.22, ease: EASE_IOS } }}
-          exit={{ backgroundColor: 'rgba(17, 24, 39, 0)', transition: { duration: 0.16, ease: EASE_IOS } }}>
+        <m.div key="sheet" className="sheet-backdrop" onClick={onClose}>
+          {/* the scrim is its own layer fading by opacity (compositor-only); animating a full-screen
+              background colour repainted every frame */}
+          <m.div className="sheet-scrim" aria-hidden initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 0.22, ease: EASE_IOS } }}
+            exit={{ opacity: 0, transition: { duration: 0.16, ease: EASE_IOS } }} />
           <m.div className="sheet" role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={ref} onClick={(e) => e.stopPropagation()}
             initial={{ y: '100%' }}
             animate={{ y: 0, transition: SPRING.smooth }}

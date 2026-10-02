@@ -1,6 +1,7 @@
 /* navigation stack: every screen is its own full-screen scroller, so a pushed screen can slide over the one beneath */
 .view { position: fixed; inset: 0; overflow-x: clip; overflow-y: auto; overscroll-behavior-y: contain; background: var(--bg); }
-.view::after { content: ''; position: absolute; inset: 0; background: #0b1020; opacity: var(--dim, 0); pointer-events: none; z-index: 100; }
+.view { will-change: transform; } /* own GPU layer: the slide is a pure composite */
+.view__dim { position: fixed; inset: 0; background: #0b1020; opacity: 0; pointer-events: none; z-index: 100; will-change: opacity; }
 .view--swipe { touch-action: pan-y pinch-zoom; } /* horizontal moves reach the edge-swipe instead of the browser */
 .view--covered { overflow: hidden; }
 .view--top-pushed { box-shadow: -18px 0 36px -18px rgba(11, 16, 32, .35); }
@@ -27,7 +28,8 @@
 
 /* sheet */
 .sheet-backdrop { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
-.sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; overscroll-behavior: contain; background: #fff; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 12px calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 24px); box-shadow: var(--shadow-sheet); outline: none; }
+.sheet-scrim { position: absolute; inset: 0; background: rgba(17, 24, 39, .45); will-change: opacity; }
+.sheet { position: relative; will-change: transform; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; overscroll-behavior: contain; background: #fff; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 12px calc(var(--safe-right) + 24px) calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 24px); box-shadow: var(--shadow-sheet); outline: none; }
 .sheet__handle { width: 40px; height: 5px; border-radius: 5px; background: var(--line); margin: 0 auto 16px; }
 .sheet__grab { margin: -12px -24px 0; padding: 12px 24px 0; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; } /* drag-to-dismiss lives here so the body still scrolls */
 .sheet__title { margin-bottom: 16px; }
@@ -40,11 +42,11 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 .toast__action { background: none; border: 0; color: var(--lav-2); font-weight: 700; min-height: var(--tap); padding: 0 4px; cursor: pointer; }
 
 /* tab bar: the floating dark pill from the hi-fi screens, a touch translucent so content reads through as it scrolls under */
-.tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 14px); transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: var(--radius-pill); z-index: 40;
-  background: rgb(17 24 39 / .95); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); box-shadow: var(--shadow-float); }
+.tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 14px); transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: var(--radius-pill); z-index: 40; isolation: isolate;
+  background: #111827; box-shadow: var(--shadow-float); } /* solid: a backdrop blur behind a 95%-opaque bar was invisible but re-rendered every scroll frame */
 .tabbar__item { position: relative; min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); transition: scale var(--spring-snappy-dur) var(--spring-snappy), color .2s var(--ease-out); }
 .tabbar__item.is-active { color: var(--navy); }
-/* z -1 in the bar's stacking context (backdrop-filter makes one): in flight the pill passes under every label */
+/* z -1 in the bar's stacking context (isolation makes one): in flight the pill passes under every label */
 .tabbar__pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #fff; }
 .tabbar__item svg.is-popping { animation: tab-pop .18s var(--ease-out); }
 @keyframes tab-pop { 45% { translate: 0 -2px; scale: 1.1; } }
@@ -108,17 +110,17 @@ body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12
 /* Press feedback (src/lib/press.ts marks [data-pressed]). `scale`, not transform, so it composes with Motion's drag
    and layout transforms. In quickly; out on the snappy spring, which can retarget mid-flight. */
 :where(button, a[href], [role="button"], label) {
-  transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .2s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
+  transition: scale var(--spring-snappy-dur) var(--spring-snappy), opacity .2s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-[data-pressed] { scale: .97; filter: brightness(.94); transition-duration: var(--press-in), var(--press-in), .15s, .15s, .15s, .15s; transition-timing-function: var(--ease-out); }
+[data-pressed] { scale: .97; opacity: .86; transition-duration: var(--press-in), var(--press-in), .15s, .15s, .15s, .15s; transition-timing-function: var(--ease-out); }
 [data-pressed="s"] { scale: .94; }
 /* the press scales the pill and the label, not the item: a scaled item would become a stacking context and lift the
    in-flight pill over its neighbours' labels */
-.tabbar__item[data-pressed] { scale: none; filter: none; }
+.tabbar__item[data-pressed] { scale: none; opacity: 1; }
 .tabbar__content { display: grid; place-items: center; gap: 2px; }
 .tabbar__content, .tabbar__pill { transition: scale var(--spring-snappy-dur) var(--spring-snappy); }
 .tabbar__item[data-pressed] :is(.tabbar__content, .tabbar__pill) { scale: .92; transition-duration: var(--press-in); transition-timing-function: var(--ease-out); }
-:is(.btn--primary, .claim-btn, .toast__action)[data-pressed] { filter: brightness(1.35); }
+:is(.btn--primary, .claim-btn, .toast__action)[data-pressed] { opacity: .8; }
 /* the row card (pressed via its body button) also eases its done tint in after the tick draws */
 .task__card { transition: scale var(--spring-snappy-dur) var(--spring-snappy), filter .3s var(--ease-out), background-color .2s var(--ease-out), border-color .2s var(--ease-out); }
 .task__card[data-pressed] { transition-duration: var(--press-in), var(--press-in), .3s, .3s; }

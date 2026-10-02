@@ -103,6 +103,7 @@ function StackView({ entry, above, isTop, canSwipe, onGone, children }: {
   entry: Entry; above?: Entry; isTop: boolean; canSwipe: boolean; onGone: () => void; children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const dim = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const drag = useDragControls();
   const navigate = useNavigate();
@@ -114,7 +115,7 @@ function StackView({ entry, above, isTop, canSwipe, onGone, children }: {
     const follow = (v: number) => {
       const p = Math.min(1, Math.max(0, 1 - v / window.innerWidth)); // 1 = fully covered
       entry.x.set(-0.3 * window.innerWidth * p);
-      ref.current?.style.setProperty('--dim', String(0.12 * p));
+      if (dim.current) dim.current.style.opacity = String(0.12 * p); // opacity on its own layer: no restyle of the page beneath
     };
     follow(above.x.get());
     return above.x.on('change', follow);
@@ -135,6 +136,7 @@ function StackView({ entry, above, isTop, canSwipe, onGone, children }: {
       onPointerDown={swipe ? (e) => { if (e.clientX <= EDGE) drag.start(e); } : undefined}
       onDragEnd={(_, info) => { if (swipeBackCompletes(info.offset.x, window.innerWidth, info.velocity.x)) navigate(-1); }}>
       {children}
+      {covered && <div className="view__dim" ref={dim} aria-hidden />}
     </m.div>
   );
 }
