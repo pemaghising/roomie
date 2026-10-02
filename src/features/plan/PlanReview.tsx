@@ -14,6 +14,14 @@ import './plan.css';
 
 const fmt = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
+function lockCopy(lockAt: string, tz: string) {
+  if (new Date(lockAt).getTime() <= Date.now()) return 'Draft · locking now';
+  const parts = new Intl.DateTimeFormat('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit', timeZone: tz }).formatToParts(new Date(lockAt));
+  const g = (t: string) => parts.find((x) => x.type === t)?.value ?? '';
+  const min = g('minute') === '00' ? '' : `:${g('minute')}`;
+  return `Draft · locks ${g('weekday')} ${g('hour')}${min} ${g('dayPeriod').toLowerCase()}`;
+}
+
 export default function PlanReview() {
   const { me, state } = useMe();
   const navigate = useNavigate();
@@ -31,6 +39,8 @@ export default function PlanReview() {
   const respond = useAction<{ p_swap: string; p_accept: boolean }>('respond_swap', {
     optimistic: (s, { p_swap }) => ({ ...s, swaps: s.swaps.filter((w) => w.id !== p_swap) }),
   });
+  const answer = (p_swap: string, p_accept: boolean) =>
+    respond.mutate({ p_swap, p_accept }, { onSuccess: () => toast.show(p_accept ? "Swapped — it's on your list." : 'Declined. No hard feelings.') });
 
   if (!plan) {
     return (
@@ -51,7 +61,7 @@ export default function PlanReview() {
   return (
     <main className="screen plan">
       <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Back"><ArrowLeft size={20} /></button>
-      <p className="eyebrow">{isDraft ? 'Draft · locks Sunday 6 pm' : 'Locked'}</p>
+      <p className="eyebrow">{isDraft ? lockCopy(plan.lock_at, state.household?.tz ?? 'UTC') : 'Locked'}</p>
       <h1>{plan.week_start > thisWeek ? 'Next week' : 'This week'}</h1>
       <p className="muted">{fmt(plan.week_start)} – {fmt(addDays(plan.week_start, 6))} · balanced by effort, busy days respected</p>
 
@@ -62,8 +72,8 @@ export default function PlanReview() {
           <section key={w.id} className="swap-card" aria-label="Swap request">
             <p>{names[w.from_user]} wants to trade their {chores.get(theirs?.chore_id ?? '')?.name} for your {chores.get(mine?.chore_id ?? '')?.name}</p>
             <div className="swap-card__actions">
-              <Button variant="ghost" disabled={respond.isPending} onClick={() => respond.mutate({ p_swap: w.id, p_accept: false })}>Decline</Button>
-              <Button variant="secondary" disabled={respond.isPending} onClick={() => respond.mutate({ p_swap: w.id, p_accept: true })}>Accept</Button>
+              <Button variant="ghost" disabled={respond.isPending} onClick={() => answer(w.id, false)}>Decline</Button>
+              <Button variant="secondary" disabled={respond.isPending} onClick={() => answer(w.id, true)}>Accept</Button>
             </div>
           </section>
         );
@@ -75,7 +85,7 @@ export default function PlanReview() {
             <Avatar name={m.name} color={m.color} size={36} />
             <strong>{m.user_id === me ? 'You' : m.name}</strong>
             <span className="person__pts">{totals[m.user_id] ?? 0} pts</span>
-            {isDraft && plan.approved_by.includes(m.user_id) && <Check size={16} aria-label="approved" className="person__ok" />}
+            {isDraft && plan.approved_by.includes(m.user_id) && <><Check size={16} aria-hidden className="person__ok" /><span className="sr-only">approved</span></>}
           </header>
           <ul className="person__list">
             {rows.filter((a) => a.user_id === m.user_id).sort((a, b) => a.day.localeCompare(b.day)).map((a) => (

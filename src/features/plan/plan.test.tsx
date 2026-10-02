@@ -23,7 +23,7 @@ const withDraft = (): AppState => {
 test('shows next week’s draft with each person’s points and approves it', async () => {
   renderWithState(<PlanReview />, { state: withDraft(), route: '/plan' });
   expect(screen.getByRole('heading', { name: 'Next week' })).toBeInTheDocument();
-  expect(screen.getByText(/draft · locks sunday 6 pm/i)).toBeInTheDocument();
+  expect(screen.getByText('Draft · locks Sunday 6 pm')).toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'Priya' })).toHaveTextContent('3 pts');
   await userEvent.click(screen.getByRole('button', { name: 'Looks good' }));
   await waitFor(() => expect(db.rpc).toHaveBeenCalledWith('approve_plan', { p_plan: 'plan-next' }));
@@ -55,4 +55,26 @@ test('with no draft it shows this week’s locked plan', () => {
   renderWithState(<PlanReview />, { state: fixture(), route: '/plan' });
   expect(screen.getByRole('heading', { name: 'This week' })).toBeInTheDocument();
   expect(screen.getByText('Locked')).toBeInTheDocument();
+});
+
+test('lock copy follows lock_at in the household timezone', () => {
+  const s = withDraft();
+  s.household!.tz = 'Europe/London';
+  renderWithState(<PlanReview />, { state: s, route: '/plan' });
+  expect(screen.getByText('Draft · locks Sunday 1:15 pm')).toBeInTheDocument();
+});
+
+test('a draft past its lock time says it is locking now', () => {
+  const s = withDraft();
+  s.plans.find((p) => p.id === 'plan-next')!.lock_at = '2020-01-01T00:00:00Z';
+  renderWithState(<PlanReview />, { state: s, route: '/plan' });
+  expect(screen.getByText('Draft · locking now')).toBeInTheDocument();
+});
+
+test('accepting a swap confirms with a toast', async () => {
+  const s = withDraft();
+  s.swaps = [{ id: 'sw1', from_assignment: 'n-theirs', to_assignment: 'n-mine', from_user: 'p', to_user: 'me', status: 'pending' }];
+  renderWithState(<PlanReview />, { state: s, route: '/plan' });
+  await userEvent.click(within(screen.getByRole('region', { name: 'Swap request' })).getByRole('button', { name: 'Accept' }));
+  expect(await screen.findByText("Swapped — it's on your list.")).toBeInTheDocument();
 });
