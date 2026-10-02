@@ -3,7 +3,7 @@ import { Sprout } from './Sprout';
 
 export function Splash({ error, onRetry }: { error?: boolean; onRetry?: () => void }) {
   return (
-    <main className="splash">
+    <main className={`splash${error ? '' : ' is-loading'}`}>
       <Sprout size={64} />
       {error ? (
         <>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { balanceSentence, reasonText } from '@domain/copy.ts';
 import { weekStartOf } from '@domain/time.ts';
@@ -14,8 +15,11 @@ function whyText(a: Assignment, me: string, names: Record<string, string>): stri
   return a.reason ? reasonText(a.reason, names) : 'Shared out fairly by effort.';
 }
 
-export function WhySheet({ assignment, onClose }: { assignment: Assignment | null; onClose: () => void }) {
+export function WhySheet({ assignment: current, onClose }: { assignment: Assignment | null; onClose: () => void }) {
   const { me, state } = useMe();
+  const [last, setLast] = useState(current); // keep the content while the sheet slides away
+  if (current && current !== last) setLast(current);
+  const assignment = current ?? last;
   if (!assignment) return null;
   const chore = choreMap(state).get(assignment.chore_id);
   const names = namesOf(state);
@@ -24,7 +28,7 @@ export function WhySheet({ assignment, onClose }: { assignment: Assignment | nul
   const people = [...state.members].sort((a, b) => a.name.localeCompare(b.name)); // alphabetical: a picture of the week, never a ranking
 
   return (
-    <Sheet open onClose={onClose} title={chore?.name ?? 'Chore'}>
+    <Sheet open={Boolean(current)} onClose={onClose} title={chore?.name ?? 'Chore'}>
       <div className="why">
         <EffortChip effort={assignment.effort} size="md" />
         <p className="why__reason">{whyText(assignment, me, names)}</p>

@@ -7,10 +7,11 @@
 .why__track span { display: block; height: 100%; border-radius: 10px; filter: saturate(1.6) brightness(.92); }
 .why__pts { font-size: 13px; color: var(--muted); text-align: right; }
 .why__private { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); padding: 12px 14px; background: var(--surface); border-radius: 14px; width: 100%; }
-.celebrate { display: grid; gap: 18px; justify-items: center; text-align: center; padding-bottom: 6px; }
-.celebrate__sprout { width: 120px; height: 120px; border-radius: 50%; background: var(--light-bg); display: grid; place-items: center; animation: pop .5s var(--ease); }
-@keyframes pop { from { transform: scale(.6); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .celebrate__sprout { animation: none; } }
+.celebrate { display: grid; gap: 18px; justify-items: center; text-align: center; padding-bottom: 6px; isolation: isolate; } /* the glow sits between the sheet and the disc */
+.celebrate__sprout { position: relative; width: 120px; height: 120px; border-radius: 50%; background: var(--light-bg); display: grid; place-items: center; }
+.celebrate__sprout .sprout { position: relative; }
+/* lavender light blooming behind the mint disc as the sprout grows */
+.celebrate__glow { position: absolute; inset: -36px; border-radius: 50%; background: radial-gradient(closest-side, rgb(216 180 254 / .75), rgb(216 180 254 / .3) 60%, transparent); z-index: -1; pointer-events: none; }
 .section { margin-top: 28px; display: grid; gap: 10px; }
 .section__title { display: flex; justify-content: space-between; align-items: baseline; }
 .claim-btn { min-height: 44px; padding: 0 18px; border-radius: var(--radius-pill); border: 0; background: var(--navy); color: #fff; font-weight: 600; cursor: pointer; }

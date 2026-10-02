@@ -1,9 +1,11 @@
-import { type ReactNode, useEffect } from 'react';
-import { createBrowserRouter, Navigate, Outlet, RouterProvider, useParams } from 'react-router';
+import { AnimatePresence, m } from 'motion/react';
+import { type ReactNode, useEffect, useState } from 'react';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation, useOutlet, useParams } from 'react-router';
 import { confirmedSince, gateFor, type Gate, guardAction, HOME_OF } from './lib/gate';
 import { useAppState, useRealtime } from './lib/state';
 import { useAuth } from './features/auth/AuthProvider';
 import { Splash } from './ui/Splash';
+import { EASE_IN, EASE_OUT } from './ui/motion';
 import { TabBar } from './ui/TabBar';
 import Welcome from './features/auth/Welcome';
 import ContactEntry from './features/auth/ContactEntry';
@@ -46,8 +48,28 @@ function Root() {
   return (<><OfflineBanner /><Outlet /></>);
 }
 
+/** Holds on to the route it mounted with, so an exiting tab keeps showing its own page. */
+function FrozenOutlet() {
+  const outlet = useOutlet();
+  const [frozen] = useState(outlet);
+  return frozen;
+}
+
 function Tabs() {
-  return (<><Outlet /><TabBar /></>);
+  const { pathname } = useLocation();
+  return (
+    <>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <m.div key={pathname} className="tab-view"
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: EASE_OUT } }}
+          exit={{ opacity: 0, x: -8, transition: { duration: 0.14, ease: EASE_IN } }}>
+          <FrozenOutlet />
+        </m.div>
+      </AnimatePresence>
+      <TabBar />
+    </>
+  );
 }
 
 /** Invite links (/j/ABC123) remember the code, then continue through the normal gates. */

@@ -5,7 +5,7 @@ import { myTasksOn } from '../../lib/selectors';
 import type { AppState, Assignment } from '../../lib/types';
 import { useToast } from '../../ui/Toast';
 
-const buzz = () => navigator.vibrate?.(12);
+const buzz = () => navigator.vibrate?.(10);
 
 export function useChoreActions() {
   const qc = useQueryClient();

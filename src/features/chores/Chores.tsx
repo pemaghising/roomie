@@ -1,5 +1,7 @@
 import { CalendarDays, Plus } from 'lucide-react';
+import { LayoutGroup } from 'motion/react';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf, weekStartOf } from '@domain/time.ts';
 import { choreMap, myTasksOn, namesOf, pendingDraft, pool, weekDates } from '../../lib/selectors';
@@ -10,6 +12,7 @@ import { EmptyState } from '../../ui/EmptyState';
 import { Sheet } from '../../ui/Sheet';
 import { TaskRow } from '../../ui/TaskRow';
 import { Button } from '../../ui/Button';
+import { useFirstMount } from '../../ui/motion';
 import { AddChoreSheet } from './AddChoreSheet';
 import { Celebration } from './Celebration';
 import { useChoreActions } from './useChoreActions';
@@ -34,18 +37,20 @@ export default function Chores() {
   const chores = choreMap(state);
   const names = namesOf(state);
   const draft = pendingDraft(state);
-  const row = (a: Assignment, opts: { pool?: boolean } = {}) => {
+  const stagger = useFirstMount('chores');
+  const row = (a: Assignment, opts: { pool?: boolean } = {}, i?: number) => {
     const chore = chores.get(a.chore_id);
     if (!chore) return null;
+    const enter = stagger && i !== undefined ? i : undefined;
     if (opts.pool) {
       return (
         <div key={a.id} className="task--pool">
-          <TaskRow chore={chore} assignment={a} note={`${DAY_NAMES[weekdayOf(a.day)].slice(0, 3)}`}
+          <TaskRow chore={chore} assignment={a} note={`${DAY_NAMES[weekdayOf(a.day)].slice(0, 3)}`} enter={enter}
             action={<button className="claim-btn" onClick={() => claim(a)} aria-label={`Claim ${chore.name}`}>Claim</button>} />
         </div>
       );
     }
-    return <TaskRow key={a.id} chore={chore} assignment={a} onComplete={() => complete(a)} onOpen={() => setWhy(a)}
+    return <TaskRow key={a.id} chore={chore} assignment={a} onComplete={() => complete(a)} onOpen={() => setWhy(a)} enter={enter}
       note={a.claimed_by === me && a.user_id !== me ? `Covering ${names[a.user_id] ?? ''}`.trim() : undefined} />;
   };
 
@@ -62,19 +67,20 @@ export default function Chores() {
         <Link to="/plan" className="banner banner--plan">Next week's plan is ready — review it</Link>
       )}
 
+      <LayoutGroup id="chores">
       {tab === 'today' && (
         <>
           <section className="section" aria-label="My tasks">
             <p className="eyebrow eyebrow--warm">My tasks</p>
             {myTasksOn(state, me, state.today).length === 0
               ? <EmptyState title="Nothing on your list today." body="Enjoy it — or grab one below." />
-              : myTasksOn(state, me, state.today).map((a) => row(a))}
+              : myTasksOn(state, me, state.today).map((a, i) => row(a, {}, i))}
           </section>
           <section className="section" aria-label="Missed by roommates">
             <p className="eyebrow eyebrow--warm">Missed by roommates</p>
             {pool(state, me).length === 0
               ? <p className="muted">Nothing waiting. The house is on it.</p>
-              : pool(state, me).map((a) => row(a, { pool: true }))}
+              : pool(state, me).map((a, i) => row(a, { pool: true }, myTasksOn(state, me, state.today).length + i))}
           </section>
         </>
       )}
@@ -92,6 +98,8 @@ export default function Chores() {
         );
       })}
 
+      </LayoutGroup>
+
       {tab === 'all' && (
         <ul className="chore-list" aria-label="Household chores">
           {state.chores.map((c) => (
@@ -106,7 +114,8 @@ export default function Chores() {
         </ul>
       )}
 
-      <button className="fab" onClick={() => setAdding(true)} aria-label="Add chore"><Plus size={26} aria-hidden /></button>
+      {/* portaled: the route crossfade transforms the page, which would otherwise re-anchor this fixed button */}
+      {createPortal(<button className="fab" onClick={() => setAdding(true)} aria-label="Add chore"><Plus size={26} aria-hidden /></button>, document.body)}
       <AddChoreSheet open={adding} onClose={() => setAdding(false)} />
       <Sheet open={Boolean(editing)} onClose={closeEditing} title={editing?.name ?? ''}>
         {editing && (

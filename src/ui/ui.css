@@ -1,6 +1,5 @@
 /* buttons */
-.btn { min-height: var(--tap); display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 22px; border: 0; border-radius: var(--radius-pill); font-weight: 600; font-size: 16px; cursor: pointer; transition: transform .15s var(--ease), background .2s; }
-.btn:active { transform: scale(.98); }
+.btn { min-height: var(--tap); display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 22px; border: 0; border-radius: var(--radius-pill); font-weight: 600; font-size: 16px; cursor: pointer; }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 .btn--primary { background: var(--navy); color: #fff; min-height: 54px; }
 .btn--secondary { background: var(--lav); color: var(--lav-ink); }
@@ -18,21 +17,22 @@
 .chip--heavy { background: var(--heavy-bg); color: var(--heavy-ink); }
 
 /* sheet */
-.sheet-backdrop { position: fixed; inset: 0; background: rgba(17, 24, 39, .45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; animation: fade .2s var(--ease); }
-.sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; background: #fff; border-radius: 28px 28px 0 0; padding: 12px 24px calc(var(--safe-bottom) + 24px); box-shadow: var(--shadow-sheet); animation: rise .32s var(--ease); outline: none; }
+.sheet-backdrop { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+.sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; background: #fff; border-radius: 28px 28px 0 0; padding: 12px 24px calc(var(--safe-bottom) + 24px); box-shadow: var(--shadow-sheet); outline: none; }
 .sheet__handle { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto 16px; }
+.sheet__grab { margin: -12px -24px 0; padding: 12px 24px 0; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; } /* drag-to-dismiss lives here so the body still scrolls */
 .sheet__title { margin-bottom: 16px; }
-@keyframes rise { from { transform: translateY(100%); } }
-@keyframes fade { from { opacity: 0; } }
 
 /* toasts */
 .toasts { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 104px); transform: translateX(-50%); display: grid; gap: 8px; z-index: 60; width: min(92vw, 440px); }
-.toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 16px; box-shadow: var(--shadow-card); animation: rise .25s var(--ease); }
+/* while a sheet is up, toasts move to the top so they never cover it (the celebration in particular) */
+body:has(.sheet-backdrop) .toasts { bottom: auto; top: calc(var(--safe-top) + 12px); }
+.toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 16px; box-shadow: var(--shadow-card); }
 .toast__action { background: none; border: 0; color: var(--lav-2); font-weight: 700; min-height: var(--tap); cursor: pointer; }
 
 /* tab bar — the floating dark pill from the hi-fi screens */
 .tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 14px); transform: translateX(-50%); display: flex; gap: 4px; background: var(--navy); padding: 6px; border-radius: var(--radius-pill); box-shadow: 0 12px 32px -8px rgba(17, 24, 39, .45); z-index: 40; }
-.tabbar__item { min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); transition: background .2s, color .2s; }
+.tabbar__item { min-width: 84px; min-height: 52px; display: grid; place-items: center; align-content: center; gap: 2px; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); }
 .tabbar__item.is-active { background: #fff; color: var(--navy); }
 
 /* avatar, skeleton, empty, progress, splash */
@@ -42,9 +42,8 @@
 .empty { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 28px 12px; }
 .empty__title { font: 700 18px/1.2 var(--font-display); }
 .progress { height: 6px; background: var(--lav); border-radius: 6px; overflow: hidden; }
-.progress span { display: block; height: 100%; background: var(--lav-3); border-radius: 6px; transition: width .4s var(--ease); }
+.progress span { display: block; height: 100%; background: var(--lav-3); border-radius: 6px; transform-origin: left; }
 .splash { min-height: 100%; display: grid; place-items: center; align-content: center; gap: 16px; }
-.sprout__leaf { transform-origin: 32px 32px; transform: scale(var(--grow, 1)); transition: transform .6s var(--ease); }
 
 /* otp */
 .otp { position: relative; }
@@ -57,17 +56,39 @@
 /* task rows */
 .task { position: relative; border-radius: var(--radius-m); }
 .task + .task { margin-top: 10px; }
-.task__swipe { position: absolute; inset: 0; border-radius: var(--radius-m); background: var(--light-bg); color: var(--light-ink); display: flex; align-items: center; padding-left: 20px; font-weight: 700; }
-.task__card { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-m); transition: transform .25s var(--ease); touch-action: pan-y; }
+.task__swipe { position: absolute; inset: 0; border-radius: var(--radius-m); background: var(--light-bg); color: var(--light-ink); display: flex; align-items: center; gap: 8px; padding-left: 16px; font-weight: 700; }
+.task__card { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-m); touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .task__icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--sky-bg); font-size: 20px; flex: none; }
 .task__body { flex: 1; display: grid; gap: 6px; text-align: left; background: none; border: 0; padding: 4px 0; cursor: pointer; min-height: var(--tap); }
 .task__body:disabled { cursor: default; }
 .task__name { font-weight: 600; }
 .task__meta { display: flex; gap: 8px; align-items: center; font-size: 13px; }
 .task.is-done .task__name { color: var(--muted); text-decoration: line-through; }
-.check { width: 30px; height: 30px; margin: 7px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; cursor: pointer; flex: none; transition: background .2s, border-color .2s; position: relative; }
-.check::after { content: ''; position: absolute; inset: 0; margin: auto; width: 8px; height: 14px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg) translate(-1px, -2px) scale(0); transition: transform .25s var(--ease); }
+.check { width: 30px; height: 30px; margin: 7px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; cursor: pointer; flex: none; display: grid; place-items: center; padding: 0; transition: background-color .15s, border-color .15s; }
 .check.is-checked { background: var(--navy); border-color: var(--navy); }
-.check.is-checked::after { transform: rotate(45deg) translate(-1px, -2px) scale(1); }
 
 .offline { position: fixed; top: calc(var(--safe-top) + 8px); left: 50%; transform: translateX(-50%); z-index: 70; padding: 8px 14px; border-radius: var(--radius-pill); background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-card); }
+
+/* the check: the circle fills (spring scale in TaskRow), then the tick draws itself */
+.check svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.check svg path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .25s var(--ease-out) .05s; }
+.check.is-checked svg path { stroke-dashoffset: 0; }
+.task.is-done .task__card { background: var(--surface); border-color: transparent; }
+.task__swipe { opacity: var(--pull, 0); }
+.task__swipe-tick { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--light-ink); color: #fff; scale: calc(.6 + var(--pull, 0) * .4); }
+.task--enter { animation: row-in .32s var(--ease-out) backwards; animation-delay: min(calc(var(--i, 0) * 30ms), 150ms); }
+@keyframes row-in { from { opacity: 0; translate: 0 8px; } }
+.splash.is-loading .sprout { animation: breathe 1.8s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .6; scale: .94; } }
+.tab-view { height: 100%; overflow-x: clip; } /* clip: the 8px route shift never makes the page scroll sideways */
+
+/* press feedback: `scale` (not transform) so it composes with Motion's drag and layout transforms */
+.btn, .choice-card, .chore-item, .invite-card, .task__card, .day-pick, .pick, .tabbar__item, .seg__opt, .claim-btn, .fab, .icon-btn, .icon-pick, .swatch, .seg--effort .chip, .banner, .effort-tap {
+  transition: scale .16s var(--ease-out), background-color .15s, color .15s, border-color .15s, box-shadow .15s;
+}
+:is(.btn, .choice-card, .chore-item, .invite-card, .task__card, .day-pick, .pick, .tabbar__item, .seg__opt, .claim-btn, .fab, .icon-btn, .icon-pick, .swatch, .seg--effort .chip, .banner, .effort-tap):active:not(:disabled) {
+  scale: .97; transition-duration: .1s;
+}
+.pick__tick { transition: background-color .15s, border-color .15s, color .15s; }
+/* after the tick draws, the finished row settles into a quieter tint */
+.task__card { transition: scale .16s var(--ease-out), background-color .3s var(--ease-out) .15s, border-color .3s var(--ease-out) .15s; }

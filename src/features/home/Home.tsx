@@ -1,4 +1,5 @@
 import { Bell, CalendarDays, Repeat } from 'lucide-react';
+import { LayoutGroup } from 'motion/react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf } from '@domain/time.ts';
@@ -7,6 +8,7 @@ import { useMe } from '../../lib/state';
 import type { Assignment } from '../../lib/types';
 import { Avatar } from '../../ui/Avatar';
 import { EmptyState } from '../../ui/EmptyState';
+import { useFirstMount } from '../../ui/motion';
 import { Sprout } from '../../ui/Sprout';
 import { TaskRow } from '../../ui/TaskRow';
 import { Celebration } from '../chores/Celebration';
@@ -33,6 +35,7 @@ export default function Home() {
   const unread = unreadCount(state, me);
   const streak = state.streak?.current ?? 0;
   const first = state.profile.name.split(' ')[0];
+  const stagger = useFirstMount('home');
 
   return (
     <main className="screen home">
@@ -80,14 +83,14 @@ export default function Home() {
         <h2>Today's Tasks</h2>
         {tasks.length === 0 ? (
           <EmptyState title="No tasks today." body="Enjoy it." />
-        ) : tasks.map((a) => {
+        ) : <LayoutGroup id="home">{tasks.map((a, i) => {
           const chore = chores.get(a.chore_id);
           if (!chore) return null;
           return (
-            <TaskRow key={a.id} chore={chore} assignment={a} onComplete={() => complete(a)} onOpen={() => setWhy(a)}
+            <TaskRow key={a.id} chore={chore} assignment={a} onComplete={() => complete(a)} onOpen={() => setWhy(a)} enter={stagger ? i : undefined}
               note={a.claimed_by === me && a.user_id !== me ? 'Covering' : undefined} />
           );
-        })}
+        })}</LayoutGroup>}
       </section>
 
       {upFor.length > 0 && (

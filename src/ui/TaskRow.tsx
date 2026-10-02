@@ -1,33 +1,46 @@
-import { type ReactNode, useRef, useState } from 'react';
+import { Check } from 'lucide-react';
+import { m } from 'motion/react';
+import { type CSSProperties, type ReactNode, useRef } from 'react';
 import { EffortChip } from './EffortChip';
+import { SPRING } from './motion';
 import type { Assignment, Chore } from '../lib/types';
 
-interface Props { chore: Chore; assignment: Assignment; onComplete?: () => void; onOpen?: () => void; action?: ReactNode; note?: string }
+interface Props { chore: Chore; assignment: Assignment; onComplete?: () => void; onOpen?: () => void; action?: ReactNode; note?: string; enter?: number }
 
-export function TaskRow({ chore, assignment, onComplete, onOpen, action, note }: Props) {
+/** A swipe completes past 40% of the row, or on a rightward fling. */
+export const swipeCompletes = (offset: number, width: number, velocity: number) => offset > width * 0.4 || velocity > 500;
+
+export function TaskRow({ chore, assignment, onComplete, onOpen, action, note, enter }: Props) {
   const done = assignment.status === 'done';
   const canSwipe = Boolean(onComplete) && !done;
-  const [dx, setDx] = useState(0);
-  const start = useRef<number | null>(null);
   const moved = useRef(false);
-  const reset = () => { setDx(0); start.current = null; };
+  const track = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={`task${done ? ' is-done' : ''}`}>
-      {canSwipe && <div className="task__swipe" aria-hidden style={{ opacity: Math.min(1, dx / 80) }}>Done ✓</div>}
-      <div
+    // layoutId (scoped by the page's LayoutGroup) lets a row glide when claiming or completing moves it between sections
+    <m.div layoutId={assignment.id} layout="position" transition={{ layout: SPRING }}
+      className={`task${done ? ' is-done' : ''}${enter !== undefined ? ' task--enter' : ''}`}
+      style={enter !== undefined ? ({ '--i': enter } as CSSProperties) : undefined}>
+      {canSwipe && (
+        <div className="task__swipe" aria-hidden ref={track}>
+          <span className="task__swipe-tick"><Check size={18} strokeWidth={3} /></span>Done
+        </div>
+      )}
+      <m.div
         className="task__card"
-        style={{ transform: dx ? `translateX(${dx}px)` : undefined }}
-        onPointerDown={canSwipe ? (e) => { start.current = e.clientX; moved.current = false; } : undefined}
-        onPointerMove={canSwipe ? (e) => {
-          if (start.current === null) return;
-          const d = Math.max(0, Math.min(120, e.clientX - start.current));
-          if (d > 6) moved.current = true;
-          setDx(d);
-        } : undefined}
-        onPointerUp={canSwipe ? () => { if (dx > 80) onComplete!(); reset(); } : undefined}
-        onPointerCancel={reset}
-        onPointerLeave={() => { if (start.current !== null) reset(); }}
+        // the mint track fades in and its tick grows as the card is pulled (also while it springs back)
+        onUpdate={(v) => track.current?.style.setProperty('--pull', String(Math.min(1, Math.max(0, Number.parseFloat(String(v.x ?? 0)) / 72))))}
+        drag={canSwipe ? 'x' : false}
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={{ left: 0, right: 0.9 }}
+        dragTransition={{ bounceStiffness: 420, bounceDamping: 40 }}
+        onPointerDown={() => { moved.current = false; }}
+        onDragStart={() => { moved.current = true; }}
+        onDragEnd={(e, info) => {
+          const width = (e.target as HTMLElement | null)?.closest('.task')?.clientWidth ?? 320;
+          if (swipeCompletes(info.offset.x, width, info.velocity.x)) onComplete?.();
+        }}
       >
         <span className="task__icon" aria-hidden>{chore.icon}</span>
         <button className="task__body" onClick={() => { if (!moved.current) onOpen?.(); }} disabled={!onOpen} aria-label={onOpen ? `${chore.name}: why this is yours` : undefined}>
@@ -35,14 +48,19 @@ export function TaskRow({ chore, assignment, onComplete, onOpen, action, note }:
           <span className="task__meta"><EffortChip effort={assignment.effort} />{note && <span className="muted">{note}</span>}</span>
         </button>
         {action ?? (onComplete && (
-          <button
+          <m.button
             className={`check${done ? ' is-checked' : ''}`}
             aria-label={done ? `${chore.name} done` : `Mark ${chore.name} done`}
             aria-pressed={done}
             onClick={done ? undefined : onComplete}
-          />
+            initial={false}
+            animate={done ? { scale: [0.85, 1] } : { scale: 1 }}
+            transition={{ type: 'spring', stiffness: 520, damping: 30 }}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden><path d="M6 12.5l4 4 8-9" /></svg>
+          </m.button>
         ))}
-      </div>
-    </div>
+      </m.div>
+    </m.div>
   );
 }

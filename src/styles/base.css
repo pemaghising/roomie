@@ -16,6 +16,8 @@ button { font: inherit; color: inherit; }
 .eyebrow { font: 600 12px/1 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .muted { color: var(--muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Reduced motion: no spatial movement (slides, scale, entrances); colour, opacity and the check's fill + tick stay,
+   so completing a chore is still unmistakable. Motion's own transforms are handled by <MotionConfig reducedMotion="user">. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; scroll-behavior: auto !important; scale: none !important; translate: none !important; }
 }
