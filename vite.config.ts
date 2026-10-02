@@ -6,7 +6,10 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig(({ mode }) => ({
   resolve: {
-    alias: { '@domain': fileURLToPath(new URL('./supabase/functions/_shared/domain', import.meta.url)) },
+    alias: {
+      '@domain': fileURLToPath(new URL('./supabase/functions/_shared/domain', import.meta.url)),
+      '@supabase/storage-js': fileURLToPath(new URL('./src/lib/storageStub.ts', import.meta.url)),
+    },
   },
   plugins: [
     react(),

@@ -1,5 +1,5 @@
 import { AnimatePresence, m } from 'motion/react';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ComponentType, lazy, type ReactNode, Suspense, useEffect, useState } from 'react';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation, useOutlet, useParams } from 'react-router';
 import { confirmedSince, gateFor, type Gate, guardAction, HOME_OF } from './lib/gate';
 import { useAppState, useRealtime } from './lib/state';
@@ -8,22 +8,32 @@ import { Splash } from './ui/Splash';
 import { EASE_IN, EASE_OUT } from './ui/motion';
 import { TabBar } from './ui/TabBar';
 import Welcome from './features/auth/Welcome';
-import ContactEntry from './features/auth/ContactEntry';
-import VerifyCode from './features/auth/VerifyCode';
-import ProfileStep from './features/onboarding/ProfileStep';
-import StartStep from './features/onboarding/StartStep';
-import JoinStep from './features/onboarding/JoinStep';
-import HomeNameStep from './features/onboarding/HomeNameStep';
-import ChoresStep from './features/onboarding/ChoresStep';
-import BusyStep from './features/onboarding/BusyStep';
-import InviteStep from './features/onboarding/InviteStep';
 import Home from './features/home/Home';
-import Chores from './features/chores/Chores';
-import PlanReview from './features/plan/PlanReview';
-import Profile from './features/profile/Profile';
-import HouseholdSettings from './features/profile/HouseholdSettings';
-import Activity from './features/activity/Activity';
 import { OfflineBanner } from './ui/OfflineBanner';
+
+// Welcome and Home are the first screens and stay in the entry chunk; everything else loads on demand.
+const ContactEntry = lazy(() => import('./features/auth/ContactEntry'));
+const VerifyCode = lazy(() => import('./features/auth/VerifyCode'));
+const ProfileStep = lazy(() => import('./features/onboarding/ProfileStep'));
+const StartStep = lazy(() => import('./features/onboarding/StartStep'));
+const JoinStep = lazy(() => import('./features/onboarding/JoinStep'));
+const HomeNameStep = lazy(() => import('./features/onboarding/HomeNameStep'));
+const ChoresStep = lazy(() => import('./features/onboarding/ChoresStep'));
+const BusyStep = lazy(() => import('./features/onboarding/BusyStep'));
+const InviteStep = lazy(() => import('./features/onboarding/InviteStep'));
+const PlanReview = lazy(() => import('./features/plan/PlanReview'));
+const HouseholdSettings = lazy(() => import('./features/profile/HouseholdSettings'));
+const Activity = lazy(() => import('./features/activity/Activity'));
+// The other tabs are prefetched on idle (see Tabs). Once loaded they render synchronously: a plain React.lazy
+// would still suspend once and React throttles the reveal (~300 ms), which the first tab switch would show.
+function prefetchable(load: () => Promise<{ default: ComponentType }>) {
+  let Loaded: ComponentType | undefined;
+  const prefetch = () => load().then((m) => { Loaded = m.default; return m; });
+  const Lazy = lazy(prefetch);
+  return { Screen: () => (Loaded ? <Loaded /> : <Lazy />), prefetch };
+}
+const { Screen: Chores, prefetch: loadChores } = prefetchable(() => import('./features/chores/Chores'));
+const { Screen: Profile, prefetch: loadProfile } = prefetchable(() => import('./features/profile/Profile'));
 
 const PAGE_LOADED_AT = Date.now();
 
@@ -45,7 +55,7 @@ function Guard({ allow, children }: { allow: Gate[]; children: ReactNode }) {
 function Root() {
   const { data } = useAppState();
   useRealtime(data?.household?.id);
-  return (<><OfflineBanner /><Outlet /></>);
+  return (<><OfflineBanner /><Suspense fallback={<Splash />}><Outlet /></Suspense></>);
 }
 
 /** Holds on to the route it mounted with, so an exiting tab keeps showing its own page. */
@@ -57,6 +67,10 @@ function FrozenOutlet() {
 
 function Tabs() {
   const { pathname } = useLocation();
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1500));
+    idle(() => { void loadChores(); void loadProfile(); });
+  }, []);
   return (
     <>
       <AnimatePresence mode="popLayout" initial={false}>
@@ -64,7 +78,8 @@ function Tabs() {
           initial={{ opacity: 0, x: 8 }}
           animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: EASE_OUT } }}
           exit={{ opacity: 0, x: -8, transition: { duration: 0.14, ease: EASE_IN } }}>
-          <FrozenOutlet />
+          {/* no fallback: the tab bar stays put and the view fades in once its chunk is ready */}
+          <Suspense fallback={null}><FrozenOutlet /></Suspense>
         </m.div>
       </AnimatePresence>
       <TabBar />

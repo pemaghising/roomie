@@ -6,7 +6,9 @@ export const EASE_IN = [0.4, 0, 1, 1] as const;
 /** Damping ratio ~0.97: settles without overshoot. */
 export const SPRING = { type: 'spring', stiffness: 380, damping: 38 } as const;
 
-export const loadMotionFeatures = () => import('./motionFeatures').then((m) => m.default);
+// fetched once the browser is idle, so the 28 kB of drag/layout code never competes with first paint
+const whenIdle = () => new Promise<void>((done) => (window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1)))(() => done()));
+export const loadMotionFeatures = () => whenIdle().then(() => import('./motionFeatures')).then((m) => m.default);
 
 const seen = new Set<string>();
 /**

@@ -1,6 +1,6 @@
 import { Bell, CalendarDays, Repeat } from 'lucide-react';
 import { LayoutGroup } from 'motion/react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router';
 import { DAY_NAMES, weekdayOf } from '@domain/time.ts';
 import { choreMap, incomingSwaps, myTasksOn, namesOf, nextUp, pendingDraft, pool, roommates, unreadCount } from '../../lib/selectors';
@@ -11,11 +11,13 @@ import { EmptyState } from '../../ui/EmptyState';
 import { useFirstMount } from '../../ui/motion';
 import { Sprout } from '../../ui/Sprout';
 import { TaskRow } from '../../ui/TaskRow';
-import { Celebration } from '../chores/Celebration';
 import { useChoreActions } from '../chores/useChoreActions';
-import { WhySheet } from '../chores/WhySheet';
 import { InstallPrimer } from '../primer/InstallPrimer';
+import '../chores/chores.css'; // .section and the sheet styles Home uses; the sheets themselves load lazily
 import './home.css';
+
+const Celebration = lazy(() => import('../chores/Celebration').then((m) => ({ default: m.Celebration })));
+const WhySheet = lazy(() => import('../chores/WhySheet').then((m) => ({ default: m.WhySheet })));
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -107,8 +109,10 @@ export default function Home() {
         </div>
       )}
 
-      <WhySheet assignment={why} onClose={() => setWhy(null)} />
-      <Celebration kind={celebration} onClose={closeCelebration} />
+      <Suspense fallback={null}>
+        <WhySheet assignment={why} onClose={() => setWhy(null)} />
+        <Celebration kind={celebration} onClose={closeCelebration} />
+      </Suspense>
     </main>
   );
 }
