@@ -62,7 +62,7 @@ test('endpoint allow-list only admits real push services', () => {
   for (const ok of ['https://fcm.googleapis.com/fcm/send/abc', 'https://web.push.apple.com/x', 'https://updates.push.services.mozilla.com/x', 'https://db5.notify.windows.com/x']) {
     expect(isAllowedPushEndpoint(ok)).toBe(true);
   }
-  for (const bad of ['https://169.254.169.254/x', 'https://localhost/x', 'https://evil.example/x', 'http://fcm.googleapis.com/x', 'https://fcm.googleapis.com.evil.example/x', 'not a url']) {
+  for (const bad of ['https://169.254.169.254/x', 'https://localhost/x', 'https://evil.example/x', 'http://fcm.googleapis.com/x', 'https://fcm.googleapis.com.evil.example/x', 'https://fcm.googleapis.com:8443/x', 'not a url']) {
     expect(isAllowedPushEndpoint(bad)).toBe(false);
   }
 });

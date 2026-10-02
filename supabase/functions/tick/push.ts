@@ -21,7 +21,7 @@ const DEEP_LINK: Record<NudgeKind, string> = {
 export function isAllowedPushEndpoint(endpoint: string): boolean {
   let u: URL;
   try { u = new URL(endpoint); } catch { return false; }
-  if (u.protocol !== 'https:') return false;
+  if (u.protocol !== 'https:' || u.port) return false;
   const h = u.hostname.toLowerCase();
   return h === 'fcm.googleapis.com' || h === 'web.push.apple.com' ||
     h.endsWith('.push.services.mozilla.com') || h.endsWith('.notify.windows.com');

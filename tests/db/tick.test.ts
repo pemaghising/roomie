@@ -1,21 +1,66 @@
 // @vitest-environment node
-import { afterAll, describe, expect, test } from 'vitest';
+import { afterAll, describe, expect, test, vi } from 'vitest';
 import { admin, cleanup, hasDb, makeUser, seedHousehold, seedPlan } from './helpers';
 import { addDays, localParts, weekStartOf } from '../../supabase/functions/_shared/domain/time';
 
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 const secret = process.env.SUPABASE_TEST_CRON_SECRET;
 const userIds: string[] = [];
 const householdIds: string[] = [];
 afterAll(() => cleanup({ userIds, householdIds }));
 
 describe.skipIf(!hasDb)('srv_* server functions', () => {
-  test('an authenticated (non-service) client cannot call srv_snapshots', async () => {
+  const zero = '00000000-0000-0000-0000-000000000000';
+  const day = '2026-10-01';
+  const calls: [string, Record<string, unknown>][] = [
+    ['srv_snapshots', {}],
+    ['srv_expire_day', { p_household: zero, p_day: day }],
+    ['srv_insert_plan', { p_household: zero, p_week: day, p_status: 'locked', p_assignments: [], p_consume: true, p_only_if_new: false }],
+    ['srv_queue_digest', { p_household: zero, p_day: day }],
+  ];
+  test.each(calls)('an authenticated (non-service) client cannot call %s', async (fn, args) => {
     const u = await makeUser('Nosy');
     userIds.push(u.id);
-    const { data, error } = await u.client.rpc('srv_snapshots');
+    const { data, error } = await u.client.rpc(fn, args);
     expect(error).not.toBeNull();
     expect(data).toBeNull();
-  });
+  }, 30_000);
+
+  test('srv_queue_digest twice for one day queues each member once', async () => {
+    const a = await makeUser('DigA');
+    const b = await makeUser('DigB');
+    userIds.push(a.id, b.id);
+    const h = await seedHousehold(a.id, [b.id]);
+    householdIds.push(h);
+    const today = localParts(new Date(), 'Asia/Kathmandu').date;
+    await seedPlan(h, weekStartOf(today), [{ userId: a.id, day: today }, { userId: b.id, day: today }]);
+    for (let i = 0; i < 2; i++) {
+      const { error } = await admin().rpc('srv_queue_digest', { p_household: h, p_day: today });
+      expect(error).toBeNull();
+    }
+    const { data } = await admin().from('notifications').select('user_id').eq('household_id', h).eq('kind', 'digest');
+    expect(data!.map((n) => n.user_id).sort()).toEqual([a.id, b.id].sort());
+  }, 30_000);
+
+  test('srv_insert_plan with the same chore twice into an existing plan does not duplicate', async () => {
+    const u = await makeUser('Dup');
+    userIds.push(u.id);
+    const h = await seedHousehold(u.id);
+    householdIds.push(h);
+    const today = localParts(new Date(), 'Asia/Kathmandu').date;
+    const week = weekStartOf(today);
+    const [aid] = await seedPlan(h, week, [{ userId: u.id, day: today }]);
+    const { data: existing } = await admin().from('assignments').select('chore_id').eq('id', aid).single();
+    const rows = [{ choreId: existing!.chore_id, userId: u.id, day: today, effort: 1, reason: {} }];
+    for (let i = 0; i < 2; i++) {
+      const { error } = await admin().rpc('srv_insert_plan', {
+        p_household: h, p_week: week, p_status: 'locked', p_assignments: rows, p_consume: false, p_only_if_new: false,
+      });
+      expect(error).toBeNull();
+    }
+    const { data: all } = await admin().from('assignments').select('id').eq('household_id', h);
+    expect(all).toHaveLength(1);
+  }, 30_000);
 
   test('snapshots emit every day including empty ones, and lockAt is ISO with Z', async () => {
     const u = await makeUser('Snap');
