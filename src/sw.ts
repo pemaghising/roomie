@@ -1,8 +1,15 @@
 /// <reference lib="webworker" />
-import { precacheAndRoute } from 'workbox-precaching';
+import { createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
+import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { safeTarget } from './lib/safeUrl';
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<{ url: string; revision: string | null }> };
 precacheAndRoute(self.__WB_MANIFEST);
+// SPA deep links (/chores, /plan, notification clicks) offline: serve the precached shell
+registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html')));
+
+// autoUpdate never posts SKIP_WAITING, so take over as soon as a new worker installs
+self.addEventListener('install', () => { self.skipWaiting(); });
+self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
 self.addEventListener('message', (e) => { if (e.data === 'SKIP_WAITING') self.skipWaiting(); });
 
 self.addEventListener('push', (event) => {
