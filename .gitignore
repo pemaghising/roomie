@@ -1,0 +1,15 @@
+# Only the case study is tracked; app/experiments live elsewhere.
+/*
+!/.gitignore
+!/README.md
+!/case-study.md
+!/decisions-log.md
+!/evidence-map.md
+!/sources/
+!/roomie-case-study/
+!/roomie-teaser/
+/roomie-teaser/*
+!/roomie-teaser/out/
+/roomie-teaser/out/*
+!/roomie-teaser/out/roomie-launch-light-sfx-16x9.mp4
+!/roomie-teaser/out/roomie-launch-light-poster.png
