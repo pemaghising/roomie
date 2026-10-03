@@ -415,3 +415,76 @@ describe.skipIf(!hasDb)('pantry in the tick', () => {
     expect((data as { userId: string; sentToday: number }[]).find((n) => n.userId === u.id)!.sentToday).toBe(1);
   });
 });
+
+describe.skipIf(!hasDb)('restock final fixes', () => {
+  let a: U; let b: U; let c: U; let d: U; let h: string;
+  const shared = (name: string) => seedItem(h, a.id, { name });
+  const req = async (id: string) => (await admin().from('restock_requests').select('*').eq('id', id).single()).data!;
+  const notes = async (kind: string, item: string) =>
+    (await admin().from('notifications').select('user_id, payload').eq('household_id', h).eq('kind', kind).eq('payload->>item', item)).data!;
+  const ledger = async () => (await admin().from('effort_ledger').select('balance').eq('household_id', h)).data!.map((l) => l.balance);
+  beforeAll(async () => {
+    [a, b, c, d] = await Promise.all([makeUser('Aarav'), makeUser('Priya'), makeUser('Nima'), makeUser('Dawa')]);
+    h = await seedHousehold(a.id, [b.id, c.id, d.id]);
+  });
+
+  test('free text: one open request per name, ignoring case and spacing, even on a double tap', async () => {
+    const tap = await Promise.all([
+      a.client.rpc('request_restock', { p_name: 'Dish soap', p_effort: 1 }),
+      b.client.rpc('request_restock', { p_name: 'Dish soap', p_effort: 1 }),
+    ]);
+    const errors = tap.filter((r) => r.error);
+    expect(errors).toHaveLength(1);
+    expect(errors[0].error!.message).toContain('already_requested');
+    expect((await c.client.rpc('request_restock', { p_name: '  DISH   soap ', p_effort: 1 })).error?.message).toContain('already_requested');
+    const { data: open } = await admin().from('restock_requests').select('id').eq('household_id', h).eq('status', 'open').ilike('name', 'dish soap');
+    expect(open).toHaveLength(1);
+    // once it is done, the name can be requested again
+    expect((await c.client.rpc('complete_restock', { p_id: open![0].id })).error).toBeNull();
+    expect((await c.client.rpc('request_restock', { p_name: 'dish soap', p_effort: 1 })).error).toBeNull();
+  });
+
+  test('the claimer marking it in stock completes the request with credit; anyone else still cancels it', async () => {
+    const before = await ledger();
+    const oil = await shared('Oil');
+    const { data: rid, error } = await a.client.rpc('request_restock', { p_item: oil, p_effort: 2 });
+    expect(error).toBeNull();
+    expect((await b.client.rpc('claim_restock', { p_id: rid })).error).toBeNull();
+    expect((await b.client.rpc('set_item_stock', { p_id: oil, p_stock: 'in_stock' })).error).toBeNull();
+    expect(await req(rid)).toMatchObject({ status: 'done', done_by: b.id, claimed_by: b.id });
+    expect((await req(rid)).done_at).not.toBeNull();
+    const { data: log } = await admin().from('activity').select('payload').eq('household_id', h).eq('kind', 'restocked').eq('payload->>item', 'Oil');
+    expect(log).toEqual([{ payload: { actor: 'Priya', item: 'Oil' } }]);
+    expect(await notes('restock_done', 'Oil')).toEqual([{ user_id: a.id, payload: { actor: 'Priya', item: 'Oil' } }]);
+    expect(await notes('restock_closed', 'Oil')).toEqual([]);
+    expect(await ledger()).toEqual(before);
+
+    const flour = await shared('Flour');
+    const { data: r2, error: e2 } = await a.client.rpc('request_restock', { p_item: flour, p_effort: 1 });
+    expect(e2).toBeNull();
+    expect((await b.client.rpc('claim_restock', { p_id: r2 })).error).toBeNull();
+    expect((await c.client.rpc('set_item_stock', { p_id: flour, p_stock: 'in_stock' })).error).toBeNull();
+    expect((await req(r2)).status).toBe('cancelled');
+    expect(await notes('restock_closed', 'Flour')).toEqual([{ user_id: b.id, payload: { item: 'Flour' } }]);
+    expect(await notes('restock_done', 'Flour')).toEqual([]);
+  });
+
+  test('removing an item tells the claimer its request was closed', async () => {
+    const honey = await shared('Honey');
+    const { data: rid, error } = await a.client.rpc('request_restock', { p_item: honey, p_effort: 1 });
+    expect(error).toBeNull();
+    expect((await b.client.rpc('claim_restock', { p_id: rid })).error).toBeNull();
+    expect((await c.client.rpc('remove_pantry_item', { p_id: honey })).error).toBeNull();
+    expect((await req(rid)).status).toBe('cancelled');
+    expect(await notes('restock_closed', 'Honey')).toEqual([{ user_id: b.id, payload: { item: 'Honey' } }]);
+  });
+
+  test('no restock_done reaches a requester who has left', async () => {
+    const { data: rid, error } = await d.client.rpc('request_restock', { p_name: 'Foil', p_effort: 1 });
+    expect(error).toBeNull();
+    expect((await d.client.rpc('leave_household')).error).toBeNull();
+    expect((await c.client.rpc('complete_restock', { p_id: rid })).error).toBeNull();
+    expect((await req(rid)).status).toBe('done');
+    expect(await notes('restock_done', 'Foil')).toEqual([]);
+  });
+});

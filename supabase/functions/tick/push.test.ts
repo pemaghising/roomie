@@ -149,3 +149,15 @@ test('pantry pushes deep-link to the right place', async () => {
   await drainNotifications(client, send, NOON);
   expect(send.mock.calls.map((c) => JSON.parse(c[1]).url)).toEqual(['/pantry?tab=mine', '/pantry?tab=roommates', '/pantry', '/chores']);
 });
+
+test('an unknown kind is marked skipped and the rest of the drain still goes out', async () => {
+  const { client, calls } = db([note(1, { kind: 'mystery' }), note(2)]);
+  const send = vi.fn(async (_s: PushSub, _m: string) => ({ gone: false }));
+  const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+  await drainNotifications(client, send, NOON);
+  err.mockRestore();
+  expect(send).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(send.mock.calls[0][1]).tag).toBe('pool-2');
+  expect(calls).toContainEqual({ fn: 'srv_mark_notification', args: { p_id: 1, p_skipped: true } });
+  expect(calls).toContainEqual({ fn: 'srv_mark_notification', args: { p_id: 2, p_skipped: false } });
+});

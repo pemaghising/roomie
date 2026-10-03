@@ -75,7 +75,15 @@ export async function drainNotifications(db: RpcClient, send: SendPush, now = ne
       await mark(n, true);
       continue;
     }
-    const { title, body } = nudge(n.kind, n.style, n.payload);
+    let title: string, body: string;
+    try {
+      ({ title, body } = nudge(n.kind, n.style, n.payload));
+    } catch {
+      // an unknown kind or malformed payload is skipped so it never stalls every later notification
+      console.error('unpushable notification', n.id);
+      await mark(n, true);
+      continue;
+    }
     const message = JSON.stringify({ title, body, url: DEEP_LINK[n.kind] ?? '/', tag: `${n.kind}-${n.id}` });
     let delivered = 0;
     for (const sub of n.subscriptions) {

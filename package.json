@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --no-file-parallelism",
     "test:watch": "vitest",
     "splash": "node scripts/splash.mjs",
     "icons": "pwa-assets-generator --preset minimal-2023 public/roomie-icon.svg",
