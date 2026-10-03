@@ -4414,23 +4414,29 @@ EOF
 
 ## Rollout (controller)
 
-Not part of any task; the controller runs it after the branch is reviewed and merged. Order matters:
-- **DB first.** The current app and tick ignore the new `get_state` fields and still work against the new functions.
-- **Then the tick.** The old tick would mark stale-only digests as skipped.
-- **App last.** The new app needs the new RPCs.
+Not part of any task; the controller runs it after the branch is reviewed and merged.
+
+**What ships.** The backend only: Tasks 1-6 (domain code, tables and RLS, RPCs, `get_state`, tick). The web screens (Tasks 7-12) were not built; the Pantry screens are native. Nothing in this rollout adds a Pantry tab to the web app.
+
+**Order matters:**
+- **Tick first.** The new tick works against the old DB. The old tick has no copy for the `restock`/`ask` kinds, so one such notification would stall its drain. Deploy the tick before the DB push, or immediately after it with no pantry RPC calls on prod in between.
+- **Then the DB.** The current web app ignores the new `get_state` fields and still works against the new functions.
+- **Web app optional, and only after the DB.** It ships type/state plumbing only (no Pantry tab).
 
 1. Finish the branch (superpowers:finishing-a-development-branch) and merge `feat/motion` as agreed.
-2. Link the worktree to **prod**: `npx supabase link --project-ref <prod-ref>`. Supply the prod DB password the same way as dev, read into a variable, never printed.
-3. Push the four new migrations to prod: `npx supabase db push --linked --password "$P"`.
-   - Expected: `20261001000011_pantry_schema.sql` through `20261001000014_pantry_tick.sql` applied.
+2. Link the worktree to **prod**: `npx supabase link --project-ref <prod-ref>`. Supply the prod DB password and access token the same way as dev, read into variables, never printed.
+3. Deploy the tick to prod: `npx supabase functions deploy tick --no-verify-jwt --use-api`.
+4. Push the six new migrations to prod: `npx supabase db push --linked --password "$P"` (plain push, no `--include-all`; that flag was only needed on dev).
+   - Expected, in order: `20261001000011_pantry_schema.sql`, `..._000012_pantry_rpc.sql`, `..._000013_pantry_state.sql`, `..._000014_pantry_tick.sql`, `..._000015_pantry_rpc_fixes.sql`, `20261001000016_pantry_final_fixes.sql`.
    - Nothing else is pending.
-4. Redeploy the tick to prod: `npx supabase functions deploy tick --no-verify-jwt --use-api`.
-5. Deploy the app: `npx vercel deploy --prod`.
+5. Optional: `npx vercel deploy --prod` (only after step 4).
 6. Relink the worktree to **dev**: `npx supabase link --project-ref <dev-ref>`.
-7. Smoke test on prod with two accounts in one existing household:
-   - The Pantry tab appears, showing "Nothing on the shelf yet" and Add the basics.
-   - Add Paper towels and request a restock; the other account sees "Buy Paper towels" in Chores → Up for grabs.
-   - Mark it Done; the first account sees it In stock and gets the "picked up" push.
+7. RPC-level smoke test on prod with two prod test accounts in one test household (signed-in clients, not the service role):
+   - A: `add_pantry_item('Paper towels', false)`; A: `request_restock(p_item => <id>)`; B: `complete_restock(<request id>)`.
+   - The item is `in_stock`, the request is `done` by B, one `restock_done` notification is queued for A, and `effort_ledger` is unchanged for both.
+   - `get_state` returns `pantry`, `restocks` and `asks`.
+   - The existing web app still loads, and pushes still arrive.
+   - The UI smoke test (Pantry tab, Up for grabs, In stock, "picked up" push) runs when the native screens ship.
 8. Next morning: confirm the digest still arrives, and that `restock` pushes are being sent:
 
 ```sql
@@ -4439,3 +4445,5 @@ from notifications
 where kind like 'restock%' or kind like 'ask%'
 group by kind;
 ```
+
+**Gate before the native Pantry goes live on prod.** Web-only roommates need the web restock pool rows, the web activity text (`src/features/activity/text.ts` kinds `restock_requested`, `restocked`) and a native push path. Otherwise accept that mixed households see "Something happened at home" in the web feed and that native users get no pantry pushes.

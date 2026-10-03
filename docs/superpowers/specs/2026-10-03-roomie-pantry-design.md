@@ -88,7 +88,7 @@ Roommates fight over groceries because of **unspoken rules**: who owns this, can
 2. **One open request per item.** A second request on an item that already has one is refused with the error "already_requested". The UI shows "Requested" instead.
 3. **Marking an item In stock** closes any open request on it as cancelled. A claimer who has already claimed it gets notified ("{item} was restocked").
 4. **Open requests never expire.** They don't break the household streak, because the pool is optional help. One that has been open longer than 48 h is mentioned once in the morning digest: "Still needed: Paper towels."
-5. **Asks** are only valid on another member's Ask-first item, with one pending ask per (item, asker). The owner answers yes or no, and the asker is notified. A pending ask disappears after 24 h with no notification. Asks are logged to the owner's and asker's activity only; there is no household-wide feed entry.
+5. **Asks** are only valid on another member's Ask-first item, with one pending ask per (item, asker). The owner answers yes or no, and the asker is notified. A pending ask disappears after 24 h with no notification. Asks never appear in the household activity feed; they are visible only to the two people involved.
 6. **Removing items.** A shared item can be removed by anyone; a personal item only by its owner. Removal archives the item. An open request on it is cancelled.
 7. **Leaving the household** archives the leaving member's personal items.
 8. **Privacy.**
@@ -151,7 +151,7 @@ pantry_asks
 - `ask`: to the owner.
 - `ask_answer`: to the asker.
 
-All kinds have motivate and facts copy in `copy.ts`. Deep links: `/chores` for restock, `/pantry?tab=roommates` for asks.
+All kinds have motivate and facts copy in `copy.ts`. Deep links: `ask` → `/pantry?tab=mine` (the owner answers on their own shelf); `ask_answer` → `/pantry?tab=roommates`; `restock` → `/chores`.
 
 **Realtime.** Subscribe to `pantry_items` and `restock_requests` for the household. Do not subscribe to `pantry_asks`; it is fetched via `get_state` on refetch.
 
