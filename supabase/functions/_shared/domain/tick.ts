@@ -1,5 +1,5 @@
 import type { AssignmentStatus } from './types.ts';
-import type { NudgeKind } from './copy.ts';
+import type { NudgeKind } from './nudge.ts';
 import { dayOutcome, type Streak } from './streak.ts';
 import { addDays, localParts, minutesOf, type Weekday, weekStartOf } from './time.ts';
 

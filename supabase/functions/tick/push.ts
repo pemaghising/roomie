@@ -1,4 +1,4 @@
-import { nudge, type NudgeKind, type NudgePayload } from '../_shared/domain/copy.ts';
+import { nudge, type NudgeKind, type NudgePayload } from '../_shared/domain/nudge.ts';
 import { localParts } from '../_shared/domain/time.ts';
 import { pushDecision } from '../_shared/domain/tick.ts';
 import type { NudgeStyle } from '../_shared/domain/types.ts';
@@ -15,6 +15,8 @@ interface PendingNotification {
 const DEEP_LINK: Record<NudgeKind, string> = {
   digest: '/chores', pool: '/chores', plan_ready: '/plan', plan_locked: '/plan', covered: '/profile',
   day_kept: '/', swap_request: '/plan', swap_answer: '/plan', joined: '/',
+  // an ask goes to the owner (their shelf); the answer goes to the asker (the roommate's shelf)
+  restock: '/chores', restock_done: '/pantry', restock_closed: '/chores', ask: '/pantry?tab=mine', ask_answer: '/pantry?tab=roommates',
 };
 
 /** SSRF guard: subscriptions are user-supplied URLs, so only ever POST to the real push services. */

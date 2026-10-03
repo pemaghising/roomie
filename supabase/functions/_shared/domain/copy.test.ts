@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { balanceSentence, effortLabel, errorText, nudge, reasonText } from './copy.ts';
+import { balanceSentence, effortLabel, ERROR_CODES, errorText, reasonText } from './copy.ts';
 
 const names = { a: 'Aarav', p: 'Priya' };
 
@@ -20,41 +20,6 @@ describe('reasonText — every assignment explains itself in one sentence', () =
   });
 });
 
-describe('nudge — two tones, never nagging', () => {
-  test('digest', () => {
-    expect(nudge('digest', 'motivate', { chores: ['Bathroom', 'Take out trash'] }))
-      .toEqual({ title: 'Good morning 🌱', body: '2 tasks today — Bathroom and Take out trash.' });
-    expect(nudge('digest', 'facts', { chores: ['Bathroom'] }))
-      .toEqual({ title: 'Today', body: 'Bathroom.' });
-  });
-  test('pool', () => {
-    expect(nudge('pool', 'motivate', { chore: 'Mop bathroom floor' }).body).toBe('Up for grabs: Mop bathroom floor. Be a hero?');
-    expect(nudge('pool', 'facts', { chore: 'Mop bathroom floor' }).body).toBe('Unclaimed: Mop bathroom floor.');
-  });
-  test('pool batches one sweep into one push', () => {
-    expect(nudge('pool', 'motivate', { chores: ['Bins'] })).toEqual({ title: 'Up for grabs 🙌', body: 'Up for grabs: Bins. Be a hero?' });
-    expect(nudge('pool', 'facts', { chores: ['Bins'] })).toEqual({ title: 'Unclaimed chore', body: 'Unclaimed: Bins.' });
-    expect(nudge('pool', 'motivate', { chores: ['Bins', 'Dishes', 'Mop'] }))
-      .toEqual({ title: 'Up for grabs 🙌', body: 'Up for grabs: Bins, Dishes and Mop. Grab one?' });
-    expect(nudge('pool', 'facts', { chores: ['Bins', 'Dishes'] })).toEqual({ title: 'Unclaimed chores', body: 'Unclaimed: Bins and Dishes.' });
-  });
-  test('covered is private and kind', () => {
-    expect(nudge('covered', 'motivate', { actor: 'Aarav', chore: 'Bathroom', effort: 3 }).body)
-      .toBe("Aarav covered the Bathroom — you'll pick up a little extra next week (+3 pts).");
-    expect(nudge('covered', 'facts', { actor: 'Aarav', chore: 'Bathroom', effort: 1 }).body)
-      .toBe('Aarav covered Bathroom. +1 pt next week.');
-  });
-  test('every kind has copy in both tones', () => {
-    const kinds = ['digest', 'pool', 'plan_ready', 'plan_locked', 'covered', 'day_kept', 'swap_request', 'swap_answer', 'joined'] as const;
-    for (const k of kinds) for (const s of ['motivate', 'facts'] as const) {
-      const n = nudge(k, s, { chore: 'X', chores: ['X'], actor: 'A', streak: 2, effort: 1, accepted: true, offered: 'Y' });
-      expect(n.title.length).toBeGreaterThan(0);
-      expect(n.body.length).toBeGreaterThan(0);
-      expect(n.body).not.toMatch(/you forgot|you failed|again\?/i);
-    }
-  });
-});
-
 test('effortLabel', () => {
   expect([1, 2, 3].map(effortLabel)).toEqual(['Light', 'Medium', 'Heavy']);
 });
@@ -62,6 +27,13 @@ test('effortLabel', () => {
 test('errorText maps server codes and falls back', () => {
   expect(errorText('already_claimed')).toBe('Someone already grabbed this one.');
   expect(errorText('something_new')).toBe("Something went wrong. We'll keep trying.");
+});
+
+test('errorText covers the pantry refusals, and the client recognises their codes', () => {
+  expect(errorText('duplicate_item')).toBe('Already in the pantry.');
+  expect(errorText('already_requested')).toBe("Already requested — it's in the Chores pool.");
+  expect(ERROR_CODES).toContain('duplicate_item');
+  expect(ERROR_CODES).toContain('already_requested');
 });
 
 test('balanceSentence never ranks, only explains', () => {
