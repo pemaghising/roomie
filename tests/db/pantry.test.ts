@@ -381,3 +381,37 @@ describe.skipIf(!hasDb)('get_state pantry', () => {
     expect((await a.client.rpc('get_state')).data.asks).toEqual([]);
   });
 });
+
+describe.skipIf(!hasDb)('pantry in the tick', () => {
+  test('the morning digest mentions a request open over 48 h once, to everyone, even with no chores', async () => {
+    const [a, b] = await Promise.all([makeUser('StaleA'), makeUser('StaleB')]);
+    const h = await seedHousehold(a.id, [b.id]);
+    const ins = await admin().from('restock_requests').insert([
+      { household_id: h, name: 'Paper towels', effort: 1, requested_by: a.id, created_at: new Date(Date.now() - 49 * 3_600_000).toISOString() },
+      { household_id: h, name: 'Rice', effort: 1, requested_by: a.id, created_at: new Date().toISOString() }, // bulk insert: every row needs the column
+    ]);
+    if (ins.error) throw ins.error;
+    expect((await admin().rpc('srv_queue_digest', { p_household: h, p_day: todayKtm() })).error).toBeNull();
+    const { data } = await admin().from('notifications').select('user_id, payload').eq('household_id', h).eq('kind', 'digest');
+    expect(data!.map((n) => n.user_id).sort()).toEqual([a.id, b.id].sort());
+    for (const n of data!) expect(n.payload).toEqual({ chores: [], stale: ['Paper towels'] });
+    // the next morning it is not mentioned again (and nobody has chores, so nothing is queued)
+    await admin().from('households').update({ digest_sent_for: null }).eq('id', h);
+    expect((await admin().rpc('srv_queue_digest', { p_household: h, p_day: todayKtm() })).error).toBeNull();
+    expect((await admin().from('notifications').select('id').eq('household_id', h).eq('kind', 'digest')).data).toHaveLength(2);
+  });
+
+  test('restock pushes do not count toward the daily cap', async () => {
+    const u = await makeUser('CapR');
+    const h = await seedHousehold(u.id);
+    const now = new Date().toISOString();
+    const ins = await admin().from('notifications').insert([
+      ...[1, 2, 3].map(() => ({ user_id: u.id, household_id: h, kind: 'restock', payload: { item: 'Milk' }, sent_at: now })),
+      { user_id: u.id, household_id: h, kind: 'digest', payload: { chores: ['Bins'] }, sent_at: now },
+      { user_id: u.id, household_id: h, kind: 'plan_ready', payload: {} },
+    ]);
+    if (ins.error) throw ins.error;
+    const { data } = await admin().rpc('srv_pending_notifications');
+    expect((data as { userId: string; sentToday: number }[]).find((n) => n.userId === u.id)!.sentToday).toBe(1);
+  });
+});

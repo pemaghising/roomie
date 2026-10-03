@@ -82,7 +82,7 @@ export const PUSH_DAILY_CAP = 3;
 
 export function pushDecision(localHour: number, sentToday: number, kind: NudgeKind): 'send' | 'defer' | 'skip' {
   if (localHour >= 22 || localHour < 7) return 'defer';
-  // pool is exempt (and not counted): one per member per sweep, and its chores stay claimable after quiet hours
-  if (sentToday >= PUSH_DAILY_CAP && kind !== 'covered' && kind !== 'pool') return 'skip';
+  // pool and restock are exempt (and not counted): batched per person, and the pool stays claimable after quiet hours
+  if (sentToday >= PUSH_DAILY_CAP && kind !== 'covered' && kind !== 'pool' && kind !== 'restock') return 'skip';
   return 'send';
 }

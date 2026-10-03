@@ -87,3 +87,65 @@ test('a subscription on a disallowed host is deleted, never POSTed, and the noti
   expect(calls).toContainEqual({ fn: 'srv_delete_subscription', args: { p_endpoint: evil.endpoint } });
   expect(calls).toContainEqual({ fn: 'srv_mark_notification', args: { p_id: 1, p_skipped: true } });
 });
+
+test('restock requests waiting in one drain become one push per person, and every row is marked', async () => {
+  const r = (id: number, userId: string, item: string) => note(id, { userId, kind: 'restock', payload: { actor: 'Priya', item } });
+  const { client, calls } = db([r(1, 'u1', 'Milk'), r(2, 'u1', 'Rice'), r(3, 'u2', 'Milk')]);
+  const send = vi.fn(async (_s: PushSub, _m: string) => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(send).toHaveBeenCalledTimes(2);
+  expect(JSON.parse(send.mock.calls[0][1])).toEqual({ title: 'Shopping run? 🛒', body: 'The house needs Milk and Rice. Grab one?', url: '/chores', tag: 'restock-1' });
+  expect(JSON.parse(send.mock.calls[1][1]).body).toBe('Priya asked for Milk. Passing a shop?');
+  expect(calls.filter((c) => c.fn === 'srv_mark_notification').map((c) => c.args))
+    .toEqual([{ p_id: 1, p_skipped: false }, { p_id: 2, p_skipped: false }, { p_id: 3, p_skipped: false }]);
+});
+
+test('a lone restock request keeps the requester’s name through the batching', async () => {
+  const { client } = db([note(1, { kind: 'restock', payload: { actor: 'Aarav', item: 'Eggs' } })]);
+  const send = vi.fn(async (_s: PushSub, _m: string) => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(JSON.parse(send.mock.calls[0][1]).body).toBe('Aarav asked for Eggs. Passing a shop?');
+});
+
+test('restock neither uses up nor is blocked by the daily cap', async () => {
+  const digest = { kind: 'digest', payload: { chores: ['Bins'] } };
+  const { client } = db([note(1, { sentToday: 3, kind: 'restock', payload: { actor: 'P', item: 'Milk' } }), note(2, { sentToday: 2, ...digest })]);
+  const send = vi.fn(async () => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(send).toHaveBeenCalledTimes(2);
+});
+
+test('quiet hours leave batched restock rows queued', async () => {
+  const { client, calls } = db([note(1, { kind: 'restock', payload: { actor: 'P', item: 'Milk' } }), note(2, { kind: 'restock', payload: { actor: 'P', item: 'Rice' } })]);
+  const send = vi.fn(async () => ({ gone: false }));
+  await drainNotifications(client, send, LATE);
+  expect(send).not.toHaveBeenCalled();
+  expect(calls.some((c) => c.fn === 'srv_mark_notification')).toBe(false);
+});
+
+test('a digest carrying only stale requests is sent', async () => {
+  const { client } = db([note(1, { kind: 'digest', payload: { chores: [], stale: ['Paper towels'] } })]);
+  const send = vi.fn(async (_s: PushSub, _m: string) => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(JSON.parse(send.mock.calls[0][1]).body).toBe('Still needed: Paper towels.');
+});
+
+test('a digest with no chores and an empty stale list is skipped, never sent', async () => {
+  const { client, calls } = db([note(1, { kind: 'digest', payload: { chores: [], stale: [] } })]);
+  const send = vi.fn(async () => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(send).not.toHaveBeenCalled();
+  expect(calls).toContainEqual({ fn: 'srv_mark_notification', args: { p_id: 1, p_skipped: true } });
+});
+
+test('pantry pushes deep-link to the right place', async () => {
+  const { client } = db([
+    note(1, { kind: 'ask', payload: { actor: 'Aarav', item: 'Oat milk' } }),
+    note(2, { kind: 'ask_answer', payload: { actor: 'Priya', item: 'Oat milk', accepted: true } }),
+    note(3, { kind: 'restock_done', payload: { actor: 'Aarav', item: 'Milk' } }),
+    note(4, { userId: 'u2', kind: 'restock_closed', payload: { item: 'Tea' } }), // another person: u1 is at the cap by now
+  ]);
+  const send = vi.fn(async (_s: PushSub, _m: string) => ({ gone: false }));
+  await drainNotifications(client, send, NOON);
+  expect(send.mock.calls.map((c) => JSON.parse(c[1]).url)).toEqual(['/pantry?tab=mine', '/pantry?tab=roommates', '/pantry', '/chores']);
+});

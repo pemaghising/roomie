@@ -110,4 +110,9 @@ describe('pushDecision', () => {
     expect(pushDecision(12, 3, 'covered')).toBe('send');
     expect(pushDecision(12, 3, 'pool')).toBe('send'); // one batched push per sweep; its chores are still claimable
   });
+  test('restock requests are exempt from the cap like pool, but still wait out quiet hours', () => {
+    expect(pushDecision(12, 3, 'restock')).toBe('send');
+    expect(pushDecision(12, 3, 'ask')).toBe('skip');
+    expect(pushDecision(23, 0, 'restock')).toBe('defer');
+  });
 });
