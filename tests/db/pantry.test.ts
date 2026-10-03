@@ -204,15 +204,43 @@ describe.skipIf(!hasDb)('restock requests', () => {
     const { data: notes } = await admin().from('notifications').select('user_id, payload').eq('household_id', h).eq('kind', 'restock_done');
     expect(notes).toEqual([{ user_id: b.id, payload: { actor: 'Nima', item: 'Milk' } }]);
     const { data: ledger } = await admin().from('effort_ledger').select('balance').eq('household_id', h);
-    expect(ledger!.every((l) => l.balance === 0)).toBe(true);
+    expect(ledger!.map((l) => l.balance)).toEqual([0, 0, 0]); // one row per member, all untouched
     const { data: log } = await admin().from('activity').select('payload').eq('household_id', h).eq('kind', 'restocked');
     expect(log).toEqual([{ payload: { actor: 'Nima', item: 'Milk' } }]);
   });
 
   test("someone else's claimed request cannot be completed by you", async () => {
     const { data: rid } = await a.client.rpc('request_restock', { p_name: 'Coffee', p_effort: 1 });
-    await b.client.rpc('claim_restock', { p_id: rid });
+    expect((await b.client.rpc('claim_restock', { p_id: rid })).error).toBeNull();
     expect((await c.client.rpc('complete_restock', { p_id: rid })).error?.message).toContain('already_claimed');
+  });
+
+  test('complete race: exactly one roommate completes; the other hears already_claimed', async () => {
+    const { data: rid } = await a.client.rpc('request_restock', { p_name: 'Eggs', p_effort: 1 });
+    const results = await Promise.all([b.client.rpc('complete_restock', { p_id: rid }), c.client.rpc('complete_restock', { p_id: rid })]);
+    const errors = results.filter((r) => r.error);
+    expect(errors).toHaveLength(1);
+    expect(errors[0].error!.message).toContain('already_claimed');
+    const { data: notes } = await admin().from('notifications').select('id').eq('household_id', h).eq('kind', 'restock_done').eq('payload->>item', 'Eggs');
+    expect(notes).toHaveLength(1);
+    const { data: log } = await admin().from('activity').select('id').eq('household_id', h).eq('kind', 'restocked').eq('payload->>item', 'Eggs');
+    expect(log).toHaveLength(1);
+  });
+
+  test('completing while someone marks the item in stock never deadlocks and ends consistent', async () => {
+    for (let i = 0; i < 5; i++) {
+      const item = await shared(`Butter ${i}`);
+      const { data: rid, error } = await a.client.rpc('request_restock', { p_item: item, p_effort: 1 });
+      expect(error).toBeNull();
+      const results = await Promise.all([
+        b.client.rpc('complete_restock', { p_id: rid }),
+        c.client.rpc('set_item_stock', { p_id: item, p_stock: 'in_stock' }),
+      ]);
+      // completing after the request was closed is a plain refusal; anything else (e.g. 40P01 deadlock) is a bug
+      for (const r of results) if (r.error) expect(r.error.message).toBe('not_allowed');
+      expect(await stockOf(item)).toBe('in_stock');
+      expect(['done', 'cancelled']).toContain((await req(rid)).status);
+    }
   });
 
   test('only the requester cancels; marking the item in stock closes the request and tells the claimer', async () => {
