@@ -1,5 +1,9 @@
 import type { AssignmentStatus, Cadence, Effort, NudgeStyle, Reason } from '@domain/types.ts';
 import type { Weekday } from '@domain/time.ts';
+import type { PantryAsk, PantryItem, Restock } from '@domain/pantry.ts';
+
+// type-only: the pantry module itself never enters the entry chunk
+export type { PantryAsk, PantryItem, Restock };
 
 export interface Profile { id: string; name: string; color: string; nudge_style: NudgeStyle; activity_seen_at: string }
 export interface Household { id: string; name: string; invite_code: string; plan_mode: 'review' | 'auto'; tz: string; day_ends_at: string }
@@ -26,5 +30,8 @@ export interface AppState {
   streak: { current: number; best: number; last_settled_day: string | null } | null;
   balance: number;
   activity: ActivityItem[];
+  pantry: PantryItem[];
+  restocks: Restock[];
+  asks: PantryAsk[];
   today: string;
 }

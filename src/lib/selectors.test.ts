@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { myTasksOn, nextUp, pendingDraft, pool, roommates, unreadCount, weekDates, weekTotals } from './selectors';
-import type { AppState, Assignment } from './types';
+import type { AppState, Assignment, Restock } from './types';
 
 const a = (over: Partial<Assignment>): Assignment => ({
   id: crypto.randomUUID(), plan_id: 'p1', chore_id: 'c1', user_id: 'me', day: '2026-10-01', effort: 1,
@@ -14,7 +14,7 @@ const state = (assignments: Assignment[], over: Partial<AppState> = {}): AppStat
     { user_id: 'p', name: 'Priya', color: '#dbeafe', role: 'member', busy_days: [] },
   ],
   chores: [], plans: [{ id: 'p1', week_start: '2026-09-28', status: 'locked', lock_at: '', approved_by: [] }],
-  assignments, swaps: [], streak: null, balance: 0, activity: [], today: '2026-10-01', ...over,
+  assignments, swaps: [], streak: null, balance: 0, activity: [], pantry: [], restocks: [], asks: [], today: '2026-10-01', ...over,
 });
 
 describe('selectors', () => {
@@ -40,6 +40,16 @@ describe('selectors', () => {
   test('weekTotals sums planned points per person, ignoring expired', () => {
     const s = state([a({ effort: 3 }), a({ effort: 1, user_id: 'p' }), a({ effort: 2, status: 'expired' })]);
     expect(weekTotals(s, '2026-09-28')).toEqual({ me: 3, p: 1 });
+  });
+  test('weekTotals adds restocks done that week to whoever did them', () => {
+    const r = (over: Partial<Restock>): Restock => ({
+      id: crypto.randomUUID(), item_id: null, name: 'Rice', effort: 2, requested_by: 'p', claimed_by: null, status: 'done',
+      done_by: 'me', done_day: '2026-10-01', created_at: '2026-10-01T00:00:00Z', ...over,
+    });
+    const s = state([a({ effort: 1, user_id: 'p' })], {
+      restocks: [r({}), r({ done_by: 'p', effort: 3, done_day: '2026-09-27' }), r({ status: 'open', done_by: null, done_day: null })],
+    });
+    expect(weekTotals(s, '2026-09-28')).toEqual({ me: 2, p: 1 });
   });
   test('roommates counts today’s tasks', () => {
     const s = state([a({ status: 'done' }), a({}), a({ user_id: 'p' })]);

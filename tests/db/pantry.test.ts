@@ -329,3 +329,55 @@ describe.skipIf(!hasDb)('pantry and membership', () => {
     expect((await lone.client.rpc('add_pantry_item', { p_name: 'X', p_owner_personal: false })).error?.message).toContain('not_member');
   });
 });
+
+const todayKtm = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
+
+describe.skipIf(!hasDb)('get_state pantry', () => {
+  test("active items, open and this week's done requests, and only my own asks", async () => {
+    const [a, b, c] = await Promise.all([makeUser('Aarav'), makeUser('Priya'), makeUser('Nima')]);
+    await seedHousehold(a.id, [b.id, c.id]);
+    const { data: oat } = await b.client.rpc('add_pantry_item', { p_name: 'Oat milk', p_owner_personal: true });
+    const { data: gone } = await a.client.rpc('add_pantry_item', { p_name: 'Old jam', p_owner_personal: false });
+    await a.client.rpc('remove_pantry_item', { p_id: gone });
+    const { data: open } = await a.client.rpc('request_restock', { p_name: 'Rice', p_effort: 1 });
+    const { data: done } = await a.client.rpc('request_restock', { p_name: 'Salt', p_effort: 3 });
+    await c.client.rpc('complete_restock', { p_id: done });
+    const { data: cancelled } = await a.client.rpc('request_restock', { p_name: 'Tea', p_effort: 1 });
+    await a.client.rpc('cancel_restock', { p_id: cancelled });
+    const { data: ask } = await a.client.rpc('ask_to_use', { p_item: oat });
+
+    const asA = (await a.client.rpc('get_state')).data;
+    expect(asA.pantry.map((i: { name: string }) => i.name)).toEqual(['Oat milk']);
+    expect(asA.pantry[0]).toMatchObject({ id: oat, owner_id: b.id, rule: 'ask_first', stock: 'in_stock' });
+    expect(asA.restocks.map((r: { id: string }) => r.id).sort()).toEqual([open, done].sort());
+    expect(asA.restocks.find((r: { id: string }) => r.id === done)).toMatchObject({ status: 'done', done_by: c.id, done_day: todayKtm(), effort: 3 });
+    expect(asA.asks.map((x: { id: string }) => x.id)).toEqual([ask]);
+    expect((await b.client.rpc('get_state')).data.asks.map((x: { id: string }) => x.id)).toEqual([ask]);
+    expect((await c.client.rpc('get_state')).data.asks).toEqual([]);
+
+    // answered: the asker still sees the answer for a day; the owner no longer has anything to do
+    await b.client.rpc('answer_ask', { p_ask: ask, p_yes: false });
+    expect((await a.client.rpc('get_state')).data.asks).toMatchObject([{ id: ask, status: 'no' }]);
+    expect((await b.client.rpc('get_state')).data.asks).toEqual([]);
+  });
+
+  test('a pending ask drops out once it is stale: 24 h old, item now do_not_touch, or the asker left', async () => {
+    const [a, b, c, d] = await Promise.all([makeUser('Aarav'), makeUser('Priya'), makeUser('Nima'), makeUser('Dawa')]);
+    await seedHousehold(a.id, [b.id, c.id, d.id]);
+    const { data: oat } = await b.client.rpc('add_pantry_item', { p_name: 'Oat milk', p_owner_personal: true });
+    const { data: jam } = await b.client.rpc('add_pantry_item', { p_name: 'Jam', p_owner_personal: true });
+    const { data: old } = await a.client.rpc('ask_to_use', { p_item: oat });
+    const { data: fresh } = await c.client.rpc('ask_to_use', { p_item: oat });
+    const { data: leaver } = await d.client.rpc('ask_to_use', { p_item: oat });
+    const { data: moot } = await a.client.rpc('ask_to_use', { p_item: jam });
+    const asked = (await b.client.rpc('get_state')).data.asks.map((x: { id: string }) => x.id).sort();
+    expect(asked).toEqual([old, fresh, leaver, moot].sort());
+
+    const aged = await admin().from('pantry_asks').update({ created_at: new Date(Date.now() - 25 * 3600_000).toISOString() }).eq('id', old);
+    expect(aged.error).toBeNull();
+    expect((await b.client.rpc('set_item_rule', { p_id: jam, p_rule: 'do_not_touch' })).error).toBeNull();
+    expect((await d.client.rpc('leave_household')).error).toBeNull();
+    expect((await b.client.rpc('get_state')).data.asks.map((x: { id: string }) => x.id)).toEqual([fresh]);
+    expect((await a.client.rpc('get_state')).data.asks).toEqual([]);
+  });
+});

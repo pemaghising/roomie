@@ -25,3 +25,10 @@ test('a paused mutation restored after an app restart resumes and sends only p_ 
   await queryClient.resumePausedMutations();
   expect(db.rpc).toHaveBeenCalledWith('claim_assignment', { p_id: 'a1' });
 });
+
+test('every pantry RPC is an action, so an offline tap replays after a restart', () => {
+  expect(ACTION_RPCS).toEqual(expect.arrayContaining([
+    'add_pantry_item', 'add_pantry_basics', 'set_item_stock', 'set_item_rule', 'remove_pantry_item', 'request_restock',
+    'claim_restock', 'unclaim_restock', 'complete_restock', 'cancel_restock', 'ask_to_use', 'answer_ask',
+  ]));
+});

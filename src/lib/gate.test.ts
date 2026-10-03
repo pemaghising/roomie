@@ -6,7 +6,7 @@ const session = { user: { id: 'u' } } as never;
 const st = (over: Partial<AppState>): AppState => ({
   profile: { id: 'u', name: 'Aarav', color: '#ffedd5', nudge_style: 'motivate', activity_seen_at: '' },
   household: { id: 'h', name: 'Flat', invite_code: 'ABC123', plan_mode: 'review', tz: 'Asia/Kathmandu', day_ends_at: '22:00:00' },
-  members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [], today: '2026-10-01',
+  members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [], pantry: [], restocks: [], asks: [], today: '2026-10-01',
   ...over,
 });
 

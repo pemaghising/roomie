@@ -35,6 +35,9 @@ export function fixture(over: Partial<AppState> = {}): AppState {
     streak: { current: 3, best: 5, last_settled_day: '2026-09-30' },
     balance: 0,
     activity: [],
+    pantry: [],
+    restocks: [],
+    asks: [],
     today,
     ...over,
   };

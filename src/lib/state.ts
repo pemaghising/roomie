@@ -14,7 +14,10 @@ const localToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kath
 export async function fetchState(): Promise<AppState> {
   const { data, error } = await supabase.rpc('get_state');
   if (error) throw error;
-  return { members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [], today: localToday(), ...data } as AppState;
+  return {
+    members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [],
+    pantry: [], restocks: [], asks: [], today: localToday(), ...data,
+  } as AppState;
 }
 
 export function useAppState() {
@@ -45,6 +48,8 @@ export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown
 export const ACTION_RPCS = [
   'archive_chore', 'undo_complete', 'complete_assignment', 'claim_assignment', 'approve_plan', 'respond_swap',
   'request_swap', 'update_household', 'update_profile', 'update_busy_days', 'remove_member',
+  'add_pantry_item', 'add_pantry_basics', 'set_item_stock', 'set_item_rule', 'remove_pantry_item', 'request_restock',
+  'claim_restock', 'unclaim_restock', 'complete_restock', 'cancel_restock', 'ask_to_use', 'answer_ask',
 ] as const;
 export type ActionRpc = (typeof ACTION_RPCS)[number];
 
@@ -88,7 +93,8 @@ export async function planNow(choreId?: string) {
   await supabase.functions.invoke('tick', { body: choreId ? { choreId } : {} });
 }
 
-const TABLES = ['assignments', 'plans', 'swap_requests', 'members', 'chores', 'streaks', 'activity'] as const;
+// pantry_asks is deliberately absent: asks are private and arrive with the next get_state
+const TABLES = ['assignments', 'plans', 'swap_requests', 'members', 'chores', 'streaks', 'activity', 'pantry_items', 'restock_requests'] as const;
 
 /** One realtime channel per household; any change refetches the snapshot (debounced). */
 export function useRealtime(householdId: string | undefined) {

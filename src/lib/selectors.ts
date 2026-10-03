@@ -1,3 +1,4 @@
+import { restockTotals } from '@domain/restock.ts';
 import { addDays } from '@domain/time.ts';
 import type { AppState, Assignment, Chore, Plan, SwapRequest } from './types';
 
@@ -37,6 +38,8 @@ export function weekTotals(s: AppState, weekStart: string): Record<string, numbe
     if (!plan || a.plan_id !== plan.id || a.status === 'expired') continue;
     totals[a.user_id] = (totals[a.user_id] ?? 0) + a.effort;
   }
+  // a restock someone did this week counts toward their fair share (and creates no debt for anyone)
+  for (const [user, pts] of Object.entries(restockTotals(s.restocks, weekStart))) totals[user] = (totals[user] ?? 0) + pts;
   return totals;
 }
 
