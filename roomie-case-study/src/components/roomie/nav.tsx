@@ -55,7 +55,7 @@ export function Nav() {
       <div className="wrap">
         <a className="brand" href="#top">
           <LogoSpin />
-          Roomie
+          <span className="brand-name">Roomie</span>
         </a>
         <nav className="steps" aria-label="Case study sections" ref={stepsRef}>
           {indicator && (

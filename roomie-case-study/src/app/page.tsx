@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { Nav } from "@/components/roomie/nav";
 import { Hero } from "@/components/roomie/hero";
 import { Tldr } from "@/components/roomie/tldr";
@@ -27,9 +26,6 @@ export default function Home() {
       </main>
       <Footer />
       <ScrollFx />
-      <Script id="measure" strategy="afterInteractive">
-        {"setTimeout(()=>document.title='H:'+document.body.scrollHeight,500)"}
-      </Script>
     </>
   );
 }

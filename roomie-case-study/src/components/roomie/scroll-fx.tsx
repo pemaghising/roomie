@@ -48,7 +48,7 @@ export function ScrollFx() {
               { opacity: 1, y: 0, scale: 1, ease: "power3.out", duration: 0.16 },
             )
             .to(wrap, { opacity: 1, y: 0, scale: 1, duration: 0.68 })
-            .to(wrap, { opacity: 0.82, scale: 0.97, filter: "blur(0.6px)", ease: "power2.in", duration: 0.16 });
+            .to(wrap, { opacity: 0.9, scale: 0.97, ease: "power2.in", duration: 0.16 });
         }
 
         const num = section.querySelector<HTMLElement>(".phase-head .num");

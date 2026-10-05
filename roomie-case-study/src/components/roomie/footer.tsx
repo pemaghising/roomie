@@ -6,12 +6,12 @@ export function Footer() {
     <footer className="wrap">
       <div className="wrap">
         <p className="big">Thanks for reading.</p>
-        <div className="stack" style={{ gap: 6, textAlign: "right" }}>
+        <div className="stack footer-meta">
           <strong>Pema Ghising</strong>
           <span className="muted">
             Lead Graphic Designer · Leapfrog Technology, Kathmandu
           </span>
-          <Button asChild variant="link" size="sm" className="justify-self-end px-0">
+          <Button asChild variant="link" size="sm" className="footer-link px-0">
             <a href="https://pemaghising.com.np" target="_blank" rel="noopener">
               pemaghising.com.np
               <ArrowUpRight />
