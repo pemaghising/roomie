@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Roomie app icon">
+  <rect width="512" height="512" rx="116" fill="#F3E8FF"/>
+  <!-- house: rounded via thick round-joined stroke -->
+  <path d="M142 246 L256 150 L370 246 V372 Q370 404 338 404 H174 Q142 404 142 372 Z" fill="#5C3B9B" stroke="#5C3B9B" stroke-width="28" stroke-linejoin="round"/>
+  <!-- pill door -->
+  <rect x="224" y="296" width="64" height="122" rx="32" fill="#F3E8FF"/>
+  <!-- sprout: one stem, two unequal leaves in balance -->
+  <path d="M256 138 V92" stroke="#065F46" stroke-width="12" stroke-linecap="round" fill="none"/>
+  <path d="M252 104 C212 106 186 82 182 50 C220 46 250 66 252 104 Z" fill="#34D399"/>
+  <path d="M260 112 C288 114 308 98 312 74 C284 70 262 84 260 112 Z" fill="#6EE7B7"/>
+</svg>
