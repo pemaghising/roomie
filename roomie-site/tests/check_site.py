@@ -297,6 +297,54 @@ def test_quality(browser):
     assert total < 3_000_000, f"first load {total / 1e6:.2f} MB"
 
 
+# ---------------------------------------------------------------- Final review fixes
+@check("hero_no_flash")
+def test_hero_copy_never_flashes(browser):
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    page = ctx.new_page()
+    page.goto(URL, wait_until="domcontentloaded")
+    samples = []
+    for _ in range(14):
+        samples.append(page.evaluate("parseFloat(getComputedStyle(document.querySelector('#hero h1')).opacity)"))
+        page.wait_for_timeout(100)
+    ctx.close()
+    assert min(samples) >= 0.99, f"hero h1 opacity dipped: {samples}"
+
+
+@check("close_cta")
+def test_close_cta_visible_early(browser):
+    page, _ = open_page(browser, 1280, 900)
+    y = page.evaluate("document.querySelector('#close').getBoundingClientRect().top + scrollY")
+    page.evaluate(f"window.scrollTo(0, {y} + innerHeight * 0.5)")
+    page.wait_for_timeout(1200)
+    ops = page.evaluate("""() => { const o = e => { let v = 1; for (let n = e; n; n = n.parentElement) v *= parseFloat(getComputedStyle(n).opacity); return v; };
+        return [o(document.querySelector('#close h2')), o(document.querySelector('#close .stores'))]; }""")
+    assert ops[1] >= 0.99, f"close store buttons opacity {ops[1]:.2f} half a screen into the pin"
+    assert ops[0] >= 0.5, f"close headline opacity {ops[0]:.2f} half a screen into the pin"
+
+
+@check("mobile_hero_scrolls")
+def test_mobile_hero_not_pinned(browser):
+    page, _ = open_page(browser, 390, 844)
+    top0 = page.evaluate("document.querySelector('#hero h1').getBoundingClientRect().top")
+    page.evaluate("window.scrollTo(0, 300)")
+    page.wait_for_timeout(500)
+    top1 = page.evaluate("document.querySelector('#hero h1').getBoundingClientRect().top")
+    assert top0 - top1 >= 250, f"hero pinned on mobile: h1 moved {top0 - top1}px for 300px of scroll"
+
+
+@check("no_layout_swap")
+def test_server_html_is_motion_layout(browser):
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, java_script_enabled=False)
+    page = ctx.new_page()
+    page.goto(URL, wait_until="load")
+    cls = page.evaluate("[document.querySelector('#week').className, document.querySelector('#close').className]")
+    stage = page.evaluate("getComputedStyle(document.querySelector('#week .stage-col')).display")
+    ctx.close()
+    assert "static" not in " ".join(cls), f"server HTML ships the static layout: {cls}"
+    assert stage != "none", "desktop week stage hidden before hydration"
+
+
 PW = {}
 
 

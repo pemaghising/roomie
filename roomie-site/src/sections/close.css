@@ -13,8 +13,10 @@
 .close-copy .stores { justify-content: center; }
 
 /* Reduced motion: the growth shown as a strip, nothing stacked or hidden */
-.close--static .plants { position: static; width: auto; aspect-ratio: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-.close--static .plant { position: static; width: clamp(80px, 14vw, 150px); height: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .close .plants { position: static; width: auto; aspect-ratio: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .close .plant { position: static; width: clamp(80px, 14vw, 150px); height: auto; }
+}
 
 .foot { padding-block: 36px 48px; background: var(--lilac-50); border-top: 1px solid var(--line); }
 .foot-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; font-size: 14px; color: var(--muted); }

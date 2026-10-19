@@ -23,6 +23,9 @@ export function Hero() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+      // Pinning is a desktop effect; on phones the hero scrolls like a page.
+      mm.add("(min-width: 861px)", () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
@@ -38,8 +41,8 @@ export function Hero() {
         .fromTo(".nudge-card", { x: 120, y: 40, opacity: 0, rotate: 4 }, { x: 0, y: 0, opacity: 1, rotate: -2, ease: "back.out(1.4)", duration: 0.45 }, 0.45)
         .to(".hero-glow", { opacity: 1, duration: 0.8 }, 0.1);
       // a slow idle float so the phone never feels static
+      });
       gsap.to(".float", { y: -10, duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
-      gsap.from(".hero-copy > *", { y: 24, opacity: 0, duration: 0.9, stagger: 0.08, ease: "power3.out" });
     }, root);
     return () => ctx.revert();
   }, [motionOK]);

@@ -64,8 +64,10 @@
   .day-inline .phone { --phone-w: min(270px, 72vw); }
   .day-card { position: relative; width: min(320px, 88%); margin-top: -40px; filter: drop-shadow(0 18px 22px rgba(31, 27, 58, .16)); }
 }
-.week--static .stage-col { display: none; }
-.week--static .week-grid { grid-template-columns: 1fr; }
-.week--static .day { min-height: 0; opacity: 1; padding-block: 36px; max-width: none; }
-.week--static .day-inline { display: grid; justify-items: center; margin-top: 16px; }
-.week--static .day-card { width: min(320px, 88%); margin-top: -40px; }
+@media (prefers-reduced-motion: reduce) {
+  .week .stage-col { display: none; }
+  .week .week-grid { grid-template-columns: 1fr; }
+  .week .day { min-height: 0; opacity: 1; padding-block: 36px; max-width: none; }
+  .week .day-inline { display: grid; justify-items: center; margin-top: 16px; }
+  .week .day-card { width: min(320px, 88%); margin-top: -40px; }
+}

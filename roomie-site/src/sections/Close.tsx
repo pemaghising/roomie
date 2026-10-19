@@ -28,13 +28,13 @@ export function Close() {
         tl.to(plants[i - 1], { opacity: 0, scale: 1.04, duration: 0.5 }, i - 0.5)
           .to(p, { opacity: 1, scale: 1, duration: 0.5 }, i - 0.5);
       });
-      tl.from(".close-copy > *", { y: 30, opacity: 0, stagger: 0.12, duration: 0.6 }, STAGES.length - 1.2);
+      tl.from(".close-copy h2", { y: 30, opacity: 0, duration: 0.6 }, 0.6);
     }, root);
     return () => ctx.revert();
   }, [motionOK]);
 
   return (
-    <section id="close" ref={root} className={`close ${motionOK ? "" : "close--static"}`}>
+    <section id="close" ref={root} className="close">
       <div className="wrap close-inner">
         <div className="plants" aria-label="The house plant grows a stage with every finished week">
           {STAGES.map((s) => (

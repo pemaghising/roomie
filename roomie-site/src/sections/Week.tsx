@@ -2,12 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Phone } from "@/ui/Phone";
-import { useMotionOK } from "@/ui/useMotionOK";
 import { WEEK } from "./week-data";
 import "./week.css";
 
 export function Week() {
-  const motionOK = useMotionOK();
   const [active, setActive] = useState(0);
   const days = useRef<(HTMLElement | null)[]>([]);
 
@@ -26,7 +24,7 @@ export function Week() {
   }, []);
 
   return (
-    <section id="week" className={`week ${motionOK ? "" : "week--static"}`}>
+    <section id="week" className="week">
       <div className="wrap week-head">
         <p className="eyebrow">How it works</p>
         <h2>One week at Parijat Chowk Flat.</h2>
