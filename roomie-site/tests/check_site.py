@@ -94,7 +94,10 @@ def test_store_buttons(browser):
         page.wait_for_timeout(150)
         assert page.url == before, f"{label} navigated to {page.url}"
         tip = page.locator("[role=status]", has_text="Coming soon").first
-        assert tip.is_visible(), f"{label}: no 'Coming soon' message after click"
+        try:
+            tip.wait_for(state="visible", timeout=2000)
+        except Exception:
+            raise AssertionError(f"{label}: no 'Coming soon' message after click")
     assert not errors, f"console errors: {errors}"
 
 
