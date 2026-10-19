@@ -80,6 +80,27 @@ def test_shell(browser):
     assert not errors, f"console errors: {errors}"
 
 
+# ---------------------------------------------------------------- Task 2
+@check("store")
+def test_store_buttons(browser):
+    page, errors = open_page(browser)
+    labels = ["Coming soon on the App Store", "Coming soon on Google Play"]
+    for label in labels:
+        btn = page.get_by_role("button", name=label).first
+        assert btn.count() == 1, f"missing button: {label}"
+        assert btn.get_attribute("aria-disabled") == "true", f"{label} not aria-disabled"
+        before = page.url
+        btn.click(force=True)  # aria-disabled blocks Playwright, not a real tap
+        page.wait_for_timeout(150)
+        assert page.url == before, f"{label} navigated to {page.url}"
+        tip = page.locator("[role=status]", has_text="Coming soon").first
+        assert tip.is_visible(), f"{label}: no 'Coming soon' message after click"
+    ratio = page.evaluate("""() => { const i = document.querySelector('.phone img');
+        return i ? i.naturalWidth / i.naturalHeight : 0; }""")
+    assert abs(ratio - 393 / 852) < 0.01, f"phone ratio {ratio}"
+    assert not errors, f"console errors: {errors}"
+
+
 def main():
     names = sys.argv[1:] or list(CHECKS)
     httpd = serve()
@@ -90,7 +111,7 @@ def main():
             try:
                 CHECKS[n](browser)
                 print(f"PASS {n}")
-            except AssertionError as e:
+            except Exception as e:
                 failed += 1
                 print(f"FAIL {n}: {e}")
         browser.close()

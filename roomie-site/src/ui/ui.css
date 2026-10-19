@@ -1,0 +1,37 @@
+/* Device frame around real v2 screen exports */
+.phone {
+  margin: 0;
+  width: var(--phone-w, 300px);
+  aspect-ratio: 393 / 852;
+  padding: 9px;
+  border-radius: 52px;
+  background: linear-gradient(160deg, #2A2550, var(--ink) 55%);
+  box-shadow: var(--lift), inset 0 0 0 1px rgba(252, 251, 255, .08);
+}
+.phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 43px; }
+
+/* "Coming soon" store buttons: Roomie style, not the official badges */
+.stores { display: flex; flex-wrap: wrap; gap: 12px; }
+.store-wrap { position: relative; display: inline-flex; }
+.store {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 11px 20px 11px 16px;
+  border: 0; border-radius: 999px;
+  background: var(--ink); color: var(--offwhite);
+  cursor: pointer;
+  box-shadow: 0 10px 24px -14px rgba(31, 27, 58, .6);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.store:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -14px rgba(31, 27, 58, .7); }
+.store:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+.store-text { display: grid; text-align: left; line-height: 1.1; }
+.store-text small { font-size: 11px; opacity: .72; }
+.store-text b { font-size: 16px; font-weight: 600; }
+.stores--light .store { background: var(--offwhite); color: var(--ink); box-shadow: var(--glass); }
+.store-tip {
+  position: absolute; left: 0; top: calc(100% + 8px); z-index: 5;
+  width: max-content; max-width: 240px;
+  padding: 8px 12px; border-radius: 12px;
+  background: var(--offwhite); color: var(--ink);
+  font-size: 13px; box-shadow: var(--glass);
+}
