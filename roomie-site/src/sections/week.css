@@ -1,0 +1,71 @@
+.week { padding-block: clamp(80px, 12vh, 140px); background: linear-gradient(180deg, var(--mist), var(--lilac-50) 30%, var(--lilac-50) 70%, var(--mist)); }
+.week-head { display: grid; gap: 16px; justify-items: start; margin-bottom: clamp(24px, 6vh, 64px); }
+.week-head h2 { font-size: clamp(38px, 5vw, 72px); }
+
+.week-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 80px); }
+
+.days { list-style: none; margin: 0; padding: 0; }
+.day {
+  min-height: 78vh;
+  display: grid; align-content: center; gap: 12px;
+  max-width: 30rem;
+  opacity: .32;
+  transition: opacity .5s ease;
+}
+.day.is-active { opacity: 1; }
+.day-name { font: 600 14px/1 var(--sans); color: var(--violet-deep); }
+.day h3 { font-size: clamp(30px, 3.2vw, 46px); }
+.day p { font-size: 18px; color: var(--muted); }
+.day-inline { display: none; }
+
+.stage-col { position: relative; }
+.stage {
+  position: sticky; top: 9vh;
+  height: 82vh;
+  display: grid; place-items: center;
+  perspective: 1400px;
+}
+.stage-phone {
+  --phone-w: min(300px, 32vh);
+  position: relative;
+  transform: rotateY(-8deg) rotateX(4deg);
+  transform-style: preserve-3d;
+}
+.stage-phone .screen {
+  position: absolute; inset: 9px;
+  width: calc(100% - 18px); height: calc(100% - 18px);
+  border-radius: 43px; object-fit: cover;
+  opacity: 0; transform: scale(.985);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.stage-phone .screen.on { opacity: 1; transform: none; }
+
+.stage-card {
+  position: absolute; width: min(300px, 44%); height: auto;
+  opacity: 0;
+  transform: translate3d(60px, 20px, 0) rotateY(-24deg) rotateZ(3deg);
+  transition: opacity .5s ease, transform .7s cubic-bezier(.2, .8, .2, 1);
+  filter: drop-shadow(0 22px 26px rgba(31, 27, 58, .18));
+  pointer-events: none;
+}
+.stage-card.on { opacity: 1; transform: translate3d(0, 0, 0) rotateY(-6deg) rotateZ(-1.5deg); }
+.stage-card--0 { right: -4%; top: 58%; }
+.stage-card--1 { left: -6%; top: 20%; }
+.stage-card--2 { right: -8%; top: 64%; }
+.stage-card--3 { right: -6%; top: 26%; }
+.stage-card--4 { left: -8%; top: 60%; }
+
+/* Phones and reduced motion: a stacked story, nothing pinned */
+@media (max-width: 820px) {
+  .week-grid { grid-template-columns: 1fr; }
+  .stage-col { display: none; }
+  .day { min-height: 0; opacity: 1; padding-block: 36px; max-width: none; }
+  .day-inline { display: grid; justify-items: center; position: relative; margin-top: 16px; }
+  .day-inline .phone { --phone-w: min(270px, 72vw); }
+  .day-card { position: relative; width: min(320px, 88%); margin-top: -40px; filter: drop-shadow(0 18px 22px rgba(31, 27, 58, .16)); }
+}
+.week--static .stage-col { display: none; }
+.week--static .week-grid { grid-template-columns: 1fr; }
+.week--static .day { min-height: 0; opacity: 1; padding-block: 36px; max-width: none; }
+.week--static .day-inline { display: grid; justify-items: center; margin-top: 16px; }
+.week--static .day-card { width: min(320px, 88%); margin-top: -40px; }

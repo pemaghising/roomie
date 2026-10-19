@@ -147,6 +147,51 @@ def test_effort(browser):
     assert not errors, f"console errors: {errors}"
 
 
+# ---------------------------------------------------------------- Task 5
+WEEK = [
+    ("Monday", "Busy days, set once", "/screens/r7-busy-days.png"),
+    ("Wednesday", "A chore slips", "/screens/c1c-shared-pool.png"),
+    ("Thursday", "Someone picks it up", "/screens/h3-claimed.png"),
+    ("Saturday", "The milk runs out", "/screens/p1-pantry.png"),
+    ("Sunday", "The week evens out", "/screens/h6-all-done.png"),
+]
+
+
+@check("week")
+def test_week(browser):
+    page, errors = open_page(browser, 1280, 900)
+    sec = page.locator("#week")
+    assert sec.locator("h2").first.inner_text().strip() == "One week at Parijat Chowk Flat.", sec.locator("h2").first.inner_text()
+    days = sec.locator(".day")
+    assert days.count() == 5, days.count()
+    for i, (day, title, _) in enumerate(WEEK):
+        assert days.nth(i).locator(".day-name").inner_text().strip() == day
+        assert days.nth(i).locator("h3").inner_text().strip() == title
+    # desktop: the pinned phone shows each day's screen in turn
+    for i, (_, _, screen) in enumerate(WEEK):
+        days.nth(i).scroll_into_view_if_needed()
+        page.evaluate("(el) => window.scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight * 0.35)", days.nth(i).element_handle())
+        page.wait_for_timeout(900)
+        shown = page.evaluate("""() => [...document.querySelectorAll('#week .stage .screen')]
+            .filter(i => parseFloat(getComputedStyle(i).opacity) > .9).map(i => i.getAttribute('src'))""")
+        assert shown == [screen], f"day {i}: stage shows {shown}, want {screen}"
+    ratio = page.evaluate("""() => { const i = document.querySelector('.phone img');
+        return i ? i.naturalWidth / i.naturalHeight : 0; }""")
+    assert abs(ratio - 393 / 852) < 0.01, f"phone ratio {ratio}"
+    assert not errors, f"console errors: {errors}"
+    # phone width: stacked days, nothing pinned, each day has its own visible screen
+    p2, _ = open_page(browser, 390, 844)
+    pinned = p2.evaluate("""() => [...document.querySelectorAll('#week *')].filter(e => {
+        const s = getComputedStyle(e); return (s.position === 'sticky' || s.position === 'fixed') && e.offsetParent !== null; }).length""")
+    assert pinned == 0, f"{pinned} pinned elements on mobile"
+    for i, (_, _, screen) in enumerate(WEEK):
+        img = p2.locator(f'#week .day >> nth={i}').locator(f'img[src="{screen}"]')
+        img.scroll_into_view_if_needed()
+        assert img.is_visible(), f"mobile day {i} has no visible {screen}"
+    sw, iw = p2.evaluate("[document.documentElement.scrollWidth, innerWidth]")
+    assert sw == iw, f"mobile overflow {sw} > {iw}"
+
+
 PW = {}
 
 
