@@ -33,19 +33,25 @@
   background: radial-gradient(closest-side, rgba(164, 137, 237, .26), rgba(255, 180, 138, .14) 60%, transparent);
   opacity: .35;
 }
-.house { position: absolute; inset: 0; }
-.house canvas { position: absolute; inset: 0; }
-.mascot {
-  position: absolute; left: 50%; top: 54%;
-  width: min(380px, 70%); height: auto;
-  transform: translate(-50%, -50%);
-  transition: opacity .6s ease;
-  filter: drop-shadow(0 30px 40px rgba(59, 36, 112, .18));
+.device {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  perspective: 1400px;
 }
-.mascot.is-hidden { opacity: 0; }
-
+.float { will-change: transform; }
+.tilt {
+  transform-style: preserve-3d;
+  transform: rotateX(6deg) rotateY(-10deg) rotateZ(1deg);
+  --phone-w: clamp(240px, 22vw, 310px);
+}
+.tilt .phone { box-shadow: -30px 50px 80px -40px rgba(59, 36, 112, .45), var(--lift); }
+.nudge-card {
+  position: absolute; right: -2%; top: 16%;
+  width: min(330px, 62%); height: auto;
+  filter: drop-shadow(0 24px 30px rgba(31, 27, 58, .16));
+}
 .chat {
-  position: absolute; left: 0; top: 4%;
+  position: absolute; left: 0; top: 6%; z-index: 2;
   width: min(330px, 86%);
   display: grid; gap: 10px;
 }

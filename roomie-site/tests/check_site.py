@@ -116,22 +116,16 @@ def test_hero(browser):
     assert hero.get_by_role("button", name="Coming soon on the App Store").count() == 1
     assert not errors, f"console errors: {errors}"
 
-    # WebGL unavailable -> the mascot PNG stands in for the 3D house
-    with sync_playwright_child(["--disable-webgl", "--disable-gpu"]) as b2:
-        p2, _ = open_page(b2)
-        p2.wait_for_timeout(1500)
-        assert p2.locator('#hero img.mascot').is_visible(), "no mascot fallback without WebGL"
-
-    # Model never arrives: headline and buttons still render, mascot takes over
+    # The hero leads with the real app: Home screen in a tilted phone + the nudge card.
+    assert hero.locator('.phone img[src="/screens/h1-home.png"]').is_visible(), "no Home screen phone in hero"
+    assert hero.locator('img[src="/cards/nudge.png"]').count() == 1, "no nudge card in hero"
+    assert hero.locator("canvas").count() == 0, "3D canvas should be gone"
     ctx = browser.new_context(viewport={"width": 1280, "height": 900})
     p3 = ctx.new_page()
-    p3.route("**/roomie.glb", lambda route: route.abort())
-    p3.goto(URL, wait_until="domcontentloaded")
-    p3.wait_for_timeout(800)
-    assert p3.locator("#hero h1").is_visible(), "h1 not visible without the model"
-    assert p3.locator("#hero .store").first.is_visible(), "store buttons not visible without the model"
-    p3.wait_for_timeout(1500)
-    assert p3.locator('#hero img.mascot').is_visible(), "no mascot when the model fails"
+    glb = []
+    p3.on("request", lambda r: glb.append(r.url) if r.url.endswith(".glb") else None)
+    p3.goto(URL, wait_until="networkidle")
+    assert not glb, f"3D model still requested: {glb}"
     ctx.close()
 
 
@@ -151,19 +145,6 @@ def test_effort(browser):
     rows = [t.strip() for t in sec.locator(".chore b").all_inner_texts()]
     assert rows == ["Take out trash", "Vacuum living room", "Deep clean bathroom"], rows
     assert not errors, f"console errors: {errors}"
-
-
-class sync_playwright_child:
-    """A second Chromium with extra flags, sharing the running Playwright."""
-    def __init__(self, args):
-        self.args = args
-
-    def __enter__(self):
-        self.b = PW["p"].chromium.launch(args=self.args)
-        return self.b
-
-    def __exit__(self, *exc):
-        self.b.close()
 
 
 PW = {}
