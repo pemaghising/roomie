@@ -192,6 +192,28 @@ def test_week(browser):
     assert sw == iw, f"mobile overflow {sw} > {iw}"
 
 
+# ---------------------------------------------------------------- Task 6
+@check("more")
+def test_more(browser):
+    page, errors = open_page(browser)
+    real = page.locator("#real-life")
+    assert real.locator("h2").inner_text().strip() == "Built for the small moments."
+    figs = real.locator("figure.photo")
+    assert figs.count() == 2, figs.count()
+    want = [("/photos/01-morning-check.png", "One glance before chai."), ("/photos/02-the-nudge.png", "A nudge that never nags.")]
+    for i, (src, cap) in enumerate(want):
+        assert figs.nth(i).locator(f'img[src="{src}"]').count() == 1, f"photo {i} src"
+        assert figs.nth(i).locator("figcaption").inner_text().strip() == cap, figs.nth(i).locator("figcaption").inner_text()
+    shelf = page.locator("#shelf")
+    assert shelf.locator("h2").inner_text().strip() == "Your shelf, your rules."
+    body = shelf.locator("p").all_inner_texts()
+    assert any("Do not touch or Ask first" in t for t in body), body
+    assert any(t.strip().startswith("Running low? Ask the house") for t in body), body
+    assert shelf.locator('.phone img[src="/screens/p2-my-items.png"]').count() == 1
+    assert shelf.locator('img[src="/cards/shelf.png"]').count() == 1
+    assert not errors, f"console errors: {errors}"
+
+
 PW = {}
 
 
