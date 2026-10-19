@@ -132,6 +132,24 @@ def test_hero(browser):
     ctx.close()
 
 
+# ---------------------------------------------------------------- Task 4
+@check("effort")
+def test_effort(browser):
+    page, errors = open_page(browser)
+    sec = page.locator("#effort")
+    h2 = sec.locator("h2").inner_text().strip()
+    assert h2 == "A 2-minute trash run isn’t a 45-minute bathroom." or h2 == "A 2-minute trash run isn't a 45-minute bathroom.", h2
+    want = {"Light": "rgb(233, 246, 225)", "Medium": "rgb(255, 241, 214)", "Heavy": "rgb(255, 230, 220)"}
+    for tag, bg in want.items():
+        el = sec.locator(".tag", has_text=tag).first
+        assert el.count() == 1, f"missing tag {tag}"
+        got = el.evaluate("e => getComputedStyle(e).backgroundColor")
+        assert got == bg, f"{tag} tag background {got} != {bg}"
+    rows = [t.strip() for t in sec.locator(".chore b").all_inner_texts()]
+    assert rows == ["Take out trash", "Vacuum living room", "Deep clean bathroom"], rows
+    assert not errors, f"console errors: {errors}"
+
+
 class sync_playwright_child:
     """A second Chromium with extra flags, sharing the running Playwright."""
     def __init__(self, args):

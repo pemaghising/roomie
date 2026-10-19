@@ -50,7 +50,11 @@ h1, h2, h3 {
 }
 p { margin: 0; text-wrap: pretty; }
 em { font-style: italic; }
+.nb { white-space: nowrap; }
 
 .wrap { width: min(1200px, 100% - 40px); margin-inline: auto; }
 .eyebrow { font: 600 14px/1.2 var(--sans); color: var(--violet-deep); letter-spacing: .01em; }
 .lede { font-size: clamp(17px, 1.4vw, 20px); color: var(--muted); max-width: 34em; }
+
+/* Sections clip their own entrance offsets so motion never creates sideways scroll */
+main > section { overflow-x: clip; }
