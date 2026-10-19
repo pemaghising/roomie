@@ -10,8 +10,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 /** Composed photos (real v2 cards placed in Figma). Add entries as new photos are made. */
 export const PHOTOS = [
-  { src: "/photos/01-morning-check.png", caption: "One glance before chai.", alt: "A flatmate smiling at her phone in a bright kitchen, with today’s Roomie tasks beside her" },
-  { src: "/photos/02-the-nudge.png", caption: "A nudge that never nags.", alt: "A flatmate at breakfast reading a Roomie nudge: Dishes are yours tonight" },
+  { src: "/photos/01-morning-check.webp", caption: "One glance before chai.", alt: "A flatmate smiling at her phone in a bright kitchen, with today’s Roomie tasks beside her" },
+  { src: "/photos/02-the-nudge.webp", caption: "A nudge that never nags.", alt: "A flatmate at breakfast reading a Roomie nudge: Dishes are yours tonight" },
 ];
 
 export function RealLife() {

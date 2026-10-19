@@ -39,7 +39,7 @@ export function Close() {
         <div className="plants" aria-label="The house plant grows a stage with every finished week">
           {STAGES.map((s) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={s} className="plant" src={`/brand/plant-${s}.png`} alt={`Plant, ${s} stage`} width={360} height={360} loading="lazy" />
+            <img key={s} className="plant" src={`/brand/plant-${s}.webp`} alt={`Plant, ${s} stage`} width={360} height={360} loading="lazy" />
           ))}
         </div>
         <p className="plant-note">Every week the house finishes its chores, the plant grows.</p>

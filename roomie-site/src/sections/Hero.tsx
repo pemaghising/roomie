@@ -48,7 +48,7 @@ export function Hero() {
     <section id="hero" ref={root} className="hero">
       <header className="topbar wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="logo" src="/brand/mascot.png" alt="" width={36} height={36} />
+        <img className="logo" src="/brand/mascot.webp" alt="" width={36} height={36} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="wordmark" src="/brand/wordmark.svg" alt="Roomie" width={104} height={28} />
         <span className="soon">Coming soon</span>
@@ -69,11 +69,11 @@ export function Hero() {
           <div className="device">
             <div className="float">
               <div className="tilt">
-                <Phone src="/screens/h1-home.png" alt="Roomie Home: your tasks today, the house streak and the shared pool" priority />
+                <Phone src="/screens/h1-home.webp" alt="Roomie Home: your tasks today, the house streak and the shared pool" priority />
               </div>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="nudge-card" src="/cards/nudge.png" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={354} height={142} />
+            <img className="nudge-card" src="/cards/nudge.webp" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={354} height={142} />
           </div>
           <div className="chat">
             <div className="chat-head"><b>Flat 3B</b><span>Priya, Aman, you</span></div>

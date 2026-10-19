@@ -117,8 +117,8 @@ def test_hero(browser):
     assert not errors, f"console errors: {errors}"
 
     # The hero leads with the real app: Home screen in a tilted phone + the nudge card.
-    assert hero.locator('.phone img[src="/screens/h1-home.png"]').is_visible(), "no Home screen phone in hero"
-    assert hero.locator('img[src="/cards/nudge.png"]').count() == 1, "no nudge card in hero"
+    assert hero.locator('.phone img[src="/screens/h1-home.webp"]').is_visible(), "no Home screen phone in hero"
+    assert hero.locator('img[src="/cards/nudge.webp"]').count() == 1, "no nudge card in hero"
     assert hero.locator("canvas").count() == 0, "3D canvas should be gone"
     ctx = browser.new_context(viewport={"width": 1280, "height": 900})
     p3 = ctx.new_page()
@@ -149,11 +149,11 @@ def test_effort(browser):
 
 # ---------------------------------------------------------------- Task 5
 WEEK = [
-    ("Monday", "Busy days, set once", "/screens/r7-busy-days.png"),
-    ("Wednesday", "A chore slips", "/screens/c1c-shared-pool.png"),
-    ("Thursday", "Someone picks it up", "/screens/h3-claimed.png"),
-    ("Saturday", "The milk runs out", "/screens/p1-pantry.png"),
-    ("Sunday", "The week evens out", "/screens/h6-all-done.png"),
+    ("Monday", "Busy days, set once", "/screens/r7-busy-days.webp"),
+    ("Wednesday", "A chore slips", "/screens/c1c-shared-pool.webp"),
+    ("Thursday", "Someone picks it up", "/screens/h3-claimed.webp"),
+    ("Saturday", "The milk runs out", "/screens/p1-pantry.webp"),
+    ("Sunday", "The week evens out", "/screens/h6-all-done.webp"),
 ]
 
 
@@ -200,7 +200,7 @@ def test_more(browser):
     assert real.locator("h2").inner_text().strip() == "Built for the small moments."
     figs = real.locator("figure.photo")
     assert figs.count() == 2, figs.count()
-    want = [("/photos/01-morning-check.png", "One glance before chai."), ("/photos/02-the-nudge.png", "A nudge that never nags.")]
+    want = [("/photos/01-morning-check.webp", "One glance before chai."), ("/photos/02-the-nudge.webp", "A nudge that never nags.")]
     for i, (src, cap) in enumerate(want):
         assert figs.nth(i).locator(f'img[src="{src}"]').count() == 1, f"photo {i} src"
         assert figs.nth(i).locator("figcaption").inner_text().strip() == cap, figs.nth(i).locator("figcaption").inner_text()
@@ -209,8 +209,8 @@ def test_more(browser):
     body = shelf.locator("p").all_inner_texts()
     assert any("Do not touch or Ask first" in t for t in body), body
     assert any(t.strip().startswith("Running low? Ask the house") for t in body), body
-    assert shelf.locator('.phone img[src="/screens/p2-my-items.png"]').count() == 1
-    assert shelf.locator('img[src="/cards/shelf.png"]').count() == 1
+    assert shelf.locator('.phone img[src="/screens/p2-my-items.webp"]').count() == 1
+    assert shelf.locator('img[src="/cards/shelf.webp"]').count() == 1
     assert not errors, f"console errors: {errors}"
 
 
@@ -226,7 +226,7 @@ def test_close(browser):
     style = em.evaluate("e => getComputedStyle(e).fontStyle")
     assert style == "italic", style
     for stage in ("seed", "sprout", "leafy", "bud", "bloom"):
-        assert sec.locator(f'img[src="/brand/plant-{stage}.png"]').count() == 1, f"missing plant {stage}"
+        assert sec.locator(f'img[src="/brand/plant-{stage}.webp"]').count() == 1, f"missing plant {stage}"
     assert sec.get_by_role("button", name="Coming soon on Google Play").count() == 1
     foot = page.locator("footer")
     for text in ("Made in Kathmandu", "© 2026 Roomie", "pemaghising.com.np"):
@@ -234,6 +234,67 @@ def test_close(browser):
     assert foot.locator('a[href="https://pemaghising.com.np"]').count() == 1
     assert foot.locator('img[src="/brand/wordmark.svg"]').count() == 1
     assert not errors, f"console errors: {errors}"
+
+
+# ---------------------------------------------------------------- Task 8
+BANNED = ["revolutionize", "seamless", "effortless", "game-changer", "unlock", "supercharge",
+          "trusted by", "users love", "★"]
+
+HIDDEN_JS = """() => [...document.querySelectorAll('main h1, main h2, main p, main img')].filter(e => {
+    if (!e.getClientRects().length) return false;            // display:none on purpose (e.g. desktop-only stage)
+    for (let n = e; n && n !== document.body; n = n.parentElement) {
+        const s = getComputedStyle(n);
+        if (parseFloat(s.opacity) < 0.99 || s.visibility === 'hidden') return true;
+    }
+    return false;
+}).map(e => e.tagName + ' ' + (e.getAttribute('src') || e.textContent.trim().slice(0, 40)))"""
+
+OVERLAP_JS = """() => {
+  const leaves = [...document.querySelectorAll('main *')].filter(e =>
+      [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && e.getClientRects().length);
+  const out = [];
+  for (const sec of document.querySelectorAll('main > section')) {
+    const els = leaves.filter(e => sec.contains(e));
+    for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) {
+      const a = els[i], b = els[j];
+      if (a.contains(b) || b.contains(a)) continue;
+      const r = a.getBoundingClientRect(), q = b.getBoundingClientRect();
+      const ix = Math.min(r.right, q.right) - Math.max(r.left, q.left);
+      const iy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);
+      if (ix > 2 && iy > 2) out.push(sec.id + ': "' + a.textContent.trim().slice(0, 24) + '" / "' + b.textContent.trim().slice(0, 24) + '"');
+    }
+  }
+  return out.slice(0, 6);
+}"""
+
+
+@check("quality")
+def test_quality(browser):
+    # 1. reduced motion: nothing visible is left faded or hidden
+    page, _ = open_page(browser, 1280, 900, reduced_motion="reduce")
+    scroll_through(page)
+    hidden = page.evaluate(HIDDEN_JS)
+    assert not hidden, f"hidden under reduced motion: {hidden[:6]}"
+    # 2. copy rules
+    text = page.evaluate("document.body.innerText").lower()
+    found = [w for w in BANNED if w.lower() in text]
+    assert not found, f"banned words: {found}"
+    upper = page.evaluate("""() => [...document.querySelectorAll('body *')]
+        .filter(e => getComputedStyle(e).textTransform === 'uppercase').length""")
+    assert upper == 0, f"{upper} elements use text-transform: uppercase"
+    # 3. layout at six widths: no sideways scroll, no overlapping text (static layout)
+    for w in (390, 430, 768, 1024, 1280, 1440):
+        page.set_viewport_size({"width": w, "height": 900})
+        page.wait_for_timeout(250)
+        sw, iw = page.evaluate("[document.documentElement.scrollWidth, innerWidth]")
+        assert sw == iw, f"overflow at {w}: {sw} > {iw}"
+        clash = page.evaluate(OVERLAP_JS)
+        assert not clash, f"overlapping text at {w}: {clash}"
+    # 4. first-load weight with motion on
+    p2, _ = open_page(browser, 1280, 900)
+    total = p2.evaluate("""() => performance.getEntriesByType('navigation').concat(performance.getEntriesByType('resource'))
+        .reduce((s, e) => s + (e.transferSize || e.encodedBodySize || 0), 0)""")
+    assert total < 3_000_000, f"first load {total / 1e6:.2f} MB"
 
 
 PW = {}

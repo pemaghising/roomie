@@ -29,9 +29,9 @@ export function Shelf() {
           <p className="lede">Running low? Ask the house, and it becomes a chore anyone can claim.</p>
         </div>
         <div className="shelf-stage" onPointerMove={onMove} onPointerLeave={onLeave}>
-          <Phone src="/screens/p2-my-items.png" alt="Roomie Pantry, My items: Protein shake tagged Do not touch, Sourdough bread tagged Ask first" />
+          <Phone src="/screens/p2-my-items.webp" alt="Roomie Pantry, My items: Protein shake tagged Do not touch, Sourdough bread tagged Ask first" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img ref={card} className="shelf-card" src="/cards/shelf.png" alt="" width={393} height={220} loading="lazy" />
+          <img ref={card} className="shelf-card" src="/cards/shelf.webp" alt="" width={393} height={220} loading="lazy" />
         </div>
       </div>
     </section>
