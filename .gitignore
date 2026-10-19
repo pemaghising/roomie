@@ -7,9 +7,16 @@
 !/evidence-map.md
 !/sources/
 !/roomie-case-study/
+!/roomie-site/
+!/docs/
+/docs/*
+!/docs/superpowers/
 !/roomie-teaser/
 /roomie-teaser/*
 !/roomie-teaser/out/
 /roomie-teaser/out/*
 !/roomie-teaser/out/roomie-launch-light-sfx-16x9.mp4
 !/roomie-teaser/out/roomie-launch-light-poster.png
+
+# brainstorm / plan scratch
+.superpowers/
