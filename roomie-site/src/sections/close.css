@@ -1,0 +1,23 @@
+.close {
+  min-height: 100svh;
+  display: grid; align-items: center;
+  background: linear-gradient(180deg, var(--mist), var(--lilac) 70%, var(--lilac-50));
+}
+.close-inner { display: grid; justify-items: center; text-align: center; gap: 18px; padding-block: 64px; }
+.plants { position: relative; width: min(320px, 70vw); aspect-ratio: 1; }
+.plant { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 26px 30px rgba(59, 36, 112, .16)); }
+.plant-note { font-size: 15px; color: var(--muted); }
+.close-copy { display: grid; justify-items: center; gap: 26px; margin-top: 10px; }
+.close-copy h2 { font-size: clamp(44px, 6.4vw, 96px); max-width: 12ch; }
+.close-copy h2 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
+.close-copy .stores { justify-content: center; }
+
+/* Reduced motion: the growth shown as a strip, nothing stacked or hidden */
+.close--static .plants { position: static; width: auto; aspect-ratio: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.close--static .plant { position: static; width: clamp(80px, 14vw, 150px); height: auto; }
+
+.foot { padding-block: 36px 48px; background: var(--lilac-50); border-top: 1px solid var(--line); }
+.foot-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; font-size: 14px; color: var(--muted); }
+.foot-inner img { height: 22px; width: auto; margin-right: auto; }
+.foot-inner a { color: var(--violet-deep); text-decoration: none; }
+.foot-inner a:hover { text-decoration: underline; }

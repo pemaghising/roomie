@@ -214,6 +214,28 @@ def test_more(browser):
     assert not errors, f"console errors: {errors}"
 
 
+# ---------------------------------------------------------------- Task 7
+@check("close")
+def test_close(browser):
+    page, errors = open_page(browser)
+    sec = page.locator("#close")
+    h2 = sec.locator("h2")
+    assert " ".join(h2.inner_text().split()) == "Make your place feel like home.", h2.inner_text()
+    em = h2.locator("em")
+    assert em.inner_text().strip() == "home.", em.inner_text()
+    style = em.evaluate("e => getComputedStyle(e).fontStyle")
+    assert style == "italic", style
+    for stage in ("seed", "sprout", "leafy", "bud", "bloom"):
+        assert sec.locator(f'img[src="/brand/plant-{stage}.png"]').count() == 1, f"missing plant {stage}"
+    assert sec.get_by_role("button", name="Coming soon on Google Play").count() == 1
+    foot = page.locator("footer")
+    for text in ("Made in Kathmandu", "© 2026 Roomie", "pemaghising.com.np"):
+        assert foot.get_by_text(text).count() >= 1, f"footer missing {text}"
+    assert foot.locator('a[href="https://pemaghising.com.np"]').count() == 1
+    assert foot.locator('img[src="/brand/wordmark.svg"]').count() == 1
+    assert not errors, f"console errors: {errors}"
+
+
 PW = {}
 
 
