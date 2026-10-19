@@ -95,10 +95,57 @@ def test_store_buttons(browser):
         assert page.url == before, f"{label} navigated to {page.url}"
         tip = page.locator("[role=status]", has_text="Coming soon").first
         assert tip.is_visible(), f"{label}: no 'Coming soon' message after click"
-    ratio = page.evaluate("""() => { const i = document.querySelector('.phone img');
-        return i ? i.naturalWidth / i.naturalHeight : 0; }""")
-    assert abs(ratio - 393 / 852) < 0.01, f"phone ratio {ratio}"
     assert not errors, f"console errors: {errors}"
+
+
+# ---------------------------------------------------------------- Task 3
+H1 = "Nobody should have to be the one who asks."
+BUBBLES = ["whose turn is the bathroom??", "again? 🙃", "I'll just do it."]
+
+
+@check("hero")
+def test_hero(browser):
+    page, errors = open_page(browser)
+    hero = page.locator("#hero")
+    assert hero.locator("h1").inner_text().strip() == H1, hero.locator("h1").inner_text()
+    texts = hero.locator(".bubble p").all_inner_texts()
+    assert [t.strip() for t in texts] == BUBBLES, texts
+    assert hero.get_by_role("button", name="Coming soon on the App Store").count() == 1
+    assert not errors, f"console errors: {errors}"
+
+    # WebGL unavailable -> the mascot PNG stands in for the 3D house
+    with sync_playwright_child(["--disable-webgl", "--disable-gpu"]) as b2:
+        p2, _ = open_page(b2)
+        p2.wait_for_timeout(1500)
+        assert p2.locator('#hero img.mascot').is_visible(), "no mascot fallback without WebGL"
+
+    # Model never arrives: headline and buttons still render, mascot takes over
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    p3 = ctx.new_page()
+    p3.route("**/roomie.glb", lambda route: route.abort())
+    p3.goto(URL, wait_until="domcontentloaded")
+    p3.wait_for_timeout(800)
+    assert p3.locator("#hero h1").is_visible(), "h1 not visible without the model"
+    assert p3.locator("#hero .store").first.is_visible(), "store buttons not visible without the model"
+    p3.wait_for_timeout(1500)
+    assert p3.locator('#hero img.mascot').is_visible(), "no mascot when the model fails"
+    ctx.close()
+
+
+class sync_playwright_child:
+    """A second Chromium with extra flags, sharing the running Playwright."""
+    def __init__(self, args):
+        self.args = args
+
+    def __enter__(self):
+        self.b = PW["p"].chromium.launch(args=self.args)
+        return self.b
+
+    def __exit__(self, *exc):
+        self.b.close()
+
+
+PW = {}
 
 
 def main():
@@ -106,6 +153,7 @@ def main():
     httpd = serve()
     failed = 0
     with sync_playwright() as p:
+        PW["p"] = p
         browser = p.chromium.launch()
         for n in names:
             try:

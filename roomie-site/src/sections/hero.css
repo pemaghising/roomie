@@ -1,0 +1,80 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: linear-gradient(180deg, var(--mist) 0%, var(--mist) 55%, var(--lilac-50) 100%);
+  overflow: hidden;
+}
+
+.topbar { display: flex; align-items: center; gap: 10px; padding-block: 22px; }
+.topbar .logo { width: 36px; height: 36px; }
+.topbar .wordmark { height: 24px; width: auto; }
+.topbar .soon {
+  margin-left: auto;
+  font-size: 13px; font-weight: 500; color: var(--violet-deep);
+  padding: 6px 12px; border-radius: 999px; background: var(--lilac);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  padding-block: clamp(24px, 6vh, 64px) clamp(48px, 10vh, 96px);
+}
+.hero-copy { display: grid; gap: 22px; justify-items: start; }
+.hero-copy h1 { font-size: clamp(44px, 6.2vw, 88px); max-width: 11ch; }
+
+.hero-stage { position: relative; height: min(620px, 72svh); }
+.hero-glow {
+  position: absolute; inset: 12% 8% 4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(164, 137, 237, .26), rgba(255, 180, 138, .14) 60%, transparent);
+  opacity: .35;
+}
+.house { position: absolute; inset: 0; }
+.house canvas { position: absolute; inset: 0; }
+.mascot {
+  position: absolute; left: 50%; top: 54%;
+  width: min(380px, 70%); height: auto;
+  transform: translate(-50%, -50%);
+  transition: opacity .6s ease;
+  filter: drop-shadow(0 30px 40px rgba(59, 36, 112, .18));
+}
+.mascot.is-hidden { opacity: 0; }
+
+.chat {
+  position: absolute; left: 0; top: 4%;
+  width: min(330px, 86%);
+  display: grid; gap: 10px;
+}
+.chat-head {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 13px; color: var(--muted);
+}
+.chat-head b { color: var(--ink); font-weight: 600; font-size: 14px; }
+.bubble {
+  justify-self: start;
+  max-width: 260px;
+  padding: 10px 14px 8px;
+  border-radius: 18px 18px 18px 6px;
+  background: rgba(252, 251, 255, .92);
+  box-shadow: var(--glass);
+  backdrop-filter: blur(14px);
+}
+.bubble.me {
+  justify-self: end;
+  border-radius: 18px 18px 6px 18px;
+  background: var(--ink); color: var(--offwhite);
+}
+.bubble .who { display: block; font-size: 12px; font-weight: 600; color: var(--violet-deep); margin-bottom: 2px; }
+.bubble p { font-size: 16px; line-height: 1.35; }
+.bubble small { display: block; margin-top: 4px; font-size: 11px; color: var(--muted); }
+.bubble.me small { color: rgba(252, 251, 255, .65); }
+
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; padding-top: 8px; }
+  .hero-stage { height: 460px; order: 2; }
+  .hero-copy h1 { max-width: 12ch; }
+}
