@@ -179,14 +179,18 @@ def test_week(browser):
     for i, (day, title, _) in enumerate(WEEK):
         assert days.nth(i).locator(".day-name").inner_text().strip() == day
         assert days.nth(i).locator("h3").inner_text().strip() == title
-    # desktop: the pinned phone shows each day's screen in turn
+    # desktop: a pinned timeline; scrolling through the section steps the active day and the phone's screen
+    top, height = page.evaluate("(() => { const r = document.querySelector('#week .timeline-wrap').getBoundingClientRect(); return [r.top + scrollY, r.height]; })()")
+    span = height - 900
+    assert span > 900, f"timeline section too short to scroll through: {height}"
     for i, (_, _, screen) in enumerate(WEEK):
-        days.nth(i).scroll_into_view_if_needed()
-        page.evaluate("(el) => window.scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight * 0.35)", days.nth(i).element_handle())
+        page.evaluate(f"window.scrollTo(0, {top} + {span} * ({i} + 0.5) / 5)")
         page.wait_for_timeout(900)
         shown = page.evaluate("""() => [...document.querySelectorAll('#week .stage .screen')]
             .filter(i => parseFloat(getComputedStyle(i).opacity) > .9).map(i => i.getAttribute('src'))""")
         assert shown == [screen], f"day {i}: stage shows {shown}, want {screen}"
+        act = page.evaluate("[...document.querySelectorAll('#week .day')].findIndex(d => d.classList.contains('is-active'))")
+        assert act == i, f"day {i}: active timeline item is {act}"
     ratio = page.evaluate("""() => { const i = document.querySelector('.phone img');
         return i ? i.naturalWidth / i.naturalHeight : 0; }""")
     assert abs(ratio - 393 / 852) < 0.01, f"phone ratio {ratio}"
@@ -355,6 +359,24 @@ def test_server_html_is_motion_layout(browser):
     ctx.close()
     assert "static" not in " ".join(cls), f"server HTML ships the static layout: {cls}"
     assert stage != "none", "desktop week stage hidden before hydration"
+
+
+@check("flat_phones")
+def test_phones_are_front_facing(browser):
+    page, _ = open_page(browser, 1440, 900)
+    scroll_through(page)
+    tilted = page.evaluate("""() => {
+      const out = [];
+      for (const ph of document.querySelectorAll('main .phone, main .stage-card, main .shelf-card, main .nudge-card')) {
+        for (let n = ph; n && n !== document.body; n = n.parentElement) {
+          const t = getComputedStyle(n).transform;
+          if (t.startsWith('matrix3d')) { out.push((ph.className || ph.tagName) + ' via ' + n.className); break; }
+          if (t.startsWith('matrix(')) { const [a, b] = t.slice(7).split(',').map(parseFloat); if (Math.abs(b) > 0.01) { out.push((ph.className || ph.tagName) + ' rotated via ' + n.className); break; } }
+        }
+      }
+      return [...new Set(out)].slice(0, 6);
+    }""")
+    assert not tilted, f"tilted / perspective transforms: {tilted}"
 
 
 PW = {}

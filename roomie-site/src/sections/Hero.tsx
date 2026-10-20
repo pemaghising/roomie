@@ -20,11 +20,6 @@ export function Hero() {
     const ctx = gsap.context(() => {
       // The nudge arrives a beat after the phone settles.
       gsap.fromTo(".nudge-card", { y: -24, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, delay: 0.7, duration: 0.8, ease: "back.out(1.6)" });
-      // Scroll gently straightens the phone as the page moves on.
-      gsap.fromTo(".tilt", { rotateX: 10, rotateY: -16, rotateZ: 2 }, {
-        rotateX: 2, rotateY: -4, rotateZ: 0, ease: "none",
-        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
-      });
       gsap.to(".float", { y: -10, duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
     }, root);
     return () => ctx.revert();

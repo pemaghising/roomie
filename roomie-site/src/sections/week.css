@@ -1,73 +1,67 @@
-.week { padding-block: clamp(80px, 12vh, 140px); background: linear-gradient(180deg, var(--mist), var(--lilac-50) 30%, var(--lilac-50) 70%, var(--mist)); }
-.week-head { display: grid; gap: 16px; justify-items: start; margin-bottom: clamp(24px, 6vh, 64px); }
+.week { padding-top: clamp(80px, 12vh, 140px); background: linear-gradient(180deg, var(--mist), var(--lilac-50) 20%, var(--lilac-50) 80%, var(--mist)); }
+.week-head { display: grid; gap: 16px; justify-items: start; }
 .week-head h2 { font-size: clamp(38px, 5vw, 72px); }
 
-.week-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 80px); }
-
-.days { list-style: none; margin: 0; padding: 0; }
-.day {
-  min-height: 78vh;
-  display: grid; align-content: center; gap: 12px;
-  max-width: 30rem;
-  opacity: .32;
-  transition: opacity .5s ease;
+/* Desktop: a tall wrapper gives scroll room; the inner block stays pinned. */
+.timeline-wrap { height: calc(100vh + 5 * 70vh); }
+.timeline-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center; gap: clamp(24px, 5vw, 80px);
 }
+
+/* The timeline */
+.timeline { position: relative; padding-left: 44px; }
+.days { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.track { position: absolute; left: 11px; top: 22px; bottom: 22px; width: 2px; border-radius: 2px; background: #DCD5EE; }
+.track-fill {
+  position: absolute; inset: 0;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--violet), var(--grad-end));
+  transform-origin: top; transform: scaleY(var(--p, 0));
+}
+.day { position: relative; padding: 14px 0; opacity: .45; transition: opacity .4s ease; }
+.day::before {
+  content: ""; position: absolute; left: -40px; top: 18px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--offwhite); border: 2px solid #CFC6E8;
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+.day.is-done::before { background: var(--lilac); border-color: var(--violet); }
 .day.is-active { opacity: 1; }
+.day.is-active::before { background: var(--violet); border-color: var(--violet); box-shadow: 0 0 0 6px rgba(122, 95, 214, .16); }
 .day-name { font: 600 14px/1 var(--sans); color: var(--violet-deep); }
-.day h3 { font-size: clamp(30px, 3.2vw, 46px); }
-.day p { font-size: 18px; color: var(--muted); }
+.day h3 { font-size: clamp(24px, 2.4vw, 34px); margin-top: 6px; }
+.day p {
+  font-size: 17px; color: var(--muted); max-width: 30rem;
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height .45s ease, opacity .35s ease, margin .35s ease;
+}
+.day.is-active p { max-height: 120px; opacity: 1; margin-top: 8px; }
 .day-inline { display: none; }
 
-.stage-col { position: relative; }
-.stage {
-  position: sticky; top: 9vh;
-  height: 82vh;
-  display: grid; place-items: center;
-  perspective: 1400px;
-}
-.stage-phone {
-  --phone-w: min(300px, 32vh);
-  position: relative;
-  transform: rotateY(-8deg) rotateX(4deg);
-  transform-style: preserve-3d;
-}
+/* The phone: straight-on, screens crossfade */
+.stage { position: relative; display: grid; place-items: center; height: 100%; }
+.stage-phone { --phone-w: min(300px, 38vh); }
 .stage-phone .screen {
   position: absolute; inset: calc(var(--phone-w) * .028);
   width: calc(100% - var(--phone-w) * .056); height: calc(100% - var(--phone-w) * .056);
   object-fit: cover;
-  opacity: 0; transform: scale(.985);
-  transition: opacity .55s ease, transform .55s ease;
-}
-.stage-phone .screen.on { opacity: 1; transform: none; }
-
-.stage-card {
-  position: absolute; width: min(300px, 44%); height: auto;
   opacity: 0;
-  transform: translate3d(60px, 20px, 0) rotateY(-24deg) rotateZ(3deg);
-  transition: opacity .5s ease, transform .7s cubic-bezier(.2, .8, .2, 1);
-  filter: drop-shadow(0 22px 26px rgba(31, 27, 58, .18));
-  pointer-events: none;
+  transition: opacity .5s ease;
 }
-.stage-card.on { opacity: 1; transform: translate3d(0, 0, 0) rotateY(-6deg) rotateZ(-1.5deg); }
-.stage-card--0 { right: -4%; top: 58%; }
-.stage-card--1 { left: -6%; top: 20%; }
-.stage-card--2 { right: -8%; top: 64%; }
-.stage-card--3 { right: -6%; top: 26%; }
-.stage-card--4 { left: -8%; top: 60%; }
+.stage-phone .screen.on { opacity: 1; }
 
-/* Phones and reduced motion: a stacked story, nothing pinned */
-@media (max-width: 820px) {
-  .week-grid { grid-template-columns: 1fr; }
+/* Phones and reduced motion: an ordinary vertical timeline, nothing pinned */
+@media (max-width: 820px), (prefers-reduced-motion: reduce) {
+  .timeline-wrap { height: auto; padding-block: 32px 64px; }
+  .timeline-sticky { position: static; height: auto; display: block; }
   .stage-col { display: none; }
-  .day { min-height: 0; opacity: 1; padding-block: 36px; max-width: none; }
-  .day-inline { display: grid; justify-items: center; position: relative; margin-top: 16px; }
-  .day-inline .phone { --phone-w: min(270px, 72vw); }
-  .day-card { position: relative; width: min(320px, 88%); margin-top: -40px; filter: drop-shadow(0 18px 22px rgba(31, 27, 58, .16)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .week .stage-col { display: none; }
-  .week .week-grid { grid-template-columns: 1fr; }
-  .week .day { min-height: 0; opacity: 1; padding-block: 36px; max-width: none; }
-  .week .day-inline { display: grid; justify-items: center; margin-top: 16px; }
-  .week .day-card { width: min(320px, 88%); margin-top: -40px; }
+  .day { opacity: 1; padding-block: 22px; }
+  .day p { max-height: none; opacity: 1; margin-top: 8px; }
+  .day::before { background: var(--violet); border-color: var(--violet); }
+  .track-fill { transform: none; }
+  .day-inline { display: block; margin-top: 18px; }
+  .day-inline .phone { --phone-w: min(250px, 66vw); }
 }

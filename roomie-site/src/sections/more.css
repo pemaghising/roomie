@@ -11,12 +11,11 @@
 .shelf { padding-block: clamp(80px, 14vh, 160px); }
 .shelf-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
 .shelf-copy { display: grid; gap: 18px; justify-items: start; }
-.shelf-stage { position: relative; display: grid; place-items: center; perspective: 1200px; min-height: 560px; }
-.shelf-stage .phone { --phone-w: min(290px, 70vw); transform: rotateY(10deg) rotateX(3deg); }
+.shelf-stage { position: relative; display: grid; place-items: center; min-height: 560px; }
+.shelf-stage .phone { --phone-w: min(290px, 70vw); }
 .shelf-card {
   position: absolute; left: 0; bottom: 14%;
   width: min(330px, 62%); height: auto;
-  transition: transform .35s cubic-bezier(.2, .8, .2, 1);
   filter: drop-shadow(0 22px 26px rgba(31, 27, 58, .18));
 }
 
