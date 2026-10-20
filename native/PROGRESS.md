@@ -12,14 +12,29 @@ Branch: `feat/native-v2`. Detailed ledger: `../.superpowers/sdd/2026-10-21-roomi
 | 3 | Tokens + fonts | done |
 | 4 | Motion, haptics, logic tests | done |
 | 5 | v2 component library + kit route | done |
-| 6 | Auth + onboarding · phase review | next |
-| 7 | Home + nudges · phase review | todo |
-| 8 | Chores + calendar · phase review | todo |
-| 9 | Pantry + icons · phase review | todo |
-| 10 | Profile, settings, frameless screens · phase review | todo |
-| 11 | Motion + scroll pass · phase review | todo |
-| 12 | QA sweep · phase review | todo |
+| 6 | Auth + onboarding · phase review | done |
+| 7 | Home + nudges · phase review | done |
+| 8 | Chores + calendar · phase review | done |
+| 9 | Pantry + icons · phase review | done |
+| 10 | Profile, settings, frameless screens · phase review | done |
+| 11 | Motion + scroll pass · phase review | done |
+| 12 | QA sweep · phase review | next |
 | 13 | Packages (APK now, IPA later) | todo |
+
+## Motion values (snappy, per Pema 2026-10-22)
+
+Timing only; layout always comes from Final app v2. All in `src/ui/motion-config.ts`.
+
+| Moment | Value |
+|---|---|
+| Press | scale 0.96, spring damping 22 / stiffness 520 / mass 0.6 |
+| List entrance | 200 ms rise of 10 pt, 30 ms stagger capped at 8; Reduce Motion = 150 ms fade |
+| Tab pill, layout moves | spring 26 / 480 / 0.7 |
+| Sheets | spring 28 / 420 / 0.8 over a 180 ms blurred scrim; drag down past 120 pt or flick to close |
+| Pops (check, plant stage, day pill, menu) | spring 16 / 420 / 0.6 |
+| Done row | fades to 55 % over 200 ms |
+| Streak number | counts up over 320 ms, ease-out cubic |
+| Title bar | fades in between 24 and 64 pt of scroll |
 
 ## Notes
 - App id `com.pemaghising.roomie`. Icon and splash from the brand mascot (`assets/brand/`).

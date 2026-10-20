@@ -43,6 +43,8 @@ def main():
         pg.on("pageerror", lambda e: errors.append(str(e)))
         pg.goto(base + a.route, wait_until="networkidle"); pg.wait_for_timeout(a.wait)
         for step in json.loads(a.steps or "[]"):
+            if step[0] == "scroll":
+                pg.mouse.move(200, 400); pg.mouse.wheel(0, step[1]); pg.wait_for_timeout(700); continue
             el = pg.get_by_label(step[1], exact=True).first
             el.fill(step[2]) if step[0] == "fill" else el.click()
             pg.wait_for_timeout(700)

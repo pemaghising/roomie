@@ -2,8 +2,8 @@ import { Image } from 'expo-image';
 import { ChevronRight, MoreHorizontal, Plus, Users, type LucideIcon } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
-import { motion } from '../motion';
+import Animated, { LinearTransition, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { durations, motion } from '../motion';
 import { color, elevation, radius } from '../tokens';
 import { Glass, Tap, Txt } from './primitives';
 import { Check, EmojiBadge, Tag } from './tags';
@@ -17,8 +17,9 @@ export function TaskRow({ icon, title, tag, meta, state = 'todo', onToggle, onPr
   onToggle?: () => void; onPress?: () => void; right?: ReactNode; tint?: string; plainCheck?: boolean;
 }) {
   const done = state === 'done';
+  const fade = useAnimatedStyle(() => ({ opacity: withTiming(done ? 0.55 : 1, { duration: durations.enter }) }), [done]);
   return (
-    <Animated.View layout={layout} style={{ opacity: done ? 0.55 : 1 }}>
+    <Animated.View layout={layout} style={fade}>
       <Tap onPress={onPress ?? onToggle} disabled={!onPress && !onToggle} accessibilityLabel={`${title}${done ? ', done' : ''}`}>
         <Glass outline={state === 'mine'}>
           <View style={styles.row}>

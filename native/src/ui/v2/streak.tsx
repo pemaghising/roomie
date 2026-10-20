@@ -1,9 +1,9 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { plantFor, type PlantStage } from '@/lib/plant';
-import { useReducedMotion } from '../motion';
+import { motion, useCountUp, useReducedMotion } from '../motion';
 import { color, type } from '../tokens';
 import { DAY_LETTERS } from './fields';
 import { Glass, gradients, Txt } from './primitives';
@@ -41,18 +41,23 @@ export function StreakCard({ days, week, drooped = false }: { days: number; week
   const reduced = useReducedMotion();
   const stage = plantFor(days, drooped);
   const words = days === 1 ? ['day', 'together'] : ['days', 'strong'];
+  const shown = useCountUp(days);
   return (
     <Glass>
       <View style={styles.card} accessible accessibilityLabel={`House streak: ${days} ${words.join(' ')}${drooped ? '. A chore is waiting.' : ''}`}>
         <View style={styles.left}>
           <Txt v="Meta/Medium" c={color.text.numeral}>House streak</Txt>
           <View style={styles.count}>
-            <Txt v="Numeral/Streak" c={color.text.numeral} style={{ fontVariant: ['tabular-nums'] }}>{days}</Txt>
+            <Txt v="Numeral/Streak" c={color.text.numeral} style={{ fontVariant: ['tabular-nums'] }}>{shown}</Txt>
             <Txt v="Body/Row" c={color.text.numeral} style={{ marginBottom: 12 }}>{`${words[0]}\n${words[1]}`}</Txt>
           </View>
-          <View style={styles.week}>{DAY_LETTERS.map((l, i) => <Pill key={i} letter={l} state={week[i] ?? 'none'} />)}</View>
+          <View style={styles.week}>{DAY_LETTERS.map((l, i) => (
+            <Animated.View key={`${i}-${week[i]}`} entering={reduced || week[i] !== 'done' ? undefined : ZoomIn.springify().damping(motion.pop.damping).stiffness(motion.pop.stiffness)}>
+              <Pill letter={l} state={week[i] ?? 'none'} />
+            </Animated.View>
+          ))}</View>
         </View>
-        <Animated.View key={stage} entering={reduced ? undefined : FadeIn.duration(320)} style={styles.art}>
+        <Animated.View key={stage} entering={reduced ? FadeIn.duration(150) : ZoomIn.springify().damping(motion.pop.damping).stiffness(motion.pop.stiffness).mass(motion.pop.mass)} style={styles.art}>
           <Image source={PLANT_ART[stage]} style={styles.plant} contentFit="contain" accessibilityIgnoresInvertColors />
         </Animated.View>
       </View>

@@ -16,7 +16,7 @@ import { messageOf, rpc, STATE_KEY, useMe } from '@/lib/state';
 import { enter, useReducedMotion } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color, layout } from '@/ui/tokens';
-import { Avatar, ConfirmSheet, MeshBackground, SettingsCard, SettingsRow, Tap, Txt } from '@/ui/v2';
+import { Avatar, ConfirmSheet, MeshBackground, SettingsCard, SettingsRow, Tap, Txt, useTitleBar } from '@/ui/v2';
 
 type Ask = 'leave' | 'logout' | 'delete' | null;
 const SUNDAY_FIRST = [0, 1, 2, 3, 4, 5, 6];
@@ -24,6 +24,7 @@ const SUNDAY_FIRST = [0, 1, 2, 3, 4, 5, 6];
 export default function Profile() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const titleBar = useTitleBar('Profile');
   const reduced = useReducedMotion();
   const qc = useQueryClient();
   const toast = useToast();
@@ -58,7 +59,7 @@ export default function Profile() {
   return (
     <View style={styles.root}>
       <MeshBackground />
-      <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}>
+      <Animated.ScrollView onScroll={titleBar.onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}>
         <Animated.View entering={E()}><Txt v="Title/Page" accessibilityRole="header">Profile</Txt></Animated.View>
         <Animated.View entering={E()}>
           <Tap onPress={go('/edit-profile')} accessibilityLabel="Edit profile" style={styles.me}>
@@ -107,7 +108,8 @@ export default function Profile() {
           <Tap onPress={() => setAsk('delete')} accessibilityLabel="Delete account" hitSlop={10}><Txt v="Meta/Medium" c={color.text.secondary}>Delete account</Txt></Tap>
           <Txt v="Meta" c={color.text.secondary}>{` · Roomie ${Constants.expoConfig?.version ?? '1.0'}`}</Txt>
         </Animated.View>
-      </ScrollView>
+      </Animated.ScrollView>
+      {titleBar.bar}
 
       {ask === 'leave' && <ConfirmSheet icon={House} tone="danger" title={`Leave ${home.name}?`} body="Your chores go to the shared pool. You can rejoin anytime with a code."
         action="Leave home" onConfirm={act} onClose={() => setAsk(null)} busy={busy} />}

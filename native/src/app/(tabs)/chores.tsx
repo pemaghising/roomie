@@ -15,7 +15,7 @@ import type { Assignment } from '@/lib/types';
 import { Celebration } from '@/ui/celebration';
 import { durations, enter, motion, useReducedMotion } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
-import { Avatar, effortKind, IconButton, MeshBackground, PoolRow, SectionHeader, SegmentedControl, Tap, TaskRow, Txt } from '@/ui/v2';
+import { Avatar, effortKind, IconButton, MeshBackground, PoolRow, SectionHeader, SegmentedControl, Tap, TaskRow, Txt, useTitleBar } from '@/ui/v2';
 
 type View3 = 'me' | 'all' | 'pool';
 const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
@@ -25,6 +25,7 @@ const clock = (iso: string) => new Date(iso).toLocaleTimeString('en', { hour: 'n
 export default function Chores() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const titleBar = useTitleBar('Chores');
   const reduced = useReducedMotion();
   const params = useLocalSearchParams<{ view?: string }>();
   const { me, state } = useMe();
@@ -73,7 +74,7 @@ export default function Chores() {
   return (
     <View style={styles.root}>
       <MeshBackground />
-      <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
+      <Animated.ScrollView onScroll={titleBar.onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={color.action.primary} />}>
         <View style={styles.head}>
           <Txt v="Title/Page" accessibilityRole="header">Chores</Txt>
@@ -125,7 +126,8 @@ export default function Chores() {
             )}
           </Animated.View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
+      {titleBar.bar}
       <Celebration info={celebration} onClose={closeCelebration} />
     </View>
   );

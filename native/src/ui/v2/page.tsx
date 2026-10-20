@@ -4,11 +4,13 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Children, isValidElement, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type ScrollViewProps } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
+import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { enter, useReducedMotion } from '../motion';
 import { color, layout } from '../tokens';
 import { BackButton } from './buttons';
+import { Txt } from './primitives';
 import { StepBar } from './fields';
 
 export const MESH = require('../../../assets/art/mesh.jpg');
@@ -70,4 +72,25 @@ const styles = StyleSheet.create({
   header: { height: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   content: { paddingHorizontal: layout.margin, paddingTop: 16 },
   pinned: { paddingHorizontal: layout.margin, paddingTop: 12 },
+  bar: { position: 'absolute', top: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(135,107,222,0.16)' },
 });
+
+/**
+ * Large-title collapse for the tab screens: the 34 pt title scrolls away with the page and, between 24 and 64 pt
+ * of scroll, a frosted bar with the 20 pt title fades in at the top. Spread `onScroll` on an Animated.ScrollView.
+ */
+export function useTitleBar(title: string) {
+  const insets = useSafeAreaInsets();
+  const y = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => { y.value = e.contentOffset.y; });
+  const style = useAnimatedStyle(() => ({ opacity: interpolate(y.value, [24, 64], [0, 1], Extrapolation.CLAMP) }));
+  const text = useAnimatedStyle(() => ({ transform: [{ translateY: interpolate(y.value, [24, 64], [8, 0], Extrapolation.CLAMP) }] }));
+  const bar = (
+    <Animated.View pointerEvents="none" style={[styles.bar, { height: insets.top + 44, paddingTop: insets.top }, style]}>
+      <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(248,246,252,0.72)' }]} />
+      <Animated.View style={text}><Txt v="Title/Greeting" accessibilityElementsHidden>{title}</Txt></Animated.View>
+    </Animated.View>
+  );
+  return { onScroll, bar };
+}

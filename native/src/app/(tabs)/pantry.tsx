@@ -15,7 +15,7 @@ import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
 import { durations, enter, motion, useReducedMotion } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color, layout } from '@/ui/tokens';
-import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind } from '@/ui/v2';
+import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind, useTitleBar } from '@/ui/v2';
 
 const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
 const TABS: { value: ShelfTab; label: string }[] = [{ value: 'shared', label: 'Shared' }, { value: 'mine', label: 'My items' }, { value: 'roommates', label: 'Roommates' }];
@@ -46,6 +46,7 @@ const Pill = ({ label, onPress, tone = 'violet' }: { label: string; onPress?: ()
 export default function Pantry() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const titleBar = useTitleBar('Pantry');
   const reduced = useReducedMotion();
   const qc = useQueryClient();
   const toast = useToast();
@@ -116,7 +117,7 @@ export default function Pantry() {
   return (
     <View style={styles.root}>
       <MeshBackground />
-      <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
+      <Animated.ScrollView onScroll={titleBar.onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={color.action.primary} />}>
         <Txt v="Title/Page" accessibilityRole="header">Pantry</Txt>
         <SegmentedControl value={tab} onChange={setTab} options={TABS} />
@@ -246,7 +247,8 @@ export default function Pantry() {
             )}
           </Animated.View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
+      {titleBar.bar}
     </View>
   );
 }

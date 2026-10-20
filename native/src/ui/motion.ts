@@ -1,6 +1,7 @@
 // Reanimated side of the motion system. Values come from motion-config.ts.
 import { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { enterConfig, motion } from './motion-config';
+import { useEffect, useRef, useState } from 'react';
+import { durations, enterConfig, motion } from './motion-config';
 
 export { durations, motion, stagger } from './motion-config';
 
@@ -32,6 +33,27 @@ export function usePress() {
     onPressIn: () => { if (!reduced) scale.value = withSpring(motion.press.scale, motion.press.spring); },
     onPressOut: () => { scale.value = withSpring(1, motion.press.spring); },
   };
+}
+
+/** A number that counts from its last value to the new one (ease-out, `durations.countUp`); jumps with Reduce Motion. */
+export function useCountUp(value: number) {
+  const reduced = useReducedMotion();
+  const [shown, setShown] = useState(value);
+  const from = useRef(value);
+  useEffect(() => {
+    if (reduced || from.current === value) { from.current = value; setShown(value); return; }
+    const start = from.current;
+    const t0 = Date.now();
+    let raf = 0;
+    const tick = () => {
+      const k = Math.min(1, (Date.now() - t0) / durations.countUp);
+      setShown(Math.round(start + (value - start) * (1 - (1 - k) ** 3)));
+      if (k < 1) raf = requestAnimationFrame(tick); else from.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, reduced]);
+  return shown;
 }
 
 export { useReducedMotion };

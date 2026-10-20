@@ -9,5 +9,5 @@ export { AddRow, ChoreOption, ItemCard, NudgeCard, PantryTabs, PlainRow, PoolBan
 export { PLANT_ART, StreakCard, type DayState } from './streak';
 export { effortKind, letterTile, tagStyle, type TagKind } from './tag-style';
 export { Check, Emoji, EmojiBadge, emojiAsset, Tag } from './tags';
-export { MeshBackground, Page, Stagger } from './page';
+export { MeshBackground, Page, Stagger, useTitleBar } from './page';
 export { AppleMark, GoogleMark } from './brand-icons';
