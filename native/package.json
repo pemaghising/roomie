@@ -60,7 +60,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "vitest run --config vitest.config.ts"
+    "test": "vitest run --config vitest.config.ts",
+    "lint:copy": "node scripts/lint-copy.mjs"
   },
   "private": true
 }

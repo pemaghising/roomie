@@ -67,8 +67,8 @@ describe.skipIf(!hasDb)('row-level security', () => {
 
   test("a member cannot see another member's debt or credit reason", async () => {
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
-    const monday = new Date(Date.parse(today) - ((new Date(today).getUTCDay() + 6) % 7) * 86_400_000).toISOString().slice(0, 10);
-    const [aDebt, bCredit, bTurn] = await seedPlan(h, monday, [
+    const sunday = new Date(Date.parse(today) - new Date(today).getUTCDay() * 86_400_000).toISOString().slice(0, 10);
+    const [aDebt, bCredit, bTurn] = await seedPlan(h, sunday, [
       { userId: a.id, day: today, choreName: 'Dishes' }, { userId: b.id, day: today, choreName: 'Bins' }, { userId: b.id, day: today, choreName: 'Mop' },
     ]);
     await admin().from('assignments').update({ reason: { code: 'debt', coveredBy: b.id } }).eq('id', aDebt);

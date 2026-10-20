@@ -11,7 +11,8 @@ const seedHousehold: typeof seedH = async (...args) => { const h = await seedH(.
 afterAll(async () => { await cleanup({ householdIds: homes, userIds: users }); }, 60_000);
 const todayKtm = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
 const plusDays = (d: string, n: number) => new Date(Date.parse(d) + n * 86_400_000).toISOString().slice(0, 10);
-const monday = (d: string) => plusDays(d, -((new Date(d).getUTCDay() + 6) % 7));
+// weeks start on Sunday (the plans table refuses any other start)
+const sunday = (d: string) => plusDays(d, -new Date(d).getUTCDay());
 
 describe.skipIf(!hasDb)('household lifecycle', () => {
   let owner: U; let joiner: U;
@@ -63,7 +64,7 @@ describe.skipIf(!hasDb)('household lifecycle', () => {
 describe.skipIf(!hasDb)('chores, claims and the private ledger', () => {
   let a: U; let b: U; let c: U; let h: string;
   const today = todayKtm();
-  const week = monday(today);
+  const week = sunday(today);
 
   beforeAll(async () => {
     [a, b, c] = await Promise.all([makeUser('Aarav'), makeUser('Priya'), makeUser('Nima')]);
@@ -129,7 +130,7 @@ describe.skipIf(!hasDb)('swaps and leaving', () => {
 
   test('accepting a light-for-heavy swap swaps owners and credits the requester', async () => {
     const tomorrow = plusDays(today, 1);
-    const [mine, theirs] = await seedPlan(h, monday(tomorrow), [
+    const [mine, theirs] = await seedPlan(h, sunday(tomorrow), [
       { userId: a.id, day: tomorrow, effort: 1, choreName: 'Trash' },
       { userId: b.id, day: tomorrow, effort: 3, choreName: 'Bathroom' },
     ]);
@@ -146,7 +147,7 @@ describe.skipIf(!hasDb)('swaps and leaving', () => {
   test('leaving cancels pending swaps and sends future chores to the claim pool', async () => {
     const later = plusDays(today, 2);
     // a different plan week from the previous test (one plan per household per week)
-    const [mine, theirs] = await seedPlan(h, plusDays(monday(later), 7), [
+    const [mine, theirs] = await seedPlan(h, plusDays(sunday(later), 7), [
       { userId: a.id, day: later, choreName: 'Dishes' },
       { userId: b.id, day: later, choreName: 'Sweep' },
     ]);
@@ -173,14 +174,14 @@ describe.skipIf(!hasDb)('authorization and input hardening', () => {
   }, 30_000);
 
   test("another household's assignment is refused for complete and claim", async () => {
-    const [id] = await seedPlan(h, monday(today), [{ userId: a.id, day: plusDays(today, -1), status: 'missed' }]);
+    const [id] = await seedPlan(h, sunday(today), [{ userId: a.id, day: plusDays(today, -1), status: 'missed' }]);
     expect((await x.client.rpc('complete_assignment', { p_id: id })).error?.message).toContain('not_allowed');
     expect((await x.client.rpc('claim_assignment', { p_id: id })).error?.message).toContain('not_allowed');
     void h2;
   });
 
   test('claim pool closed: a missed chore from two days ago cannot be claimed', async () => {
-    const [id] = await seedPlan(h, plusDays(monday(today), -7), [{ userId: a.id, day: plusDays(today, -2), status: 'missed' }]);
+    const [id] = await seedPlan(h, plusDays(sunday(today), -7), [{ userId: a.id, day: plusDays(today, -2), status: 'missed' }]);
     expect((await b.client.rpc('claim_assignment', { p_id: id })).error?.message).toContain('not_allowed');
   });
 

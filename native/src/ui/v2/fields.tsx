@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Pressable, StyleSheet, TextInput, useWindowDimensions, View, type TextInputProps } from 'react-native';
 import Animated, { LinearTransition, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Pencil, type LucideIcon } from 'lucide-react-native';
 import { haptic } from '../haptics';
@@ -69,6 +69,8 @@ export function CodeInput({ value, onChange, error, keyboard = 'number-pad', aut
 
 /** v2/Segmented control: glass capsule; the active segment is a violet 14 % pill that slides. */
 export function SegmentedControl<T extends string>({ options, value, onChange }: { options: { value: T; label: string; count?: number }[]; value: T; onChange: (v: T) => void }) {
+  // on the narrowest phones (under 360 pt) the three labels step down a size instead of truncating
+  const narrow = useWindowDimensions().width < 360;
   return (
     <Glass r={22} fill={0.62} style={{ alignSelf: 'stretch' }}>
       <View style={styles.segRow}>
@@ -77,7 +79,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
           return (
             <Tap key={o.value} onPress={() => onChange(o.value)} feel="select" style={{ flexGrow: 1 }} accessibilityState={{ selected: on }}>
               <Animated.View layout={LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness)} style={[styles.seg, on && styles.segOn]}>
-                <Txt v="Body/Label" c={on ? color.text.link : color.text.secondary}>{o.label}</Txt>
+                <Txt v={narrow ? 'Meta/Medium' : 'Body/Label'} c={on ? color.text.link : color.text.secondary} numberOfLines={1}>{o.label}</Txt>
                 {o.count ? <View style={styles.count}><Txt v="Tag" c={color.text.link}>{o.count}</Txt></View> : null}
               </Animated.View>
             </Tap>
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
   dash: { width: 8, height: 2, borderRadius: 1, backgroundColor: 'rgba(31,27,58,0.2)' },
   hidden: { position: 'absolute', opacity: 0, width: 1, height: 1 },
   segRow: { flexDirection: 'row', padding: 4, gap: 2 },
-  seg: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 18 },
+  seg: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 18 },
   segOn: { backgroundColor: color.action.selectedTint },
   count: { minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 6, backgroundColor: 'rgba(135,107,222,0.14)', alignItems: 'center', justifyContent: 'center' },
   switchItem: { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 18 },

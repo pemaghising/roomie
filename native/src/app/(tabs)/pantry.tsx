@@ -36,9 +36,9 @@ function Heading({ title, count, note }: { title: string; count?: number; note?:
 }
 
 const Pill = ({ label, onPress, tone = 'violet' }: { label: string; onPress?: () => void; tone?: 'violet' | 'green' }) => (
-  <Tap onPress={onPress} disabled={!onPress} feel="complete" accessibilityLabel={label}>
+  <Tap onPress={onPress} disabled={!onPress} feel="complete" accessibilityLabel={label} style={{ flexShrink: 1 }}>
     <View style={[styles.pill, tone === 'green' ? { backgroundColor: color.effort.lightBg } : { backgroundColor: color.action.primary }]}>
-      <Txt v="Meta/Medium" c={tone === 'green' ? color.effort.lightFg : color.text.onAccent}>{label}</Txt>
+      <Txt v="Meta/Medium" c={tone === 'green' ? color.effort.lightFg : color.text.onAccent} numberOfLines={1}>{label}</Txt>
     </View>
   </Tap>
 );
@@ -96,7 +96,7 @@ export default function Pantry() {
         <Glass fill={0.9} lift={false} r={22}>
           <View style={styles.lowRow}>
             <View style={styles.disc}><EmojiBadge value={iconOf(i)} name={i.name} size={40} round tint={color.bg.surface} /></View>
-            <Txt v="Body/Row" numberOfLines={1} style={{ flexShrink: 1 }}>{i.name}</Txt>
+            <Txt v="Body/Row" numberOfLines={1} style={{ flexShrink: 1, minWidth: 48 }}>{i.name}</Txt>
             {row.kind === 'claim' && <View style={{ alignSelf: 'center' }}><Tag kind={i.stock === 'out' ? 'out' : 'low'} /></View>}
             <View style={{ flex: 1 }} />
             {row.kind === 'claim' ? <Pill label="I’ll get it" onPress={() => act.getIt(state, i, me)} /> : <Pill label={row.label} tone="green" />}
@@ -138,9 +138,9 @@ export default function Pantry() {
               <>
                 {low.length > 0 && (
                   <Animated.View layout={spring} entering={E()}>
-                    <Glass fill={0.62} pad={16}>
+                    <Glass fill={0.62} pad={12}>
                       <View style={{ gap: 10 }}>
-                        <View style={{ paddingHorizontal: 2, paddingTop: 2 }}><Heading title="Running low" count={low.length} /></View>
+                        <View style={{ paddingHorizontal: 6, paddingTop: 6 }}><Heading title="Running low" count={low.length} /></View>
                         {low.map(lowItem)}
                       </View>
                     </Glass>
@@ -259,9 +259,9 @@ const styles = StyleSheet.create({
   heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   headingLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   count: { minWidth: 24, height: 22, paddingHorizontal: 7, borderRadius: 11, backgroundColor: color.action.selectedTint, alignItems: 'center', justifyContent: 'center' },
-  lowRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingLeft: 12, paddingRight: 8 },
+  lowRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingLeft: 10, paddingRight: 4 },
   disc: { borderRadius: 20, backgroundColor: color.bg.surface, shadowColor: '#3B2470', shadowOpacity: 0.1, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
-  pill: { height: 34, paddingHorizontal: 14, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  pill: { height: 34, paddingHorizontal: 12, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   pair: { flexDirection: 'row', gap: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   person: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, paddingLeft: 6, paddingRight: 16 },
