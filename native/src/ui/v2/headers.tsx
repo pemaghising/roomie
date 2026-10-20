@@ -7,11 +7,12 @@ import { IconButton } from './buttons';
 import { gradients, Tap, Txt } from './primitives';
 
 /** Section title ("Your tasks today") with an optional link on the right ("Why these?", "See all"). */
-export function SectionHeader({ title, link, onLink }: { title: string; link?: string; onLink?: () => void }) {
+export function SectionHeader({ title, link, onLink, note }: { title: string; link?: string; onLink?: () => void; note?: string }) {
   return (
     <View style={styles.section}>
       <Txt v="Heading/Section" accessibilityRole="header" style={{ flexShrink: 1 }}>{title}</Txt>
       {link && <Tap onPress={onLink} accessibilityRole="link" hitSlop={10}><Txt v="Body/Label" c={color.text.link}>{link}</Txt></Tap>}
+      {note && <Txt v="Tag" c={color.text.secondary}>{note}</Txt>}
     </View>
   );
 }
@@ -22,7 +23,7 @@ export function SectionHeader({ title, link, onLink }: { title: string; link?: s
  */
 export function Heading({ title, accent, sub, size = 'onboarding' }: { title: string; accent?: string; sub?: string; size?: 'onboarding' | 'page' }) {
   return (
-    <View style={{ gap: 10 }}>
+    <View style={{ gap: 8, paddingBottom: 8 }}>
       <Txt v={size === 'page' ? 'Title/Page' : 'Title/Onboarding'} accessibilityRole="header">
         {title}{accent ? '\n' : ''}{accent ? <Text style={{ fontFamily: font.titleItalic }}>{accent}</Text> : null}
       </Txt>

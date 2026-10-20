@@ -2,27 +2,27 @@ import { describe, expect, test } from 'vitest';
 import { durations, enterConfig, motion, stagger } from './motion-config';
 
 describe('motion system', () => {
-  test('lists stagger 40 ms per item, capped at 8 items', () => {
+  test('lists stagger 30 ms per item, capped at 8 items', () => {
     expect(stagger(0)).toBe(0);
-    expect(stagger(3)).toBe(120);
-    expect(stagger(20)).toBe(320);
+    expect(stagger(3)).toBe(90);
+    expect(stagger(20)).toBe(240);
   });
 
-  test('no animation on a repeated path runs longer than 450 ms', () => {
-    for (const ms of Object.values(durations)) expect(ms).toBeLessThanOrEqual(450);
+  test('snappy: no animation on a repeated path runs longer than 320 ms', () => {
+    for (const ms of Object.values(durations)) expect(ms).toBeLessThanOrEqual(320);
   });
 
-  test('enter is a fade and a 12 px rise over 260 ms', () => {
-    expect(enterConfig(2, false)).toEqual({ kind: 'rise', duration: 260, delay: 80, distance: 12 });
+  test('enter is a fade and a 10 px rise over 200 ms', () => {
+    expect(enterConfig(2, false)).toEqual({ kind: 'rise', duration: 200, delay: 60, distance: 10 });
   });
 
   test('with Reduce Motion on, enter is a quick fade with no movement or delay', () => {
     const c = enterConfig(5, true);
-    expect(c).toEqual({ kind: 'fade', duration: 180, delay: 0, distance: 0 });
+    expect(c).toEqual({ kind: 'fade', duration: 150, delay: 0, distance: 0 });
   });
 
-  test('press scales to 0.97 on a firm spring', () => {
-    expect(motion.press).toEqual({ scale: 0.97, spring: { damping: 18, stiffness: 320 } });
-    expect(motion.sheet).toEqual({ damping: 22, stiffness: 260 });
+  test('press scales to 0.96 on a stiff spring; sheets settle fast without bounce', () => {
+    expect(motion.press).toEqual({ scale: 0.96, spring: { damping: 22, stiffness: 520, mass: 0.6 } });
+    expect(motion.sheet).toEqual({ damping: 28, stiffness: 420, mass: 0.8 });
   });
 });

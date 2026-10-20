@@ -9,12 +9,22 @@ import { durations, motion, useReducedMotion } from '../motion';
 import { color, elevation, radius } from '../tokens';
 import { Tap, Txt } from './primitives';
 
-/** v2/Snackbar: dark pill with an optional tick and one action (usually Undo). */
-export function Snackbar({ message, action, onAction, tick }: { message: string; action?: string; onAction?: () => void; tick?: boolean }) {
+/** v2/Snackbar (frame P1d): dark pill, message, and the action in a soft inner pill. */
+export function Snackbar({ message, action, onAction }: { message: string; action?: string; onAction?: () => void }) {
   return (
     <View style={[styles.snack, elevation.sheet]} accessibilityLiveRegion="polite" accessibilityRole="alert">
-      {tick && <View style={styles.tick}><CheckIcon size={14} color={color.text.onAccent} strokeWidth={3} /></View>}
-      <Txt v="Body/Default" c={color.text.onAccent} style={{ flexShrink: 1 }}>{message}</Txt>
+      <Txt v="Body/Row" c={color.text.onAccent} style={{ flexShrink: 1 }}>{message}</Txt>
+      {action && <Tap onPress={onAction} hitSlop={8}><View style={styles.snackAction}><Txt v="Body/Row" c="#C9BCFF">{action}</Txt></View></Tap>}
+    </View>
+  );
+}
+
+/** v2/Toast (frame H3): rounded dark card with a violet tick, a sentence, and Undo. */
+export function Toast({ message, action, onAction }: { message: string; action?: string; onAction?: () => void }) {
+  return (
+    <View style={[styles.toast, elevation.sheet]} accessibilityLiveRegion="polite" accessibilityRole="alert">
+      <View style={styles.tick}><CheckIcon size={14} color={color.text.onAccent} strokeWidth={3} /></View>
+      <Txt v="Body/Default" c={color.text.onAccent} style={{ flex: 1 }}>{message}</Txt>
       {action && <Tap onPress={onAction} hitSlop={10}><Txt v="Body/Label" c="#C9BCFF">{action}</Txt></Tap>}
     </View>
   );
@@ -66,7 +76,9 @@ export function Sheet({ children, onClose, title, sub }: { children: ReactNode; 
 }
 
 const styles = StyleSheet.create({
-  snack: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', maxWidth: 360, paddingVertical: 12, paddingLeft: 14, paddingRight: 16, borderRadius: 16, backgroundColor: color.text.primary },
+  snack: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', maxWidth: 360, paddingVertical: 8, paddingLeft: 18, paddingRight: 8, borderRadius: radius.full, backgroundColor: color.text.primary },
+  snackAction: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: radius.full, backgroundColor: 'rgba(252,251,255,0.12)' },
+  toast: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'stretch', paddingVertical: 12, paddingLeft: 14, paddingRight: 16, borderRadius: 16, backgroundColor: color.text.primary },
   tick: { width: 22, height: 22, borderRadius: 11, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: color.bg.surface, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, borderWidth: 1, borderColor: '#E9E6F5', paddingTop: 12, paddingHorizontal: 24, gap: 20 },
   grabber: { alignSelf: 'center', width: 36, height: 5, borderRadius: 3, backgroundColor: 'rgba(31,27,58,0.18)', marginBottom: 4 },

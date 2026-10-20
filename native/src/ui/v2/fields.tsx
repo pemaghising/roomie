@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'rea
 import Animated, { LinearTransition, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { haptic } from '../haptics';
 import { motion } from '../motion';
-import { color, radius, type } from '../tokens';
+import { color, elevation, radius, type } from '../tokens';
 import { Glass, Tap, Txt } from './primitives';
 
 /** v2/Field: 52 tall glass pill, radius 26. Focus draws the lilac→peach 2 px stroke; error is red 1.5 px. */
@@ -144,7 +144,7 @@ export function Toggle({ value, onChange, label }: { value: boolean; onChange: (
   const knob = useAnimatedStyle(() => ({ transform: [{ translateX: withSpring(value ? 20 : 0, motion.press.spring) }] }), [value]);
   return (
     <Pressable onPress={() => { haptic.select(); onChange(!value); }} accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={label} hitSlop={8}>
-      <View style={[styles.toggle, { backgroundColor: value ? color.action.primary : '#E5E1EE' }]}>
+      <View style={[styles.toggle, { backgroundColor: value ? color.action.primary : '#E5E7EB' }]}>
         <Animated.View style={[styles.knob, knob]} />
       </View>
     </Pressable>
@@ -170,12 +170,12 @@ const styles = StyleSheet.create({
   step: { width: 32, height: 4, borderRadius: 2 },
   days: { flexDirection: 'row', justifyContent: 'space-between', alignSelf: 'stretch' },
   day: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
-  dayOn: { backgroundColor: color.action.primary, shadowColor: '#3B2470', shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } },
-  dayOff: { backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECEAF3' },
+  dayOn: { backgroundColor: color.action.primary },
+  dayOff: { backgroundColor: 'rgba(252,251,255,0.62)', borderWidth: 1, borderColor: color.border.hairline, ...elevation.day },
   chip: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: radius.full },
   chipOn: { backgroundColor: '#F4F0FF', borderWidth: 2, borderColor: '#8670F0' },
-  chipOff: { backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECEAF3' },
+  chipOff: { backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#E9E5F7', ...elevation.liftSmall, shadowColor: '#1C1447', shadowOpacity: 0.05 },
   toggle: { width: 51, height: 31, borderRadius: 15.5, padding: 2, justifyContent: 'center' },
-  knob: { width: 27, height: 27, borderRadius: 13.5, backgroundColor: color.bg.surface, shadowColor: '#3B2470', shadowOpacity: 0.18, shadowRadius: 3, shadowOffset: { width: 0, height: 2 } },
+  knob: { width: 27, height: 27, borderRadius: 13.5, backgroundColor: color.bg.surface, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 2, shadowOffset: { width: 0, height: 2 } },
 });
 

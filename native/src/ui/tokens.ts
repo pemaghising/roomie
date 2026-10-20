@@ -49,14 +49,15 @@ export const type = {
 } as const satisfies Record<string, TextStyle>;
 
 type Shadow = { shadowColor: string; shadowOpacity: number; shadowRadius: number; shadowOffset: { width: number; height: number }; elevation: number };
-const shadow = (radius: number, y: number, opacity: number, elevation: number): Shadow =>
-  ({ shadowColor: '#3B2470', shadowOpacity: opacity, shadowRadius: radius / 2, shadowOffset: { width: 0, height: y }, elevation });
+const shadow = (radius: number, y: number, opacity: number, elevation: number, shadowColor = '#8C66D9'): Shadow =>
+  ({ shadowColor, shadowOpacity: opacity, shadowRadius: radius / 2, shadowOffset: { width: 0, height: y }, elevation });
 
 export const elevation = {
-  glass: shadow(24, 8, 0.1, 3),
-  liftButton: shadow(12, 4, 0.18, 4),
-  liftSmall: shadow(8, 2, 0.1, 2),
-  sheet: shadow(24, 8, 0.14, 8),
+  glass: shadow(24, 8, 0.08, 3),
+  liftButton: shadow(12, 4, 0.16, 4, '#7A5FD6'),
+  liftSmall: shadow(8, 2, 0.14, 2, '#7A5FD6'),
+  day: shadow(16, 4, 0.08, 2),
+  sheet: shadow(24, 8, 0.22, 8, '#1C1447'),
 } as const;
 
 /** Screen margin and section rhythm from the Figma spacing notes. */

@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AddButton, Avatar, BackButton, Button, Check, Chip, ChoreOption, CodeInput, DayPicker, Glass, GreetingHeader, Heading, IconButton,
-  ItemCard, Nav, NudgeCard, PoolBanner, PoolRow, ReasonRow, SectionHeader, SegmentedControl, SettingsRow, ShelfTile, Snackbar, StepBar,
+  ItemCard, Nav, NudgeCard, PoolBanner, PoolRow, ReasonRow, SectionHeader, SegmentedControl, SettingsRow, ShelfTile, Snackbar, StepBar, Toast, AddRow, PantryTabs,
   StreakCard, Tag, TaskRow, TextField, Toggle, Txt, UpcomingCard, ViewSwitch, type TabName,
 } from '@/ui/v2';
 import { color, layout } from '@/ui/tokens';
@@ -67,7 +67,7 @@ export default function Kit() {
         <TaskRow icon="🗑️" title="Take out trash" tag="light" meta="Today" state="mine" onToggle={() => {}} />
         <TaskRow icon="🧺" title="Do the laundry" tag="medium" state="done" onToggle={() => {}} />
         <PoolRow icon="🪣" title="Mop bathroom floor" tag="heavy" onClaim={() => {}} />
-        <PoolRow icon="🪣" title="Mop bathroom floor" tag="heavy" meta="Claimed" claimed onUndo={() => {}} />
+        <PoolRow icon="♻️" title="Take out recycling" tag="light" onClaim={() => {}} />
         <Glass pad={16}><ReasonRow icon="🧹" title="Sweep living room" reason="Your turn — Priya did it last week." tag="light" />
           <ReasonRow icon="🧺" title="Do the laundry" reason="Evens out effort across the house this week." tag="medium" last /></Glass>
         <UpcomingCard icon="🧽" title="Sunday deep clean" sub="Bathroom + kitchen, shared with Aman" onPress={() => {}} />
@@ -75,12 +75,17 @@ export default function Kit() {
         <ItemCard icon="Glass of milk" name="Oat milk with a very long brand name that wraps" tags={['out']} onMore={() => {}} />
         <View style={styles.row}><ShelfTile icon="Olive" name="Olive oil" meta="Aman · 2 days ago" /><ShelfTile icon="Roll of paper" name="Paper towels" meta="You · 4 days ago" /></View>
         <Glass pad={16}><SettingsRow icon={House} label="Home name" value="Parijat Chowk Flat, Lalitpur Ward 3" /><SettingsRow icon={LogOut} label="Log out" tone="danger" /><SettingsRow icon={Trash2} label="Delete account" tone="danger" last /></Glass>
+        <AddRow label="Add your own chore" dashed onPress={() => {}} />
+        <AddRow label="Add a shared item" onPress={() => {}} />
+        <PantryTabs value="shared" onChange={() => {}} options={[{ value: 'shared', label: 'Shared' }, { value: 'mine', label: 'My items' }, { value: 'mates', label: 'Roommates' }]} />
         <ChoreOption icon="🧽" title="Wash dishes" tag="light" meta="Daily" selected onPress={() => {}} />
         <ChoreOption icon="🧽" title="Wash dishes" tag="light" meta="Daily" selected={false} onPress={() => {}} />
         <NudgeCard title="Motivate me" preview="Dishes are yours tonight. Keep the streak going!" selected onPress={() => {}} />
+        <NudgeCard title="Just the facts" preview="Wash dishes is due today at 7 pm." selected={false} onPress={() => {}} />
+        <TaskRow icon="🧽" title="Wash dishes" tag="light" meta="Today" tint="#F4F0FF" plainCheck onToggle={() => {}} />
       </Group>
       <Group title="Overlays">
-        <Snackbar message="Mop bathroom floor is yours." action="Undo" tick />
+        <Toast message="Mop bathroom floor is yours. You’ll get a lighter week." action="Undo" />
         <Snackbar message="Milk marked as Out" action="Undo" />
       </Group>
       <Group title="Nav">

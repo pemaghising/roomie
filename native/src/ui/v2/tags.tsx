@@ -1,10 +1,9 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Check as CheckIcon, CircleHelp, Lock } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { EMOJI_BY_CHAR, EMOJI_BY_NAME } from '../emoji-assets';
-import { useReducedMotion } from '../motion';
+import { motion, useReducedMotion } from '../motion';
 import { color, font, radius } from '../tokens';
 import { GradientRing, Txt } from './primitives';
 import { letterTile, tagStyle, type TagKind } from './tag-style';
@@ -14,7 +13,7 @@ export function Tag({ kind, label }: { kind: TagKind; label?: string }) {
   const s = tagStyle(kind);
   const Icon = s.icon === 'lock' ? Lock : s.icon === 'help' ? CircleHelp : null;
   return (
-    <View style={[styles.tag, { backgroundColor: s.bg, paddingLeft: Icon ? 8 : 9 }]}>
+    <View style={[styles.tag, { backgroundColor: s.bg, paddingLeft: Icon ? 8 : 10, paddingRight: Icon ? 9 : 10 }]}>
       {Icon && <Icon size={11} color={s.fg} strokeWidth={2.25} />}
       <Txt v="Tag" c={s.fg}>{label ?? s.label}</Txt>
     </View>
@@ -41,28 +40,28 @@ export function Emoji({ value, name, size = 26 }: { value?: string | null; name?
 }
 
 /** v2/Emoji badge: 44 tile (radius 13) holding a 26 pt 3D emoji. */
-export function EmojiBadge({ value, name, size = 44, round = false }: { value?: string | null; name?: string; size?: number; round?: boolean }) {
+export function EmojiBadge({ value, name, size = 44, round = false, tint }: { value?: string | null; name?: string; size?: number; round?: boolean; tint?: string }) {
   return (
-    <View style={[styles.badge, { width: size, height: size, borderRadius: round ? size / 2 : 13 }]}>
+    <View style={[styles.badge, { width: size, height: size, borderRadius: round ? size / 2 : 13 }, tint ? { backgroundColor: tint } : null]}>
       <Emoji value={value} name={name} size={Math.round(size * 0.6)} />
     </View>
   );
 }
 
-/** v2/Check: 28 circle. Todo has the lilac→peach ring; done fills violet and pops in. */
-export function Check({ done, size = 28 }: { done: boolean; size?: number }) {
+/** v2/Check: 28 circle. Todo is the lilac→peach ring (Home) or a plain ring (Chores, sheets); done is solid violet and pops in. */
+export function Check({ done, size = 28, plain = false }: { done: boolean; size?: number; plain?: boolean }) {
   const reduced = useReducedMotion();
-  if (!done) return <GradientRing size={size} />;
+  if (!done) return plain ? <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color.bg.surface, borderWidth: 1.75, borderColor: '#8C86C0' }} /> : <GradientRing size={size} />;
   return (
-    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(14).stiffness(260)}>
-      <LinearGradient colors={['#B9ABFF', '#8670F0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center' }}>
-        <CheckIcon size={size * 0.5} color={color.text.onAccent} strokeWidth={3} />
-      </LinearGradient>
+    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(motion.pop.damping).stiffness(motion.pop.stiffness).mass(motion.pop.mass)}>
+      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' }}>
+        <CheckIcon size={size * 0.57} color={color.text.onAccent} strokeWidth={2.75} />
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  tag: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', height: 22, paddingRight: 9, borderRadius: radius.full },
+  tag: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', height: 22, paddingRight: 10, borderRadius: radius.full },
   badge: { backgroundColor: 'rgba(252,251,255,0.8)', alignItems: 'center', justifyContent: 'center' },
 });
