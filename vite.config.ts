@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
-      injectManifest: { globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'] },
+      injectManifest: { globPatterns: ['**/*.{js,css,html,svg,png,webp,ico,woff2}'] },
       manifest: {
         name: 'Roomie',
         short_name: 'Roomie',

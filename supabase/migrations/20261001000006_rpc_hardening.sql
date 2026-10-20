@@ -47,7 +47,7 @@ declare
   me uuid := private.me();
   h uuid;
   code text;
-  wk date := date_trunc('week', now() at time zone 'Asia/Kathmandu')::date;
+  wk date := ((now() at time zone 'Asia/Kathmandu')::date - extract(dow from now() at time zone 'Asia/Kathmandu')::int);
   c jsonb;
   chores_in jsonb := coalesce(p_chores, '[]'::jsonb);
 begin
@@ -202,7 +202,7 @@ begin
     raise exception 'invalid_input';
   end if;
   insert into chores (household_id, name, icon, effort, cadence, created_week)
-  values (h, trim(p_name), coalesce(p_icon, '🧹'), p_effort, p_cadence, date_trunc('week', private.today(h))::date)
+  values (h, trim(p_name), coalesce(p_icon, '🧹'), p_effort, p_cadence, ((private.today(h))::date - extract(dow from private.today(h))::int))
   returning id into cid;
   perform private.log(h, 'chore_added', me, jsonb_build_object('actor', private.name(me), 'chore', trim(p_name)));
   return cid;

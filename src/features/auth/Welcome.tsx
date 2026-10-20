@@ -25,6 +25,7 @@ export default function Welcome() {
           <Link className="btn btn--ghost btn--block" to="/signin/phone">Continue with phone</Link>
         )}
         <p className="auth__fine muted">No passwords. We'll send you a 6-digit code.</p>
+        <Link className="btn btn--ghost btn--block" to="/demo">Explore a demo flat</Link>
       </div>
     </main>
   );

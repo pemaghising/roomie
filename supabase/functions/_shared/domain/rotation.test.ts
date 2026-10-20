@@ -3,9 +3,9 @@ import { clampDebt, expandChores, generatePlan, seededRandom } from './rotation.
 import type { ChoreInput, MemberInput, PlanInput } from './types.ts';
 import type { Weekday } from './time.ts';
 
-const WEEK = '2026-10-05';
+const WEEK = '2026-10-04';
 const chore = (id: string, effort: 1 | 2 | 3, cadence: ChoreInput['cadence'] = 'weekly'): ChoreInput =>
-  ({ id, effort, cadence, createdWeek: '2026-09-28' });
+  ({ id, effort, cadence, createdWeek: '2026-09-27' });
 const member = (userId: string, busyDays: Weekday[] = [], balance = 0, coveredBy?: string): MemberInput =>
   ({ userId, busyDays, balance, coveredBy });
 const plan = (p: Partial<PlanInput>) =>
@@ -18,9 +18,9 @@ describe('expandChores', () => {
   });
   test('biweekly chores appear on alternate weeks from their creation week', () => {
     const bi = [chore('windows', 2, 'biweekly')];
-    expect(expandChores(bi, '2026-09-28')).toHaveLength(1);
-    expect(expandChores(bi, '2026-10-05')).toHaveLength(0);
-    expect(expandChores(bi, '2026-10-12')).toHaveLength(1);
+    expect(expandChores(bi, '2026-09-27')).toHaveLength(1);
+    expect(expandChores(bi, '2026-10-04')).toHaveLength(0);
+    expect(expandChores(bi, '2026-10-11')).toHaveLength(1);
   });
 });
 
@@ -31,11 +31,11 @@ describe('generatePlan', () => {
 
   test('case-study household: heavy chores never land on a busy day, effort is balanced', () => {
     const result = plan({
-      members: [member('aarav', [0, 2, 4]), member('priya'), member('you', [5, 6])],
+      members: [member('aarav', [1, 3, 5]), member('priya'), member('you', [6, 0])],
       chores: [chore('trash', 1, 'daily'), chore('sweep', 2), chore('laundry', 2), chore('bathroom', 3), chore('kitchen', 3)],
     });
     expect(result.assignments).toHaveLength(11);
-    const busy: Record<string, Weekday[]> = { aarav: [0, 2, 4], priya: [], you: [5, 6] };
+    const busy: Record<string, Weekday[]> = { aarav: [1, 3, 5], priya: [], you: [6, 0] };
     for (const a of result.assignments) if (a.effort === 3) expect(busy[a.userId]).not.toContain(a.day);
     const totals = Object.values(result.totals);
     expect(totals.reduce((s, n) => s + n, 0)).toBe(17);
@@ -76,7 +76,7 @@ describe('generatePlan', () => {
     const result = plan({
       members: [member('a'), member('b')],
       chores: [chore('bins', 1)],
-      history: [{ choreId: 'bins', userId: 'a', weekStart: '2026-09-28' }],
+      history: [{ choreId: 'bins', userId: 'a', weekStart: '2026-09-27' }],
     });
     expect(result.assignments[0]).toMatchObject({ userId: 'b', reason: { code: 'turn', previousUserId: 'a' } });
   });
@@ -98,10 +98,10 @@ describe('generatePlan', () => {
   });
 
   test('a heavy daily chore on a day everyone is busy is flagged, not dropped', () => {
-    const result = plan({ members: [member('a', [2]), member('b', [2])], chores: [chore('deep', 3, 'daily')] });
-    const wed = result.assignments.find((a) => a.day === 2)!;
-    expect(wed.reason).toEqual({ code: 'everyone_busy', day: 2 });
-    expect(result.flags).toEqual([{ choreId: 'deep', day: 2 }]);
+    const result = plan({ members: [member('a', [3]), member('b', [3])], chores: [chore('deep', 3, 'daily')] });
+    const wed = result.assignments.find((a) => a.day === 3)!;
+    expect(wed.reason).toEqual({ code: 'everyone_busy', day: 3 });
+    expect(result.flags).toEqual([{ choreId: 'deep', day: 3 }]);
   });
 
   test('balance reasons quote the final weekly totals', () => {

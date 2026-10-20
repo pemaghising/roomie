@@ -26,7 +26,7 @@ test('changing nudge style saves immediately', async () => {
 test('toggling a busy day saves the new set', async () => {
   renderWithState(<Profile />, { state: fixture(), route: '/profile' });
   await userEvent.click(screen.getByRole('checkbox', { name: 'Wednesday' }));
-  await waitFor(() => expect(db.rpc).toHaveBeenCalledWith('update_busy_days', { p_days: [0] }));
+  await waitFor(() => expect(db.rpc).toHaveBeenCalledWith('update_busy_days', { p_days: [1] }));
 });
 
 test('the owner can remove a roommate after confirming', async () => {

@@ -6,12 +6,14 @@ import type { AppState } from './types';
 import { useToast } from '../ui/Toast';
 import { useAuth } from '../features/auth/AuthProvider';
 import { queryClient } from './queryClient';
+import { demoRpc, demoState, isDemo, onDemoChange } from '../demo/demo';
 
 export const STATE_KEY = ['app-state'] as const;
 
 const localToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
 
 export async function fetchState(): Promise<AppState> {
+  if (isDemo()) return demoState();
   const { data, error } = await supabase.rpc('get_state');
   if (error) throw error;
   return { members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [], today: localToday(), ...data } as AppState;
@@ -36,6 +38,9 @@ export class RpcError extends Error {
 export const codeOf = (message: string) => (ERROR_CODES as readonly string[]).find((c) => message.includes(c)) ?? 'unknown';
 
 export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown>): Promise<T> {
+  if (isDemo()) {
+    try { return (await demoRpc(fn, args)) as T; } catch (e) { throw new RpcError(codeOf(e instanceof Error ? e.message : '')); }
+  }
   const { data, error } = await supabase.rpc(fn, args);
   if (error) throw new RpcError(codeOf(error.message));
   return data as T;
@@ -82,6 +87,7 @@ export function useAction<A extends Record<string, unknown>>(
 
 /** Ask the server to plan/sweep this household now (after creating, joining or adding a chore). */
 export async function planNow(choreId?: string) {
+  if (isDemo()) return; // the demo plans new chores inside add_chore
   await supabase.functions.invoke('tick', { body: choreId ? { choreId } : {} });
 }
 
@@ -92,6 +98,7 @@ export function useRealtime(householdId: string | undefined) {
   const qc = useQueryClient();
   useEffect(() => {
     if (!householdId) return;
+    if (isDemo()) { onDemoChange(() => qc.invalidateQueries({ queryKey: STATE_KEY })); return; }
     let timer: ReturnType<typeof setTimeout> | undefined;
     const refresh = () => {
       clearTimeout(timer);

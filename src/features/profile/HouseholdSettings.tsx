@@ -9,7 +9,7 @@ import { useToast } from '../../ui/Toast';
 import './profile.css';
 
 const MODES = [
-  { value: 'review', title: 'Review first', body: "Everyone sees next week's plan on Saturday and can swap before it locks Sunday 6 pm." },
+  { value: 'review', title: 'Review first', body: "Everyone sees next week's plan on Friday and can swap before it locks Saturday 6 pm." },
   { value: 'auto', title: 'Apply automatically', body: "The plan locks as soon as it's made. Swaps still work." },
 ] as const;
 const ENDS = ['20:00', '21:00', '22:00', '23:00'];

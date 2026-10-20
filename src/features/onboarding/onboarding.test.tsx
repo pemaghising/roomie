@@ -50,7 +50,7 @@ test('busy step (create) creates the household with selected chores, plans it, t
   await userEvent.click(screen.getByRole('button', { name: /continue/i }));
   await waitFor(() => expect(api.rpc).toHaveBeenCalledWith('create_household', {
     p_name: 'Flat 4B',
-    p_busy: [0, 4],
+    p_busy: [1, 5],
     p_chores: [
       { name: 'Take out trash', icon: '🗑️', effort: 1, cadence: 'daily' },
       { name: 'Sweep living room', icon: '🧹', effort: 2, cadence: 'weekly' },

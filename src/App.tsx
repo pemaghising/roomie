@@ -22,6 +22,7 @@ import Profile from './features/profile/Profile';
 import HouseholdSettings from './features/profile/HouseholdSettings';
 import Activity from './features/activity/Activity';
 import { OfflineBanner } from './ui/OfflineBanner';
+import { DemoBar, DemoStart } from './demo/DemoBar';
 
 const PAGE_LOADED_AT = Date.now();
 
@@ -43,7 +44,7 @@ function Guard({ allow, children }: { allow: Gate[]; children: ReactNode }) {
 function Root() {
   const { data } = useAppState();
   useRealtime(data?.household?.id);
-  return (<><OfflineBanner /><Outlet /></>);
+  return (<><DemoBar /><OfflineBanner /><Outlet /></>);
 }
 
 function Tabs() {
@@ -68,6 +69,7 @@ const router = createBrowserRouter([
       { path: '/signin/:method', element: <Guard allow={['signed_out']}><ContactEntry /></Guard> },
       { path: '/verify', element: <Guard allow={['signed_out']}><VerifyCode /></Guard> },
       { path: '/j/:code', element: <InviteLink /> },
+      { path: '/demo', element: <DemoStart /> },
       { path: '/onboarding/profile', element: <Guard allow={['needs_profile']}><ProfileStep /></Guard> },
       { path: '/onboarding/start', element: <Guard allow={household}><StartStep /></Guard> },
       { path: '/onboarding/join', element: <Guard allow={household}><JoinStep /></Guard> },

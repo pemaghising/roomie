@@ -118,7 +118,7 @@ export default function Chores() {
         )}
       </Sheet>
       <WhySheet assignment={why} onClose={() => setWhy(null)} />
-      <Celebration kind={celebration} onClose={closeCelebration} />
+      <Celebration info={celebration} onClose={closeCelebration} />
     </main>
   );
 }

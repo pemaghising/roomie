@@ -7,13 +7,13 @@ import PlanReview from './PlanReview';
 
 const db = vi.hoisted(() => ({ rpc: vi.fn(async () => ({ data: null, error: null })) }));
 vi.mock('../../lib/supabase', () => ({ supabase: db }));
-// freeze only Date: the fixture's draft locks 2026-10-04, so the lock copy must not depend on the real clock
+// freeze only Date: the fixture's draft locks 2026-10-03, so the lock copy must not depend on the real clock
 beforeEach(() => { vi.clearAllMocks(); vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-01T09:15:00Z')); });
 afterEach(() => vi.useRealTimers());
 
 const withDraft = (): AppState => {
   const s = fixture();
-  s.plans.push({ id: 'plan-next', week_start: '2026-10-05', status: 'draft', lock_at: '2026-10-04T12:15:00Z', approved_by: ['p'] });
+  s.plans.push({ id: 'plan-next', week_start: '2026-10-04', status: 'draft', lock_at: '2026-10-03T12:15:00Z', approved_by: ['p'] });
   const base = { plan_id: 'plan-next', status: 'todo' as const, claimed_by: null, done_at: null, reason: { code: 'credit' as const } };
   s.assignments.push(
     { ...base, id: 'n-mine', chore_id: 'c-trash', user_id: 'me', day: '2026-10-06', effort: 1 },
@@ -25,7 +25,7 @@ const withDraft = (): AppState => {
 test('shows next week’s draft with each person’s points and approves it', async () => {
   renderWithState(<PlanReview />, { state: withDraft(), route: '/plan' });
   expect(screen.getByRole('heading', { name: 'Next week' })).toBeInTheDocument();
-  expect(screen.getByText('Draft · locks Sunday 6 pm')).toBeInTheDocument();
+  expect(screen.getByText('Draft · locks Saturday 6 pm')).toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'Priya' })).toHaveTextContent('3 pts');
   await userEvent.click(screen.getByRole('button', { name: 'Looks good' }));
   await waitFor(() => expect(db.rpc).toHaveBeenCalledWith('approve_plan', { p_plan: 'plan-next' }));
@@ -63,7 +63,7 @@ test('lock copy follows lock_at in the household timezone', () => {
   const s = withDraft();
   s.household!.tz = 'Europe/London';
   renderWithState(<PlanReview />, { state: s, route: '/plan' });
-  expect(screen.getByText('Draft · locks Sunday 1:15 pm')).toBeInTheDocument();
+  expect(screen.getByText('Draft · locks Saturday 1:15 pm')).toBeInTheDocument();
 });
 
 test('a draft past its lock time says it is locking now', () => {

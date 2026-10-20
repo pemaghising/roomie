@@ -13,7 +13,7 @@ const state = (assignments: Assignment[], over: Partial<AppState> = {}): AppStat
     { user_id: 'me', name: 'Me', color: '#d1fae5', role: 'owner', busy_days: [] },
     { user_id: 'p', name: 'Priya', color: '#dbeafe', role: 'member', busy_days: [] },
   ],
-  chores: [], plans: [{ id: 'p1', week_start: '2026-09-28', status: 'locked', lock_at: '', approved_by: [] }],
+  chores: [], plans: [{ id: 'p1', week_start: '2026-09-27', status: 'locked', lock_at: '', approved_by: [] }],
   assignments, swaps: [], streak: null, balance: 0, activity: [], today: '2026-10-01', ...over,
 });
 
@@ -39,7 +39,7 @@ describe('selectors', () => {
   });
   test('weekTotals sums planned points per person, ignoring expired', () => {
     const s = state([a({ effort: 3 }), a({ effort: 1, user_id: 'p' }), a({ effort: 2, status: 'expired' })]);
-    expect(weekTotals(s, '2026-09-28')).toEqual({ me: 3, p: 1 });
+    expect(weekTotals(s, '2026-09-27')).toEqual({ me: 3, p: 1 });
   });
   test('roommates counts today’s tasks', () => {
     const s = state([a({ status: 'done' }), a({}), a({ user_id: 'p' })]);
@@ -50,7 +50,7 @@ describe('selectors', () => {
     expect(nextUp(s, 'me', '2026-10-01')?.id).toBe('soon');
   });
   test('pendingDraft finds next week’s draft', () => {
-    const s = state([], { plans: [{ id: 'n', week_start: '2026-10-05', status: 'draft', lock_at: '', approved_by: [] }] });
+    const s = state([], { plans: [{ id: 'n', week_start: '2026-10-04', status: 'draft', lock_at: '', approved_by: [] }] });
     expect(pendingDraft(s)?.id).toBe('n');
   });
   test('unreadCount ignores my own activity', () => {
@@ -62,6 +62,6 @@ describe('selectors', () => {
     expect(unreadCount(s, 'me')).toBe(1);
   });
   test('weekDates', () => {
-    expect(weekDates('2026-09-28')).toEqual(['2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04']);
+    expect(weekDates('2026-09-27')).toEqual(['2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02', '2026-10-03']);
   });
 });

@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
 import { decideTick, type HouseholdSnapshot } from '../_shared/domain/tick.ts';
 import { planNewChore, runActions } from './actions.ts';
-import { drainNotifications, type SendPush } from './push.ts';
+import { drainNotifications, expoMessage, type SendPush } from './push.ts';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +14,21 @@ const json = (body: unknown, status = 200) =>
 // Configured on first send, so a missing VAPID env never stops plan/sweep calls from booting.
 let vapidReady = false;
 const send: SendPush = async (sub, message) => {
+  const expo = expoMessage(sub.endpoint, message);
+  if (expo) {
+    // native app devices go through Expo's push service; a token Expo no longer recognises is dropped
+    try {
+      const res = await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(expo),
+      });
+      const out = (await res.json().catch(() => ({}))) as { data?: { status?: string; details?: { error?: string } } };
+      if (out.data?.status === 'error' && out.data.details?.error === 'DeviceNotRegistered') return { gone: true };
+      return { gone: false };
+    } catch {
+      console.error('expo push failed');
+      return { gone: false };
+    }
+  }
   if (!vapidReady) {
     webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT')!, Deno.env.get('VAPID_PUBLIC_KEY')!, Deno.env.get('VAPID_PRIVATE_KEY')!);
     vapidReady = true;

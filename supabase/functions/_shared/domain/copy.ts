@@ -1,11 +1,11 @@
-import type { NudgeStyle, Reason } from './types.ts';
+import type { Reason } from './types.ts';
 import { DAY_NAMES } from './time.ts';
+
+// Push copy (nudge) lives in nudge.ts: this module ships in the app's entry chunk, so it holds only what first load needs.
 
 export const effortLabel = (e: number) => (e >= 3 ? 'Heavy' : e === 2 ? 'Medium' : 'Light') as 'Light' | 'Medium' | 'Heavy';
 
 const nameOf = (names: Record<string, string>, id?: string) => (id && names[id]) || 'a roommate';
-const pts = (n: number) => `${n} pt${n === 1 ? '' : 's'}`;
-const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
 export function reasonText(r: Reason, names: Record<string, string>): string {
   switch (r.code) {
@@ -19,58 +19,10 @@ export function reasonText(r: Reason, names: Record<string, string>): string {
   }
 }
 
-export type NudgeKind =
-  | 'digest' | 'pool' | 'plan_ready' | 'plan_locked' | 'covered' | 'day_kept' | 'swap_request' | 'swap_answer' | 'joined';
-
-export interface NudgePayload {
-  chore?: string; chores?: string[]; actor?: string; streak?: number; effort?: number; accepted?: boolean; offered?: string;
-}
-
-type Copy = { title: string; body: string };
-
-export function nudge(kind: NudgeKind, style: NudgeStyle, p: NudgePayload): Copy {
-  const m = style === 'motivate';
-  const chores = p.chores ?? [];
-  switch (kind) {
-    case 'digest':
-      return m
-        ? { title: 'Good morning 🌱', body: `${chores.length} task${chores.length === 1 ? '' : 's'} today — ${list(chores)}.` }
-        : { title: 'Today', body: `${list(chores)}.` };
-    case 'pool': {
-      const items = chores.length ? chores : p.chore ? [p.chore] : []; // `chore` is the pre-batch payload
-      if (items.length <= 1) {
-        return m ? { title: 'Up for grabs 🙌', body: `Up for grabs: ${items[0]}. Be a hero?` } : { title: 'Unclaimed chore', body: `Unclaimed: ${items[0]}.` };
-      }
-      return m
-        ? { title: 'Up for grabs 🙌', body: `Up for grabs: ${list(items)}. Grab one?` }
-        : { title: 'Unclaimed chores', body: `Unclaimed: ${list(items)}.` };
-    }
-    case 'plan_ready':
-      return m ? { title: "Next week's plan 📋", body: '30 seconds to check it — swap anything that clashes.' } : { title: 'Plan ready', body: "Next week's plan is ready for review." };
-    case 'plan_locked':
-      return m ? { title: 'Your week is planned ✨', body: 'Fair split, busy days respected. Nothing to sort out.' } : { title: 'Plan locked', body: "Next week's plan is set." };
-    case 'covered':
-      return m
-        ? { title: 'Covered for you', body: `${p.actor} covered the ${p.chore} — you'll pick up a little extra next week (+${pts(p.effort ?? 1)}).` }
-        : { title: 'Covered', body: `${p.actor} covered ${p.chore}. +${pts(p.effort ?? 1)} next week.` };
-    case 'day_kept':
-      return m ? { title: 'House peace secured ✨', body: `${p.streak}-day streak. Nicely done, everyone.` } : { title: 'Streak', body: `${p.streak} days.` };
-    case 'swap_request':
-      return m
-        ? { title: 'Swap request 🔄', body: `${p.actor} wants to trade their ${p.offered} for your ${p.chore}.` }
-        : { title: 'Swap request', body: `${p.actor}: ${p.offered} ↔ your ${p.chore}.` };
-    case 'swap_answer':
-      return p.accepted
-        ? (m ? { title: 'Swap accepted 🤝', body: `${p.actor} took the trade.` } : { title: 'Swap accepted', body: `${p.actor} accepted.` })
-        : (m ? { title: 'Swap declined', body: `${p.actor} would rather keep their task. No worries.` } : { title: 'Swap declined', body: `${p.actor} declined.` });
-    case 'joined':
-      return m ? { title: 'New roommate 🏠', body: `${p.actor} joined the house. Their chores start with next week's plan.` } : { title: 'New member', body: `${p.actor} joined.` };
-  }
-}
-
 export const ERROR_CODES = [
   'not_authenticated', 'not_member', 'already_member', 'invalid_code', 'household_full', 'rate_limited',
   'already_claimed', 'not_allowed', 'undo_expired', 'plan_locked', 'invalid_input', 'swap_unavailable',
+  'already_requested', 'duplicate_item',
 ] as const;
 
 const ERROR_COPY: Record<string, string> = {
@@ -86,6 +38,8 @@ const ERROR_COPY: Record<string, string> = {
   plan_locked: 'This plan is already locked.',
   invalid_input: 'Something in that form needs another look.',
   swap_unavailable: "That swap isn't possible anymore.",
+  already_requested: "Already requested — it's in the Chores pool.",
+  duplicate_item: 'Already in the pantry.',
 };
 
 export const errorText = (code: string) => ERROR_COPY[code] ?? "Something went wrong. We'll keep trying.";

@@ -10,7 +10,7 @@ React 19 + TypeScript PWA (Vite) · Supabase (Auth, Postgres + RLS, Realtime, Ed
 ## How it fits together
 - **The app** reads one snapshot (`get_state()`) and refreshes it on realtime changes. Every write is a Postgres RPC that checks who you are.
 - **Fairness logic** lives in `supabase/functions/_shared/domain/` — pure TypeScript shared by the app and the server.
-- **The `tick` function** runs every 10 minutes: drafts Saturday 18:00, locks Sunday 18:00, sweeps missed chores at day end, expires them 24 h later, settles the household streak, sends the morning digest and delivers push in each person's tone.
+- **The `tick` function** runs every 10 minutes: drafts Friday 18:00, locks Saturday 18:00 (weeks start on Sunday), sweeps missed chores at day end, expires them 24 h later, settles the household streak, sends the morning digest and delivers push in each person's tone.
 - **Privacy:** your effort balance is readable only by you (row-level security). There is no leaderboard anywhere.
 
 ## Run it locally

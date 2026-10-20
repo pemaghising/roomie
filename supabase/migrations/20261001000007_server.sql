@@ -15,7 +15,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
           'approvals', (select count(*) from plan_approvals pa
                         join members m on m.user_id = pa.user_id and m.household_id = h.id and m.left_at is null
                         where pa.plan_id = p.id))), '[]'::jsonb)
-        from plans p where p.household_id = h.id and p.week_start >= date_trunc('week', now() at time zone h.tz)::date),
+        from plans p where p.household_id = h.id and p.week_start >= ((now() at time zone h.tz)::date - extract(dow from now() at time zone h.tz)::int)),
       -- one entry per date (today and 3 back), including dates with zero assignments, so the streak can settle empty days
       'days', (select coalesce(jsonb_agg(jsonb_build_object('date', d.day, 'statuses', d.statuses) order by d.day), '[]'::jsonb)
         from (select gs::date as day,

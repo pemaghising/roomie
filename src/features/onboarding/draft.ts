@@ -3,7 +3,7 @@ import type { Cadence, Effort } from '@domain/types.ts';
 import type { Weekday } from '@domain/time.ts';
 
 export const PASTELS = ['#ffedd5', '#dbeafe', '#d1fae5', '#fce7f3', '#fef3c7', '#e0e7ff'];
-export const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+export const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export interface DraftChore { key: string; name: string; icon: string; effort: Effort; cadence: Cadence; selected: boolean }
 export interface Draft { mode: 'create' | 'join'; homeName: string; code: string; busyDays: Weekday[]; chores: DraftChore[] }

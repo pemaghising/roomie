@@ -1,7 +1,7 @@
-/** 0 = Monday … 6 = Sunday — the one weekday convention used across the app and database. */
+/** 0 = Sunday … 6 = Saturday — the one weekday convention used across the app and database. Weeks start on Sunday. */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
+export const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
 
 const DAY_MS = 86_400_000;
 const toUtc = (date: string) => {
@@ -15,7 +15,7 @@ export function addDays(date: string, n: number): string {
 }
 
 export function weekdayOf(date: string): Weekday {
-  return ((new Date(toUtc(date)).getUTCDay() + 6) % 7) as Weekday;
+  return new Date(toUtc(date)).getUTCDay() as Weekday;
 }
 
 export function weekStartOf(date: string): string {
@@ -26,8 +26,8 @@ export function dateOfWeekday(weekStart: string, day: Weekday): string {
   return addDays(weekStart, day);
 }
 
-export function weeksBetween(fromMonday: string, toMonday: string): number {
-  return Math.round((toUtc(toMonday) - toUtc(fromMonday)) / (7 * DAY_MS));
+export function weeksBetween(fromWeek: string, toWeek: string): number {
+  return Math.round((toUtc(toWeek) - toUtc(fromWeek)) / (7 * DAY_MS));
 }
 
 export interface LocalParts { date: string; weekday: Weekday; hour: number; minute: number }

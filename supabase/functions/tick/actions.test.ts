@@ -15,25 +15,25 @@ function fakeDb(responses: Record<string, unknown> = {}) {
 
 const inputs = {
   members: [{ userId: 'a', busyDays: [], balance: 0 }, { userId: 'b', busyDays: [], balance: 0 }],
-  chores: [{ id: 'c1', effort: 1, cadence: 'weekly', createdWeek: '2026-09-28' }, { id: 'c2', effort: 3, cadence: 'weekly', createdWeek: '2026-09-28' }],
+  chores: [{ id: 'c1', effort: 1, cadence: 'weekly', createdWeek: '2026-09-27' }, { id: 'c2', effort: 3, cadence: 'weekly', createdWeek: '2026-09-27' }],
   history: [],
   existingTotals: { a: 4, b: 0 },
 };
 const snap = (over: Partial<HouseholdSnapshot> = {}): HouseholdSnapshot => ({
   id: 'h1', tz: 'Asia/Kathmandu', planMode: 'review', dayEndsAt: '22:00:00', activeMembers: 2,
-  plans: [{ id: 'cur', weekStart: '2026-09-28', status: 'locked', approvals: 0, lockAt: '2026-09-27T12:15:00Z' }],
+  plans: [{ id: 'cur', weekStart: '2026-09-27', status: 'locked', approvals: 0, lockAt: '2026-09-26T12:15:00Z' }],
   days: [], streak: { current: 1, best: 1, lastSettledDay: null }, digestSentFor: null, ...over,
 });
 
 describe('runActions', () => {
   test('generate plans the whole week with dates, consuming debt, only if new', async () => {
     const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
-    await runActions(db, snap(), [{ kind: 'generate', weekStart: '2026-10-05', status: 'draft', fromDay: 0 }]);
+    await runActions(db, snap(), [{ kind: 'generate', weekStart: '2026-10-04', status: 'draft', fromDay: 0 }]);
     const insert = calls.find((c) => c.fn === 'srv_insert_plan')!;
-    expect(insert.args).toMatchObject({ p_household: 'h1', p_week: '2026-10-05', p_status: 'draft', p_consume: true, p_only_if_new: true });
+    expect(insert.args).toMatchObject({ p_household: 'h1', p_week: '2026-10-04', p_status: 'draft', p_consume: true, p_only_if_new: true });
     const rows = insert.args!.p_assignments as { day: string; userId: string }[];
     expect(rows).toHaveLength(2);
-    for (const r of rows) expect(r.day >= '2026-10-05' && r.day <= '2026-10-11').toBe(true);
+    for (const r of rows) expect(r.day >= '2026-10-04' && r.day <= '2026-10-10').toBe(true);
   });
 
   test('settle applies streak days in order', async () => {
@@ -65,7 +65,7 @@ describe('planNewChore', () => {
     const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
     await planNewChore(db, snap(), 'c1', THU);
     const insert = calls.find((c) => c.fn === 'srv_insert_plan')!;
-    expect(insert.args).toMatchObject({ p_week: '2026-09-28', p_status: 'locked', p_consume: false, p_only_if_new: false });
+    expect(insert.args).toMatchObject({ p_week: '2026-09-27', p_status: 'locked', p_consume: false, p_only_if_new: false });
     const rows = insert.args!.p_assignments as { choreId: string; userId: string; day: string }[];
     expect(rows).toEqual([expect.objectContaining({ choreId: 'c1', userId: 'b' })]);
     expect(rows[0].day >= '2026-10-01').toBe(true);
@@ -73,9 +73,9 @@ describe('planNewChore', () => {
 
   test("also adds it to next week's draft when one exists", async () => {
     const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
-    const s = snap({ plans: [...snap().plans, { id: 'n', weekStart: '2026-10-05', status: 'draft', approvals: 0, lockAt: '2026-10-04T12:15:00Z' }] });
+    const s = snap({ plans: [...snap().plans, { id: 'n', weekStart: '2026-10-04', status: 'draft', approvals: 0, lockAt: '2026-10-03T12:15:00Z' }] });
     await planNewChore(db, s, 'c1', THU);
-    expect(calls.filter((c) => c.fn === 'srv_insert_plan').map((c) => c.args!.p_week)).toEqual(['2026-09-28', '2026-10-05']);
+    expect(calls.filter((c) => c.fn === 'srv_insert_plan').map((c) => c.args!.p_week)).toEqual(['2026-09-27', '2026-10-04']);
   });
 
   test('added after the day has ended: starts tomorrow, not in the missed pile', async () => {
@@ -86,11 +86,11 @@ describe('planNewChore', () => {
     expect(rows.every((r) => r.day >= '2026-10-02')).toBe(true);
   });
 
-  test('added on Sunday after the day has ended: this week is skipped, next week still gets it', async () => {
+  test('added on Saturday after the day has ended: this week is skipped, next week still gets it', async () => {
     const { db, calls } = fakeDb({ srv_plan_inputs: inputs });
-    const s = snap({ plans: [...snap().plans, { id: 'n', weekStart: '2026-10-05', status: 'draft', approvals: 0, lockAt: '2026-10-04T12:15:00Z' }] });
-    await planNewChore(db, s, 'c1', new Date('2026-10-04T16:30:00Z')); // 22:15 Sunday
-    expect(calls.filter((c) => c.fn === 'srv_insert_plan').map((c) => c.args!.p_week)).toEqual(['2026-10-05']);
+    const s = snap({ plans: [...snap().plans, { id: 'n', weekStart: '2026-10-04', status: 'draft', approvals: 0, lockAt: '2026-10-03T12:15:00Z' }] });
+    await planNewChore(db, s, 'c1', new Date('2026-10-03T16:30:00Z')); // 22:15 Saturday
+    expect(calls.filter((c) => c.fn === 'srv_insert_plan').map((c) => c.args!.p_week)).toEqual(['2026-10-04']);
   });
 
   test('falls back to a full plan when this week has none yet', async () => {

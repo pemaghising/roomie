@@ -4,13 +4,14 @@ import { STATE_KEY, useAction } from '../../lib/state';
 import { myTasksOn } from '../../lib/selectors';
 import type { AppState, Assignment } from '../../lib/types';
 import { useToast } from '../../ui/Toast';
+import type { CelebrationInfo } from './Celebration';
 
 const buzz = () => navigator.vibrate?.(12);
 
 export function useChoreActions() {
   const qc = useQueryClient();
   const toast = useToast();
-  const [celebration, setCelebration] = useState<'all_done' | 'covered' | null>(null);
+  const [celebration, setCelebration] = useState<CelebrationInfo | null>(null);
 
   const undo = useAction<{ p_id: string }>('undo_complete', {
     optimistic: (s, { p_id }) => ({
@@ -45,8 +46,10 @@ export function useChoreActions() {
       const stillOpen = myTasksOn(s, me, s.today).filter((x) => x.id !== a.id && x.status !== 'done');
       if (a.day === s.today && stillOpen.length === 0) kind = 'all_done';
     }
+    const streak = s?.streak?.current ?? 0;
+    const doneToday = s && me ? myTasksOn(s, me, s.today).filter((x) => x.status === 'done').length + 1 : 1;
     // celebrate only once the server accepted it; a failure rolls back with a toast and no sheet
-    completeAction.mutate({ p_id: a.id }, { onSuccess: () => { if (kind) setCelebration(kind); } });
+    completeAction.mutate({ p_id: a.id }, { onSuccess: () => { if (kind) setCelebration({ kind, streak, doneToday }); } });
   };
 
   const claim = (a: Assignment) => {

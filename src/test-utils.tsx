@@ -16,7 +16,7 @@ export function fixture(over: Partial<AppState> = {}): AppState {
     profile: { id: 'me', name: 'Rahul', color: '#d1fae5', nudge_style: 'motivate', activity_seen_at: '2026-10-01T00:00:00Z' },
     household: { id: 'h1', name: 'Flat 4B', invite_code: 'ABC123', plan_mode: 'review', tz: 'Asia/Kathmandu', day_ends_at: '22:00:00' },
     members: [
-      { user_id: 'me', name: 'Rahul', color: '#d1fae5', role: 'owner', busy_days: [0, 2] },
+      { user_id: 'me', name: 'Rahul', color: '#d1fae5', role: 'owner', busy_days: [1, 3] },
       { user_id: 'p', name: 'Priya', color: '#dbeafe', role: 'member', busy_days: [] },
     ],
     chores: [
@@ -24,7 +24,7 @@ export function fixture(over: Partial<AppState> = {}): AppState {
       { id: 'c-trash', name: 'Take out trash', icon: '🗑️', effort: 1, cadence: 'daily', active: true },
       { id: 'c-bath', name: 'Mop bathroom floor', icon: '🪣', effort: 3, cadence: 'weekly', active: true },
     ],
-    plans: [{ id: 'plan-cur', week_start: '2026-09-28', status: 'locked', lock_at: '2026-09-27T12:15:00Z', approved_by: [] }],
+    plans: [{ id: 'plan-cur', week_start: '2026-09-27', status: 'locked', lock_at: '2026-09-26T12:15:00Z', approved_by: [] }],
     assignments: [
       a('a-sweep', 'c-sweep', 'me', 2),
       a('a-trash', 'c-trash', 'me', 1),

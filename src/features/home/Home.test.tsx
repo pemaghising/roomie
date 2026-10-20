@@ -25,7 +25,7 @@ test('greets me, shows the household streak and today’s tasks', () => {
 test('roommate cards count today’s tasks, with no ranking', () => {
   renderWithState(<Home />, { state: fixture() });
   expect(screen.getByText('Priya')).toBeInTheDocument();
-  expect(screen.getByText('1 task')).toBeInTheDocument();
+  expect(screen.getByText('0/1 done')).toBeInTheDocument();
   expect(screen.queryByText(/rank|#1|leader/i)).toBeNull();
 });
 
@@ -54,7 +54,7 @@ test('tapping a task explains why it is mine', async () => {
 });
 
 test('shows the claim-pool teaser and a pending plan banner', () => {
-  const s = fixture({ plans: [...fixture().plans, { id: 'n', week_start: '2026-10-05', status: 'draft', lock_at: '2026-10-04T12:15:00Z', approved_by: [] }] });
+  const s = fixture({ plans: [...fixture().plans, { id: 'n', week_start: '2026-10-04', status: 'draft', lock_at: '2026-10-03T12:15:00Z', approved_by: [] }] });
   renderWithState(<Home />, { state: s });
   expect(screen.getByRole('link', { name: /1 chore up for grabs/i })).toHaveAttribute('href', '/chores');
   expect(screen.getByRole('link', { name: /next week's plan is ready/i })).toHaveAttribute('href', '/plan');
@@ -112,4 +112,19 @@ test('no swap banner for my own outgoing requests', () => {
   s.swaps = [{ id: 'sw1', from_assignment: 'a-sweep', to_assignment: 'a-p-trash', from_user: 'me', to_user: 'p', status: 'pending' }];
   renderWithState(<Home />, { state: s });
   expect(screen.queryByRole('link', { name: /wants to swap/i })).toBeNull();
+});
+
+test('a reached streak goal can be replaced with a new one', async () => {
+  localStorage.setItem('roomie:streak-goal', '3');
+  renderWithState(<Home />, { state: fixture() });
+  expect(screen.getByText(/Goal reached/)).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Set a new goal' }));
+  await userEvent.click(screen.getByRole('button', { name: '7 days' }));
+  expect(screen.getByText('4 days to your 7-day goal')).toBeInTheDocument();
+  localStorage.removeItem('roomie:streak-goal');
+});
+
+test('the balance chip announces the full sentence', () => {
+  renderWithState(<Home />, { state: fixture() });
+  expect(screen.getByRole('link', { name: /with the house|extra point|ahead/i })).toBeInTheDocument();
 });

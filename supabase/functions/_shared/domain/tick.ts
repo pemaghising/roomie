@@ -1,5 +1,5 @@
 import type { AssignmentStatus } from './types.ts';
-import type { NudgeKind } from './copy.ts';
+import type { NudgeKind } from './nudge.ts';
 import { dayOutcome, type Streak } from './streak.ts';
 import { addDays, localParts, minutesOf, type Weekday, weekStartOf } from './time.ts';
 
@@ -26,7 +26,7 @@ export type TickAction =
 
 /**
  * First weekday of this week that can still get chores. Once today has ended its chores would be swept straight
- * to missed, so start tomorrow; on Sunday after the end nothing is left of this week (null).
+ * to missed, so start tomorrow; on Saturday after the end nothing is left of this week (null).
  */
 export function firstPlannableDay(weekday: Weekday, nowMin: number, endMin: number): Weekday | null {
   if (nowMin < endMin) return weekday;
@@ -47,6 +47,7 @@ export function decideTick(s: HouseholdSnapshot, now: Date): TickAction[] {
 
   const fromDay = firstPlannableDay(local.weekday, nowMin, endMin);
   if (!hasPlan(thisWeek) && fromDay !== null) actions.push({ kind: 'generate', weekStart: thisWeek, status: 'locked', fromDay });
+  // Next week (starting Sunday) is drafted from Friday 18:00; review drafts lock Saturday 18:00 (srv_insert_plan lock_at).
   const draftWindow = (local.weekday === 5 && local.hour >= 18) || local.weekday === 6;
   if (draftWindow && !hasPlan(nextWeek)) {
     actions.push({ kind: 'generate', weekStart: nextWeek, status: s.planMode === 'auto' ? 'locked' : 'draft', fromDay: 0 });
@@ -82,7 +83,7 @@ export const PUSH_DAILY_CAP = 3;
 
 export function pushDecision(localHour: number, sentToday: number, kind: NudgeKind): 'send' | 'defer' | 'skip' {
   if (localHour >= 22 || localHour < 7) return 'defer';
-  // pool is exempt (and not counted): one per member per sweep, and its chores stay claimable after quiet hours
-  if (sentToday >= PUSH_DAILY_CAP && kind !== 'covered' && kind !== 'pool') return 'skip';
+  // pool and restock are exempt (and not counted): batched per person, and the pool stays claimable after quiet hours
+  if (sentToday >= PUSH_DAILY_CAP && kind !== 'covered' && kind !== 'pool' && kind !== 'restock') return 'skip';
   return 'send';
 }
