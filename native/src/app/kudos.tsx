@@ -1,13 +1,14 @@
-import * as Haptics from 'expo-haptics';
+// Kudos (no frame; v2 sheet): send a roommate a small cheer. It shows in the house feed.
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { F } from '@/constants/theme';
-import { messageOf, rpc, STATE_KEY, useMe } from '@/lib/state';
-import { useQueryClient } from '@tanstack/react-query';
-import { Avatar } from '@/ui/avatar';
-import { C, Screen } from '@/ui/kit';
+import { StyleSheet, View } from 'react-native';
+import { avatarUrl } from '@/lib/avatar';
+import { messageOf, rpc, STATE_KEY, useAppState } from '@/lib/state';
+import { haptic } from '@/ui/haptics';
 import { useToast } from '@/ui/toast';
+import { color } from '@/ui/tokens';
+import { Avatar, Button, Emoji, Glass, Sheet, Tap, Txt } from '@/ui/v2';
 
 /** The fixed set the server accepts (see `send_kudos`). */
 const CHEERS = [
@@ -15,60 +16,55 @@ const CHEERS = [
   { emoji: '💪', label: 'Strong' }, { emoji: '❤️', label: 'Love' }, { emoji: '🎉', label: 'Party' },
 ] as const;
 
-/** Send a roommate a small cheer. It shows in the house feed and sends them one push. */
 export default function Kudos() {
   const router = useRouter();
   const qc = useQueryClient();
   const toast = useToast();
   const { to } = useLocalSearchParams<{ to: string }>();
-  const { state } = useMe();
-  const them = state.members.find((m) => m.user_id === to);
+  const { data } = useAppState();
+  const them = data?.members.find((m) => m.user_id === to);
   const [busy, setBusy] = useState<string | null>(null);
+  const close = () => router.back();
 
   const send = async (emoji: string) => {
     if (busy || !them) return;
     setBusy(emoji);
     try {
       await rpc('send_kudos', { p_to: them.user_id, p_emoji: emoji });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      haptic.allDone();
       await qc.invalidateQueries({ queryKey: STATE_KEY });
-      toast.show(`Sent ${emoji} to ${them.name.split(' ')[0]}!`);
-      router.back();
+      toast.show(`Cheer sent to ${them.name.split(' ')[0]}.`, { tick: true });
+      close();
     } catch (e) {
       toast.show(messageOf(e));
       setBusy(null);
     }
   };
 
-  if (!them) return <Screen><Text style={styles.gone}>That roommate is no longer in the home.</Text></Screen>;
+  if (!data) return null;
+  if (!them) return <Sheet onClose={close} title="They’ve moved out" sub="That roommate is no longer in the home."><Button title="Close" onPress={close} /></Sheet>;
   return (
-    <Screen>
-      <View style={styles.head}>
-        <Avatar name={them.name} color={them.color} path={them.avatar_path} size={64} />
-        <Text style={styles.title}>Cheer {them.name.split(' ')[0]} on</Text>
-        <Text style={styles.sub}>A small thing that makes the house feel good.</Text>
+    <Sheet onClose={close}>
+      <View style={{ alignItems: 'center', gap: 8 }}>
+        <Avatar name={them.name} uri={them.avatar_path ? avatarUrl(them.avatar_path) : null} tint={them.color} size={64} />
+        <Txt v="Heading/Section" accessibilityRole="header">{`Cheer ${them.name.split(' ')[0]} on`}</Txt>
+        <Txt v="Body/Default" c={color.text.secondary}>A small thing that makes the house feel good.</Txt>
       </View>
       <View style={styles.grid}>
         {CHEERS.map((c) => (
-          <Pressable key={c.emoji} accessibilityRole="button" accessibilityLabel={`Send ${c.label}`} disabled={Boolean(busy)} onPress={() => send(c.emoji)}
-            style={({ pressed }) => [styles.cell, busy === c.emoji && styles.cellOn, pressed && { transform: [{ scale: 0.94 }] }]}>
-            <Text style={styles.emoji}>{c.emoji}</Text>
-            <Text style={styles.label}>{c.label}</Text>
-          </Pressable>
+          <Tap key={c.emoji} onPress={() => send(c.emoji)} disabled={Boolean(busy)} feel="select" style={styles.cell} accessibilityLabel={`Send ${c.label}`}>
+            <Glass outline={busy === c.emoji} fill={0.9} r={22}>
+              <View style={styles.cellIn}><Emoji value={c.emoji} size={40} /><Txt v="Meta/Medium" c={color.text.secondary}>{c.label}</Txt></View>
+            </Glass>
+          </Tap>
         ))}
       </View>
-    </Screen>
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  gone: { fontSize: 15, color: C.sub, fontFamily: F.regular, marginTop: 40, textAlign: 'center' },
-  head: { alignItems: 'center', gap: 6, marginTop: 8 },
-  title: { fontSize: 26, color: C.text, fontFamily: F.display, marginTop: 8 },
-  sub: { fontSize: 14, color: C.sub, fontFamily: F.regular },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 26, justifyContent: 'center' },
-  cell: { width: '30%', aspectRatio: 1, borderRadius: 24, backgroundColor: '#FFF', borderWidth: 1.5, borderColor: C.line, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  cellOn: { borderColor: '#7C3AED', backgroundColor: '#F5F3FF' },
-  emoji: { fontSize: 36 },
-  label: { fontSize: 12, color: C.sub, fontFamily: F.semibold },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
+  cell: { width: '31%' },
+  cellIn: { alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 16 },
 });

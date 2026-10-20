@@ -29,6 +29,7 @@ export const EMOJI = [
   ['Strawberry', ['🍓']], ['Poultry leg', ['🍗']], ['Cut of meat', ['🥩']], ['Fish', ['🐟']], ['Teacup without handle', ['🍵']],
   ['Beverage box', ['🧃']], ['Droplet', ['💧']], ['Bubble tea', ['🧋']], ['Ice', ['🧊']], ['High voltage', ['⚡']],
   ['Beer mug', ['🍺']], ['Wine glass', ['🍷']], ['Ice cream', ['🍨']], ['Pouring liquid', ['🫗']], ['Kiwi fruit', ['🥝']],
+  ['Raising hands', ['🙌']], ['Clapping hands', ['👏']], ['Fire', ['🔥']], ['Flexed biceps', ['💪']], ['Red heart', ['❤️', '❤']],
 ];
 
 const slug = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '_');
@@ -38,7 +39,9 @@ const missing = [];
 for (const [name] of EMOJI) {
   const file = join(out, `${slug(name)}.png`);
   if (existsSync(file)) continue;
-  const res = await fetch(url(name));
+  // hands and people sit under a skin-tone folder; take the default yellow
+  let res = await fetch(url(name));
+  if (!res.ok) res = await fetch(`https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/${encodeURIComponent(name)}/Default/3D/${slug(name)}_3d_default.png`);
   if (!res.ok) { missing.push(name); continue; }
   writeFileSync(file, Buffer.from(await res.arrayBuffer()));
 }

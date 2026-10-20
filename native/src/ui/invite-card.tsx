@@ -9,7 +9,7 @@ import { useToast } from './toast';
 import { color, elevation, font } from './tokens';
 import { Glass, Tap, Txt } from './v2';
 
-export function InviteCard({ code, home }: { code: string; home: string }) {
+export function InviteCard({ code, home, label = 'Scan to move in' }: { code: string; home: string; label?: string }) {
   const toast = useToast();
   const copy = async () => {
     await Clipboard.setStringAsync(formatCode(code));
@@ -19,7 +19,7 @@ export function InviteCard({ code, home }: { code: string; home: string }) {
   return (
     <Glass fill={0.9}>
       <View style={styles.card} accessible accessibilityLabel={`Invite to ${home}. Code ${formatCode(code).split('').join(' ')}`}>
-        <Txt v="Body/Label" c={color.text.link}>Scan to move in</Txt>
+        <Txt v="Body/Label" c={color.text.link}>{label}</Txt>
         <View style={[styles.qr, elevation.liftSmall, { shadowColor: '#1C1447', shadowOpacity: 0.06 }]}>
           <QRCode value={inviteLink(code)} size={124} color={color.text.primary} backgroundColor={color.bg.surface} />
         </View>

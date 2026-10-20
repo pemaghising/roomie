@@ -1,93 +1,64 @@
-import { Ionicons } from '@expo/vector-icons';
+// The reminders primer (no frame; v2 sheet): why we ask, before the phone's own prompt. Also where a denied one gets fixed.
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { F } from '@/constants/theme';
+import { StyleSheet, View } from 'react-native';
 import { markPrimerSeen, previewPoolReminder, pushStatus, registerForPush, type PushStatus } from '@/lib/push';
 import { useAppState } from '@/lib/state';
-import { Art } from '@/ui/art';
-import { Button, C, Screen } from '@/ui/kit';
 import { useToast } from '@/ui/toast';
+import { color } from '@/ui/tokens';
+import { Button, EmojiBadge, Sheet, Tap, Txt } from '@/ui/v2';
 
 const REASONS = [
-  { icon: 'sunny-outline', text: 'A short morning note with what is on your list' },
-  { icon: 'hand-left-outline', text: 'When a chore is up for grabs and a roommate needs a hand' },
-  { icon: 'calendar-outline', text: "When next week's plan is ready to look at" },
-] as const;
+  { icon: '🔔', text: 'A 7 pm nudge on the days a chore is yours' },
+  { icon: '🙌', text: 'When a chore slips into the shared pool' },
+  { icon: '🛒', text: 'When something in the pantry runs low' },
+];
 
-/** The "why we ask" step before the system permission prompt, and the place to fix a denied one. */
 export default function Reminders() {
   const router = useRouter();
   const toast = useToast();
   const [status, setStatus] = useState<PushStatus | null>(null);
   const [busy, setBusy] = useState(false);
-  const [remote, setRemote] = useState<boolean | null>(null); // whether this phone is registered for pushes from the server
   useEffect(() => { markPrimerSeen(); void pushStatus().then(setStatus); }, []);
+  const style = useAppState().data?.profile.nudge_style ?? 'motivate';
+  const close = () => router.back();
 
   const turnOn = async () => {
     setBusy(true);
-    const r = await registerForPush();
-    const s = await pushStatus(); // permission, even if the server token could not be registered
+    await registerForPush();
+    const s = await pushStatus();
     setBusy(false);
     setStatus(s);
-    setRemote(r === 'granted');
-    if (r === 'granted') { toast.show("Reminders are on. We'll keep them short."); router.back(); }
+    if (s === 'granted') { toast.show('Reminders are on. We’ll keep them short.', { tick: true }); close(); }
   };
-
-  const style = useAppState().data?.profile.nudge_style ?? 'motivate';
   const preview = async () => {
     const ok = await previewPoolReminder(style);
-    toast.show(ok ? 'On its way. Lock your phone to see it, then tap it.' : "Couldn't schedule the preview.");
+    toast.show(ok ? 'On its way. Lock your phone to see it.' : 'Couldn’t send the preview.');
   };
 
-  const note = status === 'denied' ? 'Reminders are off in your phone settings.'
-    : status === 'unavailable' ? 'Push reminders need a real phone.'
-    : status === 'granted' && remote === false ? 'Reminders are allowed, but pushes from the server need the installed app, not Expo Go. You can still preview one below.'
-    : null;
-
   return (
-    <Screen footer={
-      <View style={{ gap: 4 }}>
-        {status === 'granted' ? (
-          <Button title="Reminders are on" disabled onPress={() => {}} />
-        ) : status === 'denied' ? (
-          <Button title="Open phone settings" onPress={() => Linking.openSettings()} />
-        ) : (
-          <Button title="Turn on reminders" loading={busy} disabled={status === 'unavailable'} onPress={turnOn} />
-        )}
-        <Button title="Not now" variant="ghost" onPress={() => router.back()} />
-      </View>
-    }>
-      <View style={styles.art}><Art name="calendar" width={200} /></View>
-      <Text style={styles.title}>Never miss your turn.</Text>
-      <Text style={styles.sub}>A few gentle nudges, never more than a handful a day.</Text>
-      <View style={{ gap: 14, marginTop: 22 }}>
+    <Sheet onClose={close} title="Never miss your turn" sub="A few gentle nudges, never more than a handful a day.">
+      <View style={{ gap: 14 }}>
         {REASONS.map((r) => (
           <View key={r.text} style={styles.row}>
-            <View style={styles.icon}><Ionicons name={r.icon} size={20} color={C.lavenderText} /></View>
-            <Text style={styles.reason}>{r.text}</Text>
+            <EmojiBadge value={r.icon} size={40} round tint={color.action.selectedTint} />
+            <Txt v="Body/Default" style={{ flex: 1 }}>{r.text}</Txt>
           </View>
         ))}
       </View>
-      {note ? <Text style={styles.note}>{note}</Text> : null}
-      {status === 'granted' && (
-        <Pressable accessibilityRole="button" onPress={preview} style={({ pressed }) => [styles.preview, pressed && { opacity: 0.7 }]}>
-          <Ionicons name="notifications-outline" size={18} color={C.lavenderText} />
-          <Text style={styles.previewText}>Preview an "up for grabs" reminder</Text>
-        </Pressable>
-      )}
-    </Screen>
+      {status === 'denied' && <Txt v="Meta" c={color.text.secondary}>Reminders are off in your phone settings.</Txt>}
+      {status === 'unavailable' && <Txt v="Meta" c={color.text.secondary}>Reminders need a real phone.</Txt>}
+      <View style={{ gap: 10 }}>
+        {status === 'granted' ? <Button title="Send me a preview" kind="secondary" onPress={preview} />
+          : status === 'denied' ? <Button title="Open phone settings" onPress={() => void Linking.openSettings()} />
+          : <Button title="Turn on reminders" onPress={turnOn} loading={busy} disabled={status === 'unavailable'} />}
+        <Tap onPress={close} style={{ alignSelf: 'center' }} hitSlop={10}><Txt v="Body/Label" c={color.text.secondary}>Not now</Txt></Tap>
+      </View>
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  art: { alignItems: 'center', marginTop: 12 },
-  title: { fontSize: 30, lineHeight: 36, color: C.text, fontFamily: F.display, marginTop: 8 },
-  sub: { fontSize: 15, lineHeight: 22, color: C.sub, fontFamily: F.regular, marginTop: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.lavender, alignItems: 'center', justifyContent: 'center' },
-  reason: { flex: 1, fontSize: 15, lineHeight: 21, color: C.text, fontFamily: F.medium },
-  note: { fontSize: 13, lineHeight: 19, color: C.sub, fontFamily: F.regular, marginTop: 20 },
-  preview: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.lavender, borderRadius: 20, height: 48, marginTop: 22 },
-  previewText: { fontSize: 14, color: C.lavenderText, fontFamily: F.bold },
 });

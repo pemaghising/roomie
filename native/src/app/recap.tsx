@@ -1,31 +1,24 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+// Weekly recap (no frame; v2 parts). Opens from the Sunday notification. The house's week, never a leaderboard.
 import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
-import { F } from '@/constants/theme';
-import { usePlus } from '@/lib/entitlement';
-import { memberWeek, weekRecap, type DayState } from '@/lib/recap';
-import { useMe } from '@/lib/state';
-import { Avatar } from '@/ui/avatar';
-import { Button, C, Screen, Sub, Title } from '@/ui/kit';
+import { avatarUrl } from '@/lib/avatar';
+import { weekRecap } from '@/lib/recap';
+import { memberShares } from '@/lib/roommates';
+import { useMe, withHousehold } from '@/lib/state';
+import { haptic } from '@/ui/haptics';
+import { color } from '@/ui/tokens';
+import { Avatar, Button, Glass, Heading, Page, PLANT_ART, Txt } from '@/ui/v2';
+import { plantFor } from '@/lib/plant';
+import { Image } from 'expo-image';
 
-const DOT: Record<DayState, object> = {
-  kept: { backgroundColor: '#7C3AED', borderColor: '#7C3AED' },
-  missed: { backgroundColor: 'transparent', borderColor: '#7C3AED' },
-  open: { backgroundColor: '#DDD6FE', borderColor: '#DDD6FE' },
-  none: { backgroundColor: '#F3F4F6', borderColor: '#F3F4F6' },
-  future: { backgroundColor: '#F3F4F6', borderColor: '#F3F4F6' },
-};
+export default withHousehold(Recap);
 
-export default function Recap() {
-  const router = useRouter();
-  const plus = usePlus();
+function Recap() {
   const { state } = useMe();
   const r = weekRecap(state);
-  const week = memberWeek(state);
+  const shares = new Map(memberShares(state).map((m) => [m.user_id, m.label]));
   const card = useRef<View>(null);
   const [busy, setBusy] = useState(false);
 
@@ -34,7 +27,7 @@ export default function Recap() {
     setBusy(true);
     try {
       const uri = await captureRef(card, { format: 'png', quality: 1 });
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      haptic.select();
       if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Share our week' });
     } finally {
       setBusy(false);
@@ -42,73 +35,38 @@ export default function Recap() {
   };
 
   return (
-    <Screen>
-      <Title>Our week</Title>
-      <Sub>Share how the house is doing.</Sub>
-      <View ref={card} collapsable={false} style={styles.card}>
-        <Text style={styles.brand}>ROOMIE · THIS WEEK</Text>
-        <Text style={styles.big}>{r.done}</Text>
-        <Text style={styles.bigLabel}>chore{r.done === 1 ? '' : 's'} done together</Text>
-        <View style={styles.pills}>
-          <View style={styles.pill}><Text style={styles.pillNum}>{r.pct}%</Text><Text style={styles.pillLabel}>of the week</Text></View>
-          <View style={styles.pill}><Text style={styles.pillNum}>{r.streak}</Text><Text style={styles.pillLabel}>day streak</Text></View>
-        </View>
-        <View style={styles.people}>
-          {r.byMember.map((m) => (
-            <View key={m.user_id} style={styles.person}>
-              <Avatar name={m.name} color={m.color} size={34} />
-              <Text style={styles.personName} numberOfLines={1}>{m.name.split(' ')[0]}</Text>
-              <Text style={styles.personDone}>{m.done}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-      <View style={{ marginTop: 16 }}><Button title="Share recap" loading={busy} onPress={share} /></View>
-
-      <Text style={styles.sectionTitle}>Last 7 days</Text>
-      {plus ? (
-        <View style={{ gap: 12 }}>
-          {week.map((m) => (
-            <View key={m.user_id} style={styles.weekRow} accessible accessibilityLabel={`${m.name}: kept ${m.kept} of the last 7 days`}>
-              <Text style={styles.weekName} numberOfLines={1}>{m.name.split(' ')[0]}</Text>
-              <View style={styles.dots}>
-                {m.days.map((d, i) => <View key={m.dates[i]} style={[styles.dot, DOT[d]]} />)}
+    <Page back footer={<Button title="Share our week" onPress={share} loading={busy} />}>
+      <Heading title="Your week" size="page" sub={`How ${state.household!.name} did, Sunday to Saturday.`} />
+      <View ref={card} collapsable={false}>
+        <Glass fill={0.9}>
+          <View style={styles.card}>
+            <View style={styles.top}>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Txt v="Meta/Medium" c={color.text.numeral}>Done together</Txt>
+                <Txt v="Numeral/Streak" c={color.text.numeral}>{String(r.done)}</Txt>
+                <Txt v="Body/Default" c={color.text.secondary}>{`${r.pct}% of the week · ${r.streak}-day streak`}</Txt>
               </View>
-              <Text style={styles.weekKept}>{m.kept}/7</Text>
+              <Image source={PLANT_ART[plantFor(r.streak, false)]} style={{ width: 96, height: 110 }} contentFit="contain" />
             </View>
-          ))}
-          <Text style={styles.legend}>Filled = kept the day · hollow = something left · faint = no chores</Text>
-        </View>
-      ) : (
-        <Pressable accessibilityRole="button" onPress={() => router.push('/paywall')} style={styles.locked}>
-          <Ionicons name="lock-closed-outline" size={18} color={C.lavenderText} />
-          <Text style={styles.lockedText}>See everyone's last 7 days with Roomie Plus</Text>
-        </Pressable>
-      )}
-    </Screen>
+            <View style={styles.people}>
+              {state.members.map((m) => (
+                <View key={m.user_id} style={styles.person} accessible accessibilityLabel={`${m.name}, ${shares.get(m.user_id)}`}>
+                  <Avatar name={m.name} uri={m.avatar_path ? avatarUrl(m.avatar_path) : null} tint={m.color} size={36} />
+                  <Txt v="Body/Row" style={{ flex: 1 }}>{m.name.split(' ')[0]}</Txt>
+                  <Txt v="Body/Label" c={color.text.link}>{shares.get(m.user_id)}</Txt>
+                </View>
+              ))}
+            </View>
+          </View>
+        </Glass>
+      </View>
+    </Page>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { marginTop: 20, backgroundColor: '#4C1D95', borderRadius: 32, padding: 28, alignItems: 'center', gap: 6 },
-  brand: { fontSize: 12, letterSpacing: 1.6, color: '#DDD6FE', fontFamily: F.bold },
-  big: { fontSize: 88, lineHeight: 96, color: '#FFF', fontFamily: F.display },
-  bigLabel: { fontSize: 17, color: '#EDE9FE', fontFamily: F.medium },
-  pills: { flexDirection: 'row', gap: 12, marginTop: 14 },
-  pill: { backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center' },
-  pillNum: { fontSize: 24, color: '#FFF', fontFamily: F.bold },
-  pillLabel: { fontSize: 12, color: '#DDD6FE', fontFamily: F.regular },
-  people: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginTop: 20 },
-  person: { alignItems: 'center', gap: 4, width: 64 },
-  personName: { fontSize: 12, color: '#EDE9FE', fontFamily: F.medium },
-  personDone: { fontSize: 18, color: '#FFF', fontFamily: F.bold },
-  sectionTitle: { fontSize: 20, color: C.text, fontFamily: F.display, marginTop: 28, marginBottom: 12 },
-  weekRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  weekName: { width: 64, fontSize: 14, color: C.text, fontFamily: F.medium },
-  dots: { flex: 1, flexDirection: 'row', gap: 8 },
-  dot: { width: 22, height: 22, borderRadius: 11, borderWidth: 2 },
-  weekKept: { width: 32, textAlign: 'right', fontSize: 13, color: C.sub, fontFamily: F.medium },
-  legend: { fontSize: 12, color: C.sub, fontFamily: F.regular },
-  locked: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 16, borderRadius: 18, backgroundColor: C.lavender },
-  lockedText: { flex: 1, fontSize: 14, color: C.lavenderText, fontFamily: F.bold },
+  card: { padding: 20, gap: 18 },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  people: { gap: 12, borderTopWidth: 1, borderTopColor: 'rgba(135,107,222,0.12)', paddingTop: 16 },
+  person: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 });

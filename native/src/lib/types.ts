@@ -3,7 +3,8 @@ import type { AssignmentStatus, Cadence, Effort, NudgeStyle, Reason } from '@dom
 import type { Weekday } from '@domain/time.ts';
 import type { PantryAsk, PantryItem, Restock } from '@domain/pantry.ts';
 
-export interface Profile { id: string; name: string; color: string; nudge_style: NudgeStyle; activity_seen_at: string; avatar_path: string | null }
+export type NotifyPrefs = { chores: boolean; pool: boolean; pantry: boolean; recap: boolean };
+export interface Profile { id: string; name: string; color: string; nudge_style: NudgeStyle; activity_seen_at: string; avatar_path: string | null; notify?: NotifyPrefs }
 export interface Household { id: string; name: string; invite_code: string; plan_mode: 'review' | 'auto'; tz: string; day_ends_at: string }
 export interface Member { user_id: string; name: string; color: string; role: 'owner' | 'member'; busy_days: Weekday[]; avatar_path: string | null }
 export interface Chore { id: string; name: string; icon: string; effort: Effort; cadence: Cadence; active: boolean }

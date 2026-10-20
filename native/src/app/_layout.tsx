@@ -1,5 +1,4 @@
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, useFonts } from '@expo-google-fonts/inter';
-import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
+import { useFonts } from 'expo-font';
 import { Geist_300Light, Geist_400Regular, Geist_500Medium, Geist_600SemiBold } from '@expo-google-fonts/geist';
 import { color, font } from '@/ui/tokens';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -10,12 +9,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { F } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { initNotifications } from '@/lib/push';
 import { queryClient } from '@/lib/query';
 import { useAppState, useRealtime } from '@/lib/state';
-import { Button } from '@/ui/kit';
+import { Button, Txt } from '@/ui/v2';
 import { OfflineBanner } from '@/ui/offline-banner';
 import { ToastProvider } from '@/ui/toast';
 
@@ -72,9 +70,9 @@ function Root() {
 
   if (gate === 'error') {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16, backgroundColor: '#FFF' }}>
-        <Text style={{ fontSize: 24, fontFamily: F.display, color: '#111827' }}>Couldn't reach Roomie.</Text>
-        <Text style={{ fontSize: 15, fontFamily: F.regular, color: '#6B7280' }}>Check your connection and try again.</Text>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16, backgroundColor: color.bg.canvas }}>
+        <Txt v="Title/Onboarding">Couldn’t reach Roomie</Txt>
+        <Txt v="Body/Default" c={color.text.secondary}>Check your connection and try again.</Txt>
         <Button title="Try again" onPress={() => state.refetch()} />
       </View>
     );
@@ -84,29 +82,19 @@ function Root() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="activity" />
       <Stack.Screen name="add-chore" options={OVERLAY} />
-      <Stack.Screen name="edit-profile" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.8, 1], sheetCornerRadius: 28 }} />
       <Stack.Screen name="add-item" options={OVERLAY} />
       <Stack.Screen name="restock" options={OVERLAY} />
-      <Stack.Screen name="request-sent" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
-      <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
-      <Stack.Screen name="kudos" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.6], sheetCornerRadius: 28 }} />
+      <Stack.Screen name="kudos" options={OVERLAY} />
       <Stack.Screen name="why" options={OVERLAY} />
       <Stack.Screen name="add-menu" options={OVERLAY} />
-      <Stack.Screen name="manage-chores" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.8, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="household" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.9, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="reminders" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.85, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="invite" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.85, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="recap" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.9], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="busy-days" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.85], sheetCornerRadius: 28 }} />
+      <Stack.Screen name="reminders" options={OVERLAY} />
     </Stack>
   );
 }
 
 export default function RootLayout() {
   useEffect(initNotifications, []);
-  // Inter and Playfair stay until the last old-kit screen is gone (Task 10).
   const [fontsLoaded] = useFonts({
-    Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, PlayfairDisplay_700Bold,
     [font.title]: require('../../assets/fonts/Fraunces72Soft-SemiBold.ttf'),
     [font.titleItalic]: require('../../assets/fonts/Fraunces72Soft-SemiBoldItalic.ttf'),
     [font.light]: Geist_300Light, [font.regular]: Geist_400Regular, [font.medium]: Geist_500Medium, [font.semibold]: Geist_600SemiBold,

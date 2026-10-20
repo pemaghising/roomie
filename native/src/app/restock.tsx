@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import type { Effort } from '@domain/types.ts';
 import { cleanName, iconFor, openRestockFor, sameName, STOCK_LABEL, type PantryItem } from '@domain/pantry.ts';
 import { matchIcons } from '@/lib/icons';
-import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
+import { messageOf, rpc, STATE_KEY, useMe, withHousehold } from '@/lib/state';
 import { useToast } from '@/ui/toast';
 import { color } from '@/ui/tokens';
 import { Button, Chip, ChoiceSwitch, IconNameField, Sheet, Txt } from '@/ui/v2';
@@ -19,11 +19,7 @@ const EFFORTS: { value: Effort; label: string; bg: string; fg: string }[] = [
 ];
 const iconOf = (i: PantryItem) => i.icon ?? (iconFor(i.name) === '🛒' ? null : iconFor(i.name));
 
-/** Opened cold (a link, a refresh) it waits for the household before rendering. */
-export default function RestockRoute() {
-  const { data } = useAppState();
-  return data?.household ? <Restock /> : null;
-}
+export default withHousehold(Restock);
 
 function Restock() {
   const params = useLocalSearchParams<{ item?: string }>();

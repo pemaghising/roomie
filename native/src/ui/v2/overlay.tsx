@@ -7,6 +7,7 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { durations, motion, useReducedMotion } from '../motion';
 import { color, elevation, radius } from '../tokens';
+import { Button } from './buttons';
 import { Tap, Txt } from './primitives';
 
 /** v2/Snackbar (frame P1d): dark pill, message, and the action in a soft inner pill. */
@@ -75,6 +76,28 @@ export function Sheet({ children, onClose, title, sub }: { children: ReactNode; 
   );
 }
 
+/** R13–R15: a short sheet that asks once. Icon in a tinted disc, a question, what happens, then act or cancel. */
+export function ConfirmSheet({ icon: Icon, tone = 'default', title, body, action, onConfirm, onClose, busy }: {
+  icon: LucideIcon; tone?: 'default' | 'danger'; title: string; body: string; action: string; onConfirm: () => void; onClose: () => void; busy?: boolean;
+}) {
+  const danger = tone === 'danger';
+  return (
+    <Sheet onClose={onClose}>
+      <View style={{ alignItems: 'center', gap: 10 }}>
+        <View style={[styles.disc, { backgroundColor: danger ? '#FFE6DC' : color.action.selectedTint }]}>
+          <Icon size={22} color={danger ? color.text.danger : color.text.link} strokeWidth={1.9} />
+        </View>
+        <Txt v="Heading/Section" accessibilityRole="header" style={{ textAlign: 'center' }}>{title}</Txt>
+        <Txt v="Body/Default" c={color.text.secondary} style={{ textAlign: 'center', paddingHorizontal: 8 }}>{body}</Txt>
+      </View>
+      <View style={{ gap: 10 }}>
+        <Button title={action} kind={danger ? 'destructive' : 'primary'} onPress={onConfirm} loading={busy} />
+        <Button title="Cancel" kind="secondary" onPress={onClose} />
+      </View>
+    </Sheet>
+  );
+}
+
 export type MenuItem = { label: string; onPress: () => void; danger?: boolean; icon?: LucideIcon };
 
 /** v2/Item menu (frames P1e, P2b): the ••• button and the card that springs out under it. */
@@ -126,6 +149,7 @@ export function MoreMenu({ items, label, size = 32, plain }: { items: MenuItem[]
 }
 
 const styles = StyleSheet.create({
+  disc: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   moreOn: { backgroundColor: color.bg.surface, borderWidth: 1.5, borderColor: color.action.primary },
   menu: { position: 'absolute', minWidth: 220, borderRadius: 18, backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECE8F6', overflow: 'hidden' },
   menuRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingVertical: 15, paddingHorizontal: 16, minHeight: 50 },

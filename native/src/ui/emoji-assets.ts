@@ -95,6 +95,11 @@ export const EMOJI_BY_NAME: Record<string, number> = {
   "Ice cream": require('../../assets/emoji/ice_cream.png'),
   "Pouring liquid": require('../../assets/emoji/pouring_liquid.png'),
   "Kiwi fruit": require('../../assets/emoji/kiwi_fruit.png'),
+  "Raising hands": require('../../assets/emoji/raising_hands.png'),
+  "Clapping hands": require('../../assets/emoji/clapping_hands.png'),
+  "Fire": require('../../assets/emoji/fire.png'),
+  "Flexed biceps": require('../../assets/emoji/flexed_biceps.png'),
+  "Red heart": require('../../assets/emoji/red_heart.png'),
 };
 export const EMOJI_BY_CHAR: Record<string, string> = {
   "🧽": "Sponge",
@@ -195,4 +200,10 @@ export const EMOJI_BY_CHAR: Record<string, string> = {
   "🍨": "Ice cream",
   "🫗": "Pouring liquid",
   "🥝": "Kiwi fruit",
+  "🙌": "Raising hands",
+  "👏": "Clapping hands",
+  "🔥": "Fire",
+  "💪": "Flexed biceps",
+  "❤️": "Red heart",
+  "❤": "Red heart",
 };

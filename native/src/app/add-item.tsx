@@ -7,7 +7,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { BASICS, cleanName, sameName, type PantryRule } from '@domain/pantry.ts';
 import { iconByChar, iconsIn, matchIcons, type IconCategory, type IconRef } from '@/lib/icons';
-import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
+import { messageOf, rpc, STATE_KEY, useMe, withHousehold } from '@/lib/state';
 import { durations } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color } from '@/ui/tokens';
@@ -35,11 +35,7 @@ function IconCell({ icon, on, onPress }: { icon: IconRef; on: boolean; onPress: 
   );
 }
 
-/** Opened cold (a link, a refresh) it waits for the household before rendering. */
-export default function AddItemRoute() {
-  const { data } = useAppState();
-  return data?.household ? <AddItem /> : null;
-}
+export default withHousehold(AddItem);
 
 function AddItem() {
   const router = useRouter();

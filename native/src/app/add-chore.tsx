@@ -1,12 +1,13 @@
 // C4 · New chore: a sheet over Chores. The icon is picked from the name; tap it to choose another.
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { RefreshCw } from 'lucide-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { Cadence, Effort } from '@domain/types.ts';
 import { choreIcon } from '@/lib/chore-icon';
+import type { Chore } from '@/lib/types';
 import { messageOf, planNow, rpc, STATE_KEY, useAppState } from '@/lib/state';
 import { durations } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
@@ -26,31 +27,42 @@ const CADENCES: { value: Cadence; label: string; bg: string; fg: string }[] = [
   { value: 'weekly', label: 'Weekly', bg: color.bg.surface, fg: color.text.link },
   { value: 'biweekly', label: 'Bi-weekly', bg: color.bg.surface, fg: color.text.link },
 ];
-export default function AddChore() {
+export default function AddChoreRoute() {
+  const { data } = useAppState();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  if (!data) return null;
+  return <AddChore editing={id ? data.chores.find((c) => c.id === id) : undefined} />;
+}
+
+/** New chore (C4), or Edit chore (R5c) when opened with ?id. */
+function AddChore({ editing }: { editing?: Chore }) {
   const router = useRouter();
   const qc = useQueryClient();
   const toast = useToast();
   const { data } = useAppState();
-  const [name, setName] = useState('');
-  const [chosen, setChosen] = useState<string | null>(null);
+  const [name, setName] = useState(editing?.name ?? '');
+  const [chosen, setChosen] = useState<string | null>(editing?.icon ?? null);
   const [picking, setPicking] = useState(false);
-  const [effort, setEffort] = useState<Effort>(2);
-  const [cadence, setCadence] = useState<Cadence>('weekly');
+  const [effort, setEffort] = useState<Effort>(editing?.effort ?? 2);
+  const [cadence, setCadence] = useState<Cadence>(editing?.cadence ?? 'weekly');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const icon = chosen ?? choreIcon(name);
   const taken = new Set((data?.chores ?? []).map((c) => c.name.toLowerCase()));
-  const picks = PICKS.filter((p) => !taken.has(p.toLowerCase()));
+  const picks = editing ? [] : PICKS.filter((p) => !taken.has(p.toLowerCase()));
   const close = () => router.back();
 
   const save = async () => {
     if (busy || !name.trim()) return;
     setBusy(true);
     try {
-      const id = await rpc<string>('add_chore', { p_name: name.trim(), p_icon: icon, p_effort: effort, p_cadence: cadence });
-      await planNow(id).catch(() => {});
+      if (editing) await rpc('update_chore', { p_id: editing.id, p_name: name.trim(), p_icon: icon, p_effort: effort, p_cadence: cadence });
+      else {
+        const id = await rpc<string>('add_chore', { p_name: name.trim(), p_icon: icon, p_effort: effort, p_cadence: cadence });
+        await planNow(id).catch(() => {});
+      }
       await qc.invalidateQueries({ queryKey: STATE_KEY });
-      toast.show(`${name.trim()} is in the rotation.`, { tick: true });
+      toast.show(editing ? 'Changes saved. They shape next week’s plan.' : `${name.trim()} is in the rotation.`, { tick: true });
       close();
     } catch (e) {
       setError(messageOf(e));
@@ -58,11 +70,23 @@ export default function AddChore() {
     }
   };
 
+  const remove = () => Alert.alert(`Delete ${editing?.name}?`, 'It leaves the rotation and its upcoming turns are cleared.', [
+    { text: 'Keep it', style: 'cancel' },
+    { text: 'Delete', style: 'destructive', onPress: async () => {
+      try {
+        await rpc('archive_chore', { p_id: editing?.id });
+        await qc.invalidateQueries({ queryKey: STATE_KEY });
+        toast.show(`${editing?.name} removed.`);
+        close();
+      } catch (e) { setError(messageOf(e)); }
+    } },
+  ]);
+
   return (
     <Sheet onClose={close}>
-      <Txt v="Body/Label" c={color.text.link}>New chore</Txt>
+      <Txt v="Body/Label" c={color.text.link}>{editing ? 'Edit chore' : 'New chore'}</Txt>
       <IconNameField icon={icon} name={name} onName={(t) => { setName(t); setError(null); }} placeholder="Name the chore"
-        sub={chosen ? 'Your pick · tap to change' : 'Icon picked for you · tap to change'} onIcon={() => setPicking((p) => !p)} />
+        sub={editing ? 'Tap the icon to change it' : chosen ? 'Your pick · tap to change' : 'Icon picked for you · tap to change'} onIcon={() => setPicking((p) => !p)} />
 
       {picking && (
         <Animated.View entering={FadeIn.duration(durations.fade)} exiting={FadeOut.duration(durations.fade)} style={styles.icons}>
@@ -101,7 +125,12 @@ export default function AddChore() {
         <Txt v="Body/Default" c={color.text.numeral}>Roomie rotates it fairly for you.</Txt>
       </View>
       {error && <Txt v="Meta" c={color.action.danger} accessibilityRole="alert">{error}</Txt>}
-      <Button title="Add chore" onPress={save} loading={busy} disabled={!name.trim()} />
+      <Button title={editing ? 'Save changes' : 'Add chore'} onPress={save} loading={busy} disabled={!name.trim()} />
+      {editing && (
+        <Tap onPress={remove} disabled={busy} style={{ alignSelf: 'center', marginTop: -8 }} hitSlop={10} accessibilityLabel="Delete chore">
+          <Txt v="Body/Label" c={color.text.danger}>Delete chore</Txt>
+        </Tap>
+      )}
     </Sheet>
   );
 }

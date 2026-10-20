@@ -155,8 +155,8 @@ export function ShelfTile({ icon, name, meta, onPress }: { icon?: string | null;
 }
 
 /** v2/Settings row inside a glass card. Danger tone is red for leave / log out / delete. */
-export function SettingsRow({ icon: Icon, label, value, tone = 'default', onPress, last }: {
-  icon: LucideIcon; label: string; value?: string; tone?: 'default' | 'danger'; onPress?: () => void; last?: boolean;
+export function SettingsRow({ icon: Icon, label, value, chip, tone = 'default', onPress, last }: {
+  icon: LucideIcon; label: string; value?: string; chip?: string; tone?: 'default' | 'danger'; onPress?: () => void; last?: boolean;
 }) {
   const danger = tone === 'danger';
   return (
@@ -168,10 +168,33 @@ export function SettingsRow({ icon: Icon, label, value, tone = 'default', onPres
         <Txt v="Body/Row" c={danger ? color.text.danger : color.text.primary} style={{ flexShrink: 0 }}>{label}</Txt>
         <View style={{ flex: 1 }} />
         {value && <Txt v="Body/Default" c={color.text.secondary} numberOfLines={1} style={{ flexShrink: 1, textAlign: 'right' }}>{value}</Txt>}
+        {chip && <View style={styles.chip}><Txt v="Tag" c={color.text.link}>{chip}</Txt></View>}
         {!danger && <ChevronRight size={14} color="#8A8599" strokeWidth={1.6} />}
       </View>
     </Tap>
   );
+}
+
+/** A settings card: the glass group that holds SettingsRow / PlainRow lines (R1, R9, R11, R12). */
+export function SettingsCard({ children }: { children: ReactNode }) {
+  return <Glass fill={0.62}><View style={{ paddingHorizontal: 16, paddingVertical: 4 }}>{children}</View></Glass>;
+}
+
+/** A text-only settings line: title, optional sub line, and a value, a control or a chevron on the right. */
+export function PlainRow({ title, sub, value, right, onPress, last }: {
+  title: string; sub?: string; value?: string; right?: ReactNode; onPress?: () => void; last?: boolean;
+}) {
+  const body = (
+    <View style={[styles.plain, !last && styles.divider]}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Txt v="Body/Row">{title}</Txt>
+        {sub && <Txt v="Meta" c={color.text.secondary}>{sub}</Txt>}
+      </View>
+      {value && <Txt v="Body/Default" c={color.text.secondary}>{value}</Txt>}
+      {right ?? (onPress && <ChevronRight size={14} color="#8A8599" strokeWidth={1.6} />)}
+    </View>
+  );
+  return onPress ? <Tap onPress={onPress} accessibilityLabel={sub ? `${title}, ${sub}` : title}>{body}</Tap> : body;
 }
 
 /** v2/Chore option (frame 09): pre-ticked chores with their effort. Selected = light card with the lilac→peach outline. */
@@ -260,6 +283,8 @@ const styles = StyleSheet.create({
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(135,107,222,0.12)' },
   more: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F3F4F6', alignItems: 'center', justifyContent: 'center' },
   tile: { padding: 14, gap: 10 },
+  chip: { paddingHorizontal: 10, height: 24, borderRadius: 12, backgroundColor: color.action.selectedTint, justifyContent: 'center' },
+  plain: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, minHeight: 56 },
   settings: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, minHeight: 58 },
   settingsIcon: { width: 34, height: 34, borderRadius: radius.tile, alignItems: 'center', justifyContent: 'center' },
   nudgeHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

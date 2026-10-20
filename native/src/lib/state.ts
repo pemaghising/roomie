@@ -1,4 +1,5 @@
 // Mirrors web src/lib/state.ts. Offline mutation persistence is not ported yet.
+import { createElement, type ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { ERROR_CODES, errorText } from '@domain/copy.ts';
@@ -27,6 +28,14 @@ export function useMe(): { me: string; state: AppState } {
   const { data } = useAppState();
   if (!data?.household) throw new Error('useMe used outside a ready household');
   return { me: data.profile.id, state: data };
+}
+
+/** Wraps a screen that needs the household, so a cold open (a link, a refresh) waits for it instead of crashing. */
+export function withHousehold<P extends object>(Screen: (props: P) => ReactElement | null) {
+  return function Ready(props: P) {
+    const { data } = useAppState();
+    return data?.household ? createElement(Screen, props) : null;
+  };
 }
 
 export class RpcError extends Error {
