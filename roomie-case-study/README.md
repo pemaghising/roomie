@@ -1,9 +1,7 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../.github/assets/logo-roomie-dark.webp">
-  <img src="../.github/assets/logo-roomie.webp" alt="Roomie" height="56">
-</picture>
+<img src="../.github/assets/logo-roomie.webp#gh-light-mode-only" alt="Roomie" height="56">
+<img src="../.github/assets/logo-roomie-dark.webp#gh-dark-mode-only" alt="Roomie" height="56">
 
 ### Roomie: a UX case study
 

@@ -1,9 +1,7 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo-roomie-dark.webp">
-  <img src=".github/assets/logo-roomie.webp" alt="Roomie" height="72">
-</picture>
+<img src=".github/assets/logo-roomie.webp#gh-light-mode-only" alt="Roomie" height="72">
+<img src=".github/assets/logo-roomie-dark.webp#gh-dark-mode-only" alt="Roomie" height="72">
 
 ### Fair chores. Zero nagging.
 
