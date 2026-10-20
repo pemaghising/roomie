@@ -6,15 +6,15 @@ import { useToast } from '@/ui/toast';
 import { useAuth } from './auth';
 import { supabase } from './supabase';
 import type { AppState } from './types';
+import { localToday } from './local-today';
+import { applyOptimistic } from './optimistic';
 
 export const STATE_KEY = ['app-state'] as const;
-
-const localToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date());
 
 export async function fetchState(): Promise<AppState> {
   const { data, error } = await supabase.rpc('get_state');
   if (error) throw error;
-  return { members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [], pantry: [], restocks: [], asks: [], today: localToday(), ...data } as AppState;
+  return { members: [], chores: [], plans: [], assignments: [], swaps: [], streak: null, balance: 0, activity: [], pantry: [], restocks: [], asks: [], today: localToday(new Date(), data?.household?.tz), ...data } as AppState;
 }
 
 export function useAppState() {
@@ -57,9 +57,11 @@ export function useAction<A extends Record<string, unknown>>(
     mutationFn: (args: A) => rpc(fn, pickP(args)),
     onMutate: async (args: A) => {
       await qc.cancelQueries({ queryKey: STATE_KEY });
-      const prev = qc.getQueryData<AppState>(STATE_KEY);
-      if (prev && opts.optimistic) qc.setQueryData(STATE_KEY, opts.optimistic(prev, args));
-      return { prev };
+      const cached = qc.getQueryData<AppState>(STATE_KEY);
+      if (!cached || !opts.optimistic) return { prev: cached };
+      const { next, snapshot } = applyOptimistic(cached, (s) => opts.optimistic!(s, args));
+      qc.setQueryData(STATE_KEY, next);
+      return { prev: snapshot };
     },
     onError: (err, args, ctx) => {
       if (ctx?.prev) qc.setQueryData(STATE_KEY, ctx.prev);
