@@ -1,181 +1,154 @@
-import { Ionicons } from '@expo/vector-icons';
+// Home (frames H0–H8). Pool chores never appear here; the banner opens Chores → Shared pool.
 import { useRouter } from 'expo-router';
-import * as StoreReview from 'expo-store-review';
+import { House, Users } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DAY_NAMES, weekdayOf } from '@domain/time.ts';
-import { F } from '@/constants/theme';
-import { useChoreActions } from '@/lib/actions';
-import { usePantryActions } from '@/lib/pantry';
-import { choreMap, grabbable, incomingSwaps, myRestocks, myTasksOn, namesOf, nextUp, pendingDraft, roommates, unreadCount } from '@/lib/selectors';
-import { useAppState, useMe } from '@/lib/state';
+import { formatCode, useChoreActions } from '@/lib/actions';
+import { avatarUrl } from '@/lib/avatar';
+import { homeView } from '@/lib/home';
 import { milestoneState } from '@/lib/plant';
 import { primerSeen, pushStatus } from '@/lib/push';
-import { scrollShrink } from '@/lib/tab-shrink';
-import { houseWeek } from '@/lib/recap';
-import { getMilestoneSeen, getStreakGoal, setMilestoneSeen, setStreakGoal } from '@/lib/streak-goal';
-import { Banner } from '@/ui/banner';
+import { choreMap, namesOf, unreadCount } from '@/lib/selectors';
+import { useAppState, useMe } from '@/lib/state';
+import { getMilestoneSeen, setMilestoneSeen } from '@/lib/streak-goal';
 import { Celebration } from '@/ui/celebration';
-import { GrabCard } from '@/ui/grab-card';
-import { C, usePull } from '@/ui/kit';
 import { MilestoneCelebration } from '@/ui/milestone';
-import { RestockTaskRow } from '@/ui/restock-row';
-import { SwipeTask } from '@/ui/swipe-task';
-import { RoommatesCard } from '@/ui/roommates-card';
-import { StreakCard } from '@/ui/streak-card';
-import { TaskRow } from '@/ui/task-row';
+import { enter, useReducedMotion } from '@/ui/motion';
+import { color, layout } from '@/ui/tokens';
+import { effortKind, Glass, GreetingHeader, MeshBackground, PoolBanner, SectionHeader, StreakCard, TaskRow, Txt, UpcomingCard, Emoji } from '@/ui/v2';
 
-const greeting = () => {
-  const h = new Date().getHours();
-  return h < 12 ? 'Good morning ✨' : h < 17 ? 'Good afternoon ☀️' : 'Good evening 🌙';
-};
+function Note({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+  return (
+    <Glass fill={0.9}>
+      <View style={styles.note}>
+        <View style={styles.noteIcon}>{icon}</View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt v="Body/Label">{title}</Txt>
+          <Txt v="Meta" c={color.text.secondary}>{sub}</Txt>
+        </View>
+      </View>
+    </Glass>
+  );
+}
 
 export default function Home() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const reduced = useReducedMotion();
   const { me, state } = useMe();
-  const pull = usePull(useAppState().refetch);
-  const { toggle, claim, celebration, closeCelebration } = useChoreActions();
+  const { refetch, isRefetching } = useAppState();
+  const { toggle, celebration, closeCelebration } = useChoreActions();
+  const v = homeView(state, me);
   const chores = choreMap(state);
-  const tasks = myTasksOn(state, me, state.today);
-  const people = roommates(state, state.today).sort((a, b) => Number(b.user_id === me) - Number(a.user_id === me));
-  const next = nextUp(state, me, state.today);
-  const doneCount = tasks.filter((t) => t.status === 'done').length;
-  const draft = pendingDraft(state);
-  const pantry = usePantryActions();
   const names = namesOf(state);
-  const grab = grabbable(state, me);
-  const errands = myRestocks(state, me);
-  const totalTasks = tasks.length + errands.length;
-  const topChore = grab.chores[0];
-  const topRestock = grab.restocks[0];
-  const swaps = incomingSwaps(state, me);
-  const streak = state.streak?.current ?? 0;
-  const first = state.profile.name.split(' ')[0];
-  const unread = unreadCount(state, me);
-  const [goal, setGoal] = useState(getStreakGoal);
-  const week = houseWeek(state);
-  const pickGoal = () =>
-    Alert.alert('Set a streak goal', 'Commit to keeping the house clean together for a stretch.', [
-      ...[3, 5, 7].map((d) => ({ text: `${d} days`, onPress: () => { setStreakGoal(d); setGoal(d); } })),
-      { text: 'Cancel', style: 'cancel' as const },
-    ]);
   const [milestone, setMilestone] = useState<number | null>(null);
+
   useEffect(() => {
     const seen = getMilestoneSeen();
-    const m = milestoneState(streak, seen);
+    const m = milestoneState(v.streakDays, seen);
     if (m.seen !== seen) setMilestoneSeen(m.seen);
     setMilestone(m.celebrate);
-  }, [streak]);
+  }, [v.streakDays]);
   // the first time someone lands on Home, explain reminders before the system asks
   useEffect(() => {
     if (primerSeen()) return;
     let live = true;
-    void pushStatus().then((s) => { if (live && s === 'undetermined') setTimeout(() => live && router.push('/reminders'), 1200); });
+    void pushStatus().then((s) => { if (live && s === 'undetermined') setTimeout(() => live && router.push('/reminders'), 1400); });
     return () => { live = false; };
   }, [router]);
-  const closeMilestone = () => {
-    if (milestone) setMilestoneSeen(milestone);
-    // a good moment to ask for a rating; the OS decides whether the prompt actually shows
-    if (milestone && milestone >= 7) void StoreReview.isAvailableAsync().then((ok) => { if (ok) void StoreReview.requestReview(); }).catch(() => {});
-    setMilestone(null);
-  };
+
+  const next = v.upcoming[0];
+  const nextLabel = next ? `${chores.get(next.chore_id)?.name ?? 'A chore'}, ${DAY_NAMES[weekdayOf(next.day)]}` : '';
+  let i = 0;
+  const E = () => (reduced ? undefined : enter(i++, reduced));
 
   return (
-    <SafeAreaView edges={['top']} style={styles.root}>
-      <View style={styles.page}>
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.greeting}>{greeting()}</Text>
-            <Text style={styles.hello} numberOfLines={1}>Hello, {first}.</Text>
-          </View>
-          <Pressable accessibilityLabel={unread ? `Activity, ${unread} new` : 'Activity'} onPress={() => router.push('/activity')} hitSlop={8}
-            style={({ pressed }) => [styles.gear, pressed && { opacity: 0.6 }]}>
-            <Ionicons name="notifications-outline" size={20} color={C.text} />
-            {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text></View>}
-          </Pressable>
-        </View>
+    <View style={styles.root}>
+      <MeshBackground />
+      <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 130 }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={color.action.primary} />}>
+        <Animated.View entering={E()}>
+          <GreetingHeader name={v.firstName} uri={state.profile.avatar_path ? avatarUrl(state.profile.avatar_path) : null} dateLabel={v.dateLabel} hello={v.hello}
+            unread={unreadCount(state, me) > 0} onBell={() => router.push('/activity')} onAvatar={() => router.navigate('/profile')} />
+        </Animated.View>
 
-        {draft && !draft.approved_by.includes(me) && <Banner icon="calendar-outline" text="Next week's plan is ready. Take a look" onPress={() => router.push('/plan')} />}
-        {swaps.length > 0 && (
-          <Banner icon="swap-horizontal" onPress={() => router.push('/plan')}
-            text={swaps.length === 1 ? `${namesOf(state)[swaps[0].from_user] ?? 'A roommate'} wants to swap. Take a look` : `${swaps.length} swap requests. Take a look`} />
+        {v.state === 'allDone' && (
+          <Animated.View entering={E()} exiting={FadeOut.duration(150)}>
+            <Note icon={<House size={20} color={color.icon.default} strokeWidth={1.75} />} title="All done for today" sub={`That’s day ${v.streakDays} of the house streak.`} />
+          </Animated.View>
         )}
 
-        <StreakCard streak={streak} dates={week.dates} days={week.days} today={state.today} goal={goal} onShare={() => router.push('/recap')} onPickGoal={pickGoal} />
-        {grab.count > 0 && (
-          <View style={{ marginTop: 10 }}>
-            <GrabCard count={grab.count} onOpen={() => router.push('/chores')}
-              title={topChore ? (chores.get(topChore.chore_id)?.name ?? 'A chore') : `Buy ${topRestock.name}`}
-              sub={topChore ? `Missed by ${names[topChore.user_id] ?? 'a roommate'}` : `Requested by ${names[topRestock.requested_by] ?? 'a roommate'}`}
-              onClaim={topChore ? () => claim(topChore) : () => pantry.claim(topRestock, me)} />
+        <Animated.View entering={E()} layout={LinearTransition.springify().damping(26).stiffness(480)}>
+          <StreakCard days={v.streakDays} week={v.week} drooped={v.drooped} />
+        </Animated.View>
+
+        {v.showPool && (
+          <Animated.View entering={E()} exiting={FadeOut.duration(150)} layout={LinearTransition}>
+            <PoolBanner count={v.poolCount} onPress={() => router.navigate({ pathname: '/chores', params: { view: 'pool' } })} />
+          </Animated.View>
+        )}
+
+        {v.state === 'nothingDue' ? (
+          <Animated.View entering={E()} style={{ gap: layout.headerToItems }}>
+            <SectionHeader title="Today" />
+            <Glass fill={0.62}>
+              <View style={styles.quiet}>
+                <Emoji value="🛋️" size={30} />
+                <Txt v="Body/Label">Nothing on your plate today</Txt>
+                <Txt v="Meta" c={color.text.secondary} style={{ textAlign: 'center' }}>{next ? `Enjoy the day off. Next up: ${nextLabel}.` : 'Enjoy the day off.'}</Txt>
+              </View>
+            </Glass>
+          </Animated.View>
+        ) : (
+          <View style={{ gap: layout.itemGap }}>
+            <Animated.View entering={E()}>
+              <SectionHeader title="Your tasks today" link="Why these?" onLink={() => router.push('/why')} />
+            </Animated.View>
+            {v.tasks.map((a) => {
+              const c = chores.get(a.chore_id);
+              const covering = a.claimed_by === me && a.user_id !== me;
+              return (
+                <Animated.View key={a.id} entering={E()} layout={LinearTransition.springify().damping(26).stiffness(480)}>
+                  <TaskRow icon={c?.icon} title={c?.name ?? 'A chore'} tag={effortKind(a.effort)} state={a.status === 'done' ? 'done' : 'todo'}
+                    meta={covering ? `Covering for ${(names[a.user_id] ?? 'a roommate').split(' ')[0]}` : undefined}
+                    onToggle={() => toggle(a)} onPress={() => router.push({ pathname: '/why', params: { id: a.id } })} />
+                </Animated.View>
+              );
+            })}
           </View>
         )}
-        <View style={{ height: 10 }} />
-        <RoommatesCard people={people} me={me} canInvite={state.members.length < 8} onInvite={() => router.push('/invite')} onCheer={(to) => router.push({ pathname: '/kudos', params: { to } })} />
 
-        <View style={styles.sectionRow}>
-          <Text style={styles.sectionTitle}>Today's Tasks</Text>
-          {totalTasks > 0 && <Text style={styles.sectionCount}>{doneCount === totalTasks ? 'All done 🎉' : `${doneCount} of ${totalTasks} done`}</Text>}
-        </View>
+        {v.alone && (
+          <Animated.View entering={E()} exiting={FadeOut}>
+            <Note icon={<Users size={20} color={color.icon.default} strokeWidth={1.75} />} title="No roommates here yet"
+              sub={`Share your code ${formatCode(state.household!.invite_code)} to bring them in.`} />
+          </Animated.View>
+        )}
 
-        {/* everything above stays put; only the task list scrolls, so the whole home fits on one screen */}
-        <ScrollView style={{ flex: 1 }} {...scrollShrink} showsVerticalScrollIndicator={false} contentContainerStyle={styles.tasks} refreshControl={<RefreshControl {...pull} />}>
-          {totalTasks === 0 && <Text style={styles.empty}>No tasks today 🎉 Check back tomorrow.</Text>}
-          {tasks.map((a) => (
-            <Animated.View key={a.id} layout={LinearTransition.duration(240)} entering={FadeIn}>
-              <SwipeTask done={a.status === 'done'} onToggle={() => toggle(a)}>
-              <TaskRow a={a} chore={chores.get(a.chore_id)} sub={a.claimed_by === me && a.user_id !== me ? `Covering for ${(names[a.user_id] ?? 'a roommate').split(' ')[0]}` : undefined}
-                onToggle={() => toggle(a)} onInfo={() => router.push({ pathname: '/why', params: { id: a.id } })} />
-              </SwipeTask>
-            </Animated.View>
-          ))}
-          {errands.map((r) => (
-            <Animated.View key={r.id} layout={LinearTransition.duration(240)} entering={FadeIn}>
-              <RestockTaskRow r={r} requester={(names[r.requested_by] ?? 'a roommate').split(' ')[0]} onDone={() => pantry.complete(r, me)} onUnclaim={() => pantry.unclaim(r)} />
-            </Animated.View>
-          ))}
-          {next && (
-            <Pressable accessibilityRole="button" accessibilityLabel={`Next up on ${DAY_NAMES[weekdayOf(next.day)]}: ${chores.get(next.chore_id)?.name ?? 'a chore'}`}
-              onPress={() => router.push('/chores')} style={({ pressed }) => [styles.next, pressed && { opacity: 0.7 }]}>
-              <View style={styles.date}>
-                <Text style={styles.dateDay}>{DAY_NAMES[weekdayOf(next.day)].slice(0, 3).toUpperCase()}</Text>
-                <Text style={styles.dateNum}>{Number(next.day.slice(8))}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.nextLabel}>COMING UP</Text>
-                <Text style={styles.nextTitle} numberOfLines={1}>{chores.get(next.chore_id)?.icon ?? '✨'}  {chores.get(next.chore_id)?.name ?? 'A chore'}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={C.faint} />
-            </Pressable>
-          )}
-        </ScrollView>
-      </View>
+        {v.state !== 'todo' && v.upcoming.length > 0 && (
+          <Animated.View entering={FadeIn.delay(160)} style={{ gap: layout.itemGap }}>
+            <SectionHeader title="Coming up" />
+            {v.upcoming.map((a) => {
+              const c = chores.get(a.chore_id);
+              return <UpcomingCard key={a.id} icon={c?.icon} title={c?.name ?? 'A chore'} sub={DAY_NAMES[weekdayOf(a.day)]} onPress={() => router.navigate('/chores')} />;
+            })}
+          </Animated.View>
+        )}
+      </ScrollView>
       <Celebration info={celebration} onClose={closeCelebration} />
-      <MilestoneCelebration days={milestone} onClose={closeMilestone} />
-    </SafeAreaView>
+      <MilestoneCelebration days={milestone} onClose={() => { if (milestone) setMilestoneSeen(milestone); setMilestone(null); }} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.page },
-  page: { flex: 1, paddingHorizontal: 24 },
-  tasks: { paddingBottom: 110 },
-  header: { flexDirection: 'row', alignItems: 'center', paddingTop: 8, paddingBottom: 10 },
-  greeting: { fontSize: 13, color: C.sub, fontFamily: F.regular },
-  hello: { fontSize: 26, color: C.text, fontFamily: F.display, marginTop: 1 },
-  badge: { position: 'absolute', top: -2, right: -2, minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 5, backgroundColor: '#8B5CF6', borderWidth: 2, borderColor: C.page, alignItems: 'center', justifyContent: 'center' },
-  badgeText: { fontSize: 11, color: '#FFF', fontFamily: F.bold },
-  gear: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.field, alignItems: 'center', justifyContent: 'center' },
-  sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 14, marginBottom: 8 },
-  sectionTitle: { fontSize: 20, color: C.text, fontFamily: F.display },
-  sectionCount: { fontSize: 13, color: C.sub, fontFamily: F.semibold },
-  empty: { fontSize: 15, color: C.sub, fontFamily: F.regular, paddingVertical: 12 },
-  next: { backgroundColor: '#FFF', borderRadius: 20, borderWidth: 1, borderColor: C.line, padding: 10, flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 },
-  date: { width: 46, height: 50, borderRadius: 14, backgroundColor: '#EDE9FE', alignItems: 'center', justifyContent: 'center' },
-  dateDay: { fontSize: 10, letterSpacing: 0.8, color: '#7C3AED', fontFamily: F.bold },
-  dateNum: { fontSize: 20, lineHeight: 24, color: '#4C1D95', fontFamily: F.display },
-  nextLabel: { fontSize: 10, letterSpacing: 1, color: C.sub, fontFamily: F.bold },
-  nextTitle: { fontSize: 15, color: C.text, fontFamily: F.bold, marginTop: 2 },
+  root: { flex: 1, backgroundColor: color.bg.canvas },
+  page: { paddingHorizontal: layout.margin, gap: 16 },
+  note: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
+  noteIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(135,107,222,0.1)', alignItems: 'center', justifyContent: 'center' },
+  quiet: { alignItems: 'center', gap: 6, paddingVertical: 22, paddingHorizontal: 20 },
 });

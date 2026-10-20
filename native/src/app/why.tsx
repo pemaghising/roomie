@@ -1,72 +1,56 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { balanceSentence, effortLabel } from '@domain/copy.ts';
+// H2 · Why these chores: one line per chore, and your effort in words. Opens over Home.
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 import { weekStartOf } from '@domain/time.ts';
-import { F } from '@/constants/theme';
-import { choreMap, namesOf, weekTotals } from '@/lib/selectors';
-import { useMe } from '@/lib/state';
+import { balanceWords, effortSegments } from '@/lib/balance';
+import { choreMap, myTasksOn, namesOf, planForWeek } from '@/lib/selectors';
+import { useAppState } from '@/lib/state';
 import { whyText } from '@/lib/why';
-import { C, Screen } from '@/ui/kit';
-import { EFFORT } from '@/ui/task-row';
+import { color, font } from '@/ui/tokens';
+import { Button, effortKind, ReasonRow, Sheet, Txt } from '@/ui/v2';
 
-/** Why a chore landed on someone: the reason, and a picture of the week's effort. Alphabetical, never a ranking. */
 export default function Why() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { me, state } = useMe();
-  const a = state.assignments.find((x) => x.id === id);
-  if (!a) return <Screen><Text style={styles.empty}>This chore is no longer on the plan.</Text></Screen>;
-
-  const chore = choreMap(state).get(a.chore_id);
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { data: state } = useAppState();
+  if (!state?.household) return null;
+  const me = state.profile.id;
+  const chores = choreMap(state);
   const names = namesOf(state);
-  const totals = weekTotals(state, weekStartOf(a.day));
-  const max = Math.max(1, ...Object.values(totals));
-  const people = [...state.members].sort((x, y) => x.name.localeCompare(y.name));
-  const tone = EFFORT[effortLabel(a.effort)];
+  const today = myTasksOn(state, me, state.today);
+  const rows = id ? state.assignments.filter((a) => a.id === id) : today;
+  const plan = planForWeek(state, weekStartOf(state.today));
+  const mine = state.assignments.filter((a) => a.plan_id === plan?.id && (a.claimed_by ?? a.user_id) === me && a.status !== 'expired');
+  const doneEffort = mine.filter((a) => a.status === 'done').reduce((n, a) => n + a.effort, 0);
+  const planned = mine.reduce((n, a) => n + a.effort, 0);
+  const filled = effortSegments(doneEffort, planned);
+  const words = balanceWords(state.balance);
+  const close = () => router.back();
 
   return (
-    <Screen>
-      <View style={styles.head}>
-        <Text style={{ fontSize: 34 }}>{chore?.icon}</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{chore?.name ?? 'Chore'}</Text>
-          <View style={[styles.chip, { backgroundColor: tone.bg }]}><Text style={[styles.chipText, { color: tone.text }]}>{effortLabel(a.effort)}</Text></View>
+    <Sheet onClose={close} title="Why these chores" sub="Roomie balances effort, not the number of chores.">
+      <View style={styles.effort} accessible accessibilityLabel={`Your effort this week: ${words.label}. ${words.sentence}`}>
+        <Txt v="Meta/Medium" c={color.text.numeral}>Your effort this week</Txt>
+        <Txt v="Title/Onboarding" c={color.text.numeral} style={{ fontFamily: font.medium }}>{words.label}</Txt>
+        <View style={styles.bar}>
+          {Array.from({ length: 9 }, (_, i) => <View key={i} style={[styles.seg, { backgroundColor: i < filled ? color.action.primary : 'rgba(135,107,222,0.18)' }]} />)}
         </View>
+        <Txt v="Meta" c={color.text.numeral}>{words.sentence}</Txt>
       </View>
-      <Text style={styles.reason}>{whyText(a, me, names)}</Text>
-
-      <Text style={styles.label}>THIS WEEK'S EFFORT</Text>
-      <View style={{ gap: 12 }}>
-        {people.map((m) => (
-          <View key={m.user_id} style={styles.bar} accessible accessibilityLabel={`${m.user_id === me ? 'You' : m.name}: ${totals[m.user_id] ?? 0} points`}>
-            <Text style={styles.name} numberOfLines={1}>{m.user_id === me ? 'You' : m.name.split(' ')[0]}</Text>
-            <View style={styles.track}><View style={[styles.fill, { width: `${((totals[m.user_id] ?? 0) / max) * 100}%`, backgroundColor: m.color }]} /></View>
-            <Text style={styles.pts}>{totals[m.user_id] ?? 0} pts</Text>
-          </View>
-        ))}
+      <View>
+        {rows.length === 0 && <Txt v="Body/Default" c={color.text.secondary}>Nothing on your list today.</Txt>}
+        {rows.map((a, i) => {
+          const c = chores.get(a.chore_id);
+          return <ReasonRow key={a.id} icon={c?.icon} title={c?.name ?? 'A chore'} reason={whyText(a, me, names)} tag={effortKind(a.effort)} last={i === rows.length - 1} />;
+        })}
       </View>
-
-      <View style={styles.private}>
-        <Ionicons name="lock-closed-outline" size={15} color={C.lavenderText} />
-        <Text style={styles.privateText}>{balanceSentence(state.balance)} Only you can see this.</Text>
-      </View>
-    </Screen>
+      <Button title="Got it" onPress={close} />
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  empty: { fontSize: 15, color: C.sub, fontFamily: F.regular, marginTop: 40, textAlign: 'center' },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8 },
-  title: { fontSize: 26, color: C.text, fontFamily: F.display },
-  chip: { alignSelf: 'flex-start', borderRadius: 9, paddingHorizontal: 10, paddingVertical: 3, marginTop: 6 },
-  chipText: { fontSize: 12, fontFamily: F.bold },
-  reason: { fontSize: 17, lineHeight: 25, color: C.text, fontFamily: F.medium, marginTop: 20 },
-  label: { fontSize: 12, letterSpacing: 0.8, color: C.sub, fontFamily: F.bold, marginTop: 28, marginBottom: 14 },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  name: { width: 64, fontSize: 14, color: C.text, fontFamily: F.semibold },
-  track: { flex: 1, height: 10, borderRadius: 5, backgroundColor: '#F3F4F6', overflow: 'hidden' },
-  fill: { height: 10, borderRadius: 5 },
-  pts: { width: 48, textAlign: 'right', fontSize: 12, color: C.sub, fontFamily: F.semibold },
-  private: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.lavender, borderRadius: 16, padding: 14, marginTop: 28 },
-  privateText: { flex: 1, fontSize: 13, lineHeight: 18, color: C.lavenderText, fontFamily: F.medium },
+  effort: { borderRadius: 24, backgroundColor: '#EFE7FF', padding: 20, gap: 10 },
+  bar: { flexDirection: 'row', gap: 6, marginVertical: 4 },
+  seg: { flex: 1, height: 8, borderRadius: 4 },
 });

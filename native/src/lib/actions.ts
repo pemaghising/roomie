@@ -28,12 +28,19 @@ export function useChoreActions() {
       assignments: s.assignments.map((a) => (a.id === p_id ? { ...a, status: 'done', done_at: new Date().toISOString() } : a)),
     }),
   });
-  const claimAction = useAction<{ p_id: string; me: string }>('claim_assignment', {
+  const unclaimAction = useAction<{ p_id: string }>('unclaim_assignment', {
+    optimistic: (s, { p_id }) => ({
+      ...s,
+      assignments: s.assignments.map((a) => (a.id === p_id ? { ...a, status: 'missed', claimed_by: null } : a)),
+    }),
+  });
+  const claimAction = useAction<{ p_id: string; me: string; name: string }>('claim_assignment', {
     optimistic: (s, { p_id, me }) => ({
       ...s,
       assignments: s.assignments.map((a) => (a.id === p_id ? { ...a, status: 'claimed', claimed_by: me } : a)),
     }),
-    onSuccess: () => toast.show("It's yours — thanks for covering."),
+    // frame H3: helping is never invisible, and it is reversible
+    onSuccess: (_, { p_id, name }) => toast.show(`${name} is yours. You’ll get a lighter week.`, { tick: true, action: { label: 'Undo', onPress: () => unclaimAction.mutate({ p_id }) } }),
   });
 
   const complete = (a: Assignment) => {
@@ -53,7 +60,7 @@ export function useChoreActions() {
     completeAction.mutate({ p_id: a.id }, {
       onSuccess: () => {
         if (kind) setCelebration({ kind, streak, doneToday });
-        else toast.show('Done. Nice one.', { action: { label: 'Undo', onPress: () => undo.mutate({ p_id: a.id }) }, duration: 5000 });
+        else toast.show(`${s?.chores.find((c) => c.id === a.chore_id)?.name ?? 'That chore'} is done.`, { tick: true, action: { label: 'Undo', onPress: () => undo.mutate({ p_id: a.id }) } });
       },
     });
   };
@@ -66,10 +73,11 @@ export function useChoreActions() {
   };
 
   const claim = (a: Assignment) => {
-    const me = qc.getQueryData<AppState>(STATE_KEY)?.profile.id;
+    const s = qc.getQueryData<AppState>(STATE_KEY);
+    const me = s?.profile.id;
     if (!me) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    claimAction.mutate({ p_id: a.id, me });
+    claimAction.mutate({ p_id: a.id, me, name: s?.chores.find((c) => c.id === a.chore_id)?.name ?? 'That chore' });
   };
 
   return { toggle, claim, celebration, closeCelebration: () => setCelebration(null) };

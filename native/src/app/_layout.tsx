@@ -21,6 +21,9 @@ import { ToastProvider } from '@/ui/toast';
 
 SplashScreen.preventAutoHideAsync();
 
+// v2 sheets draw their own blurred scrim and spring, so the route itself is a transparent overlay
+const OVERLAY = { presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } } as const;
+
 type Gate = 'loading' | 'error' | 'signed_out' | 'needs_profile' | 'needs_household' | 'ready';
 
 /** Same decision as web src/lib/gate.ts gateFor(). */
@@ -88,9 +91,9 @@ function Root() {
       <Stack.Screen name="request-sent" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
       <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
       <Stack.Screen name="kudos" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.6], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="why" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.7, 1], sheetCornerRadius: 28 }} />
+      <Stack.Screen name="why" options={OVERLAY} />
+      <Stack.Screen name="add-menu" options={OVERLAY} />
       <Stack.Screen name="manage-chores" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.8, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="swap" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.85, 1], sheetCornerRadius: 28 }} />
       <Stack.Screen name="household" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.9, 1], sheetCornerRadius: 28 }} />
       <Stack.Screen name="reminders" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.85, 1], sheetCornerRadius: 28 }} />
       <Stack.Screen name="invite" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.85, 1], sheetCornerRadius: 28 }} />

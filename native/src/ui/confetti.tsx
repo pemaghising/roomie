@@ -2,7 +2,8 @@ import { useEffect, useMemo } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { Easing, type SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-const COLORS = ['#D8B4FE', '#FDE68A', '#A7F3D0', '#FBCFE8', '#BFDBFE', '#FED7AA', '#FFFFFF'];
+// the confetti in frames 13 / J4: roof violet, orchid, chimney peach, leaf green, lilac and sun
+const COLORS = ['#7A5FD6', '#BE72CE', '#F39A80', '#6DBE4B', '#C5ACFB', '#F7C948', '#FFB48A'];
 
 interface Bit { dx: number; vy: number; g: number; spin: number; size: number; color: string; round: boolean }
 
