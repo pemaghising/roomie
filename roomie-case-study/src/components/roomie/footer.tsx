@@ -18,6 +18,10 @@ export function Footer() {
               See the Roomie website
               <ArrowUpRight aria-hidden="true" />
             </a>
+            <a className="foot-link ghost" href="/roomie-brand-guidelines.pdf" target="_blank" rel="noopener">
+              Brand guidelines (PDF)
+              <ArrowUpRight aria-hidden="true" />
+            </a>
             <a className="foot-link ghost" href="https://pemaghising.com.np" target="_blank" rel="noopener">
               pemaghising.com.np
               <ArrowUpRight aria-hidden="true" />
