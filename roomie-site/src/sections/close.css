@@ -20,6 +20,6 @@
 
 .foot { padding-block: 36px 48px; background: var(--lilac-50); border-top: 1px solid var(--line); }
 .foot-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; font-size: 14px; color: var(--muted); }
-.foot-inner img { height: 22px; width: auto; margin-right: auto; }
-.foot-inner a { color: var(--violet-deep); text-decoration: none; }
+.foot-inner img { height: 30px; width: auto; margin-right: auto; }
+.foot-inner a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 4px; color: var(--violet-deep); text-decoration: none; text-underline-offset: 4px; }
 .foot-inner a:hover { text-decoration: underline; }

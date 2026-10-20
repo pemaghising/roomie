@@ -9,7 +9,7 @@ const fraunces = localFont({
     { path: "../fonts/fraunces-latin-full-normal.woff2", style: "normal" },
     { path: "../fonts/fraunces-latin-full-italic.woff2", style: "italic" },
   ],
-  weight: "100 900",
+  weight: "560 640", // Frozen to the one instance the site uses: opsz 72, SOFT 100
   variable: "--font-serif",
   display: "swap",
 });

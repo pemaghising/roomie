@@ -122,20 +122,35 @@ def test_hero(browser):
     order = page.evaluate("[...document.querySelectorAll('main > section')].map(s => s.id)")
     assert order[:3] == ["hero", "problem", "effort"], order
     # A real-looking device: rim, bezel, camera island and side buttons around the screen.
-    ph = hero.locator(".phone").first
-    for part in (".btn-l", ".btn-r", ".glare"):
-        assert ph.locator(part).count() >= 1, f"phone missing {part}"
     assert page.locator("main .island").count() == 0, "no notch on any phone"
-    # One call to action: the store buttons. The top bar carries quiet section links, not a second 'Coming soon'.
+    # The app isn't out yet: the bar's button says so and jumps to the store buttons.
     bar = hero.locator(".topbar")
-    assert bar.get_by_text("Coming soon").count() == 0, "duplicate 'Coming soon' in the top bar"
-    assert [t.strip() for t in bar.locator("nav a").all_inner_texts()] == ["How it works", "The pantry"], bar.locator("nav a").all_inner_texts()
+    assert [t.strip() for t in bar.locator("nav a").all_inner_texts()] == ["Features", "How it works", "The pantry"], bar.locator("nav a").all_inner_texts()
+    assert bar.locator('a.topbar-cta[href="#close"]').inner_text().strip() == "Coming soon"
+    # Full width at the top; shrinks into a floating pill on scroll and stays on screen
+    full = bar.locator(".topbar-inner").evaluate("e => e.getBoundingClientRect().width")
+    page.evaluate("window.scrollTo(0, 2400)")
+    page.wait_for_timeout(800)
+    assert bar.evaluate("e => e.getBoundingClientRect().top") < 30, "nav bar doesn't stay on screen"
+    pill = bar.locator(".topbar-inner").evaluate("e => e.getBoundingClientRect().width")
+    assert full >= page.evaluate("innerWidth") - 1 and pill < full - 100, f"bar doesn't shrink on scroll: {full} -> {pill}"
+    page.evaluate("window.scrollTo(0, 0)")
     assert hero.get_by_role("button", name="Coming soon on the App Store").count() == 1
     assert not errors, f"console errors: {errors}"
 
-    # The hero leads with the real app: Home screen in a tilted phone + the nudge card.
-    assert hero.locator('.phone img[src="/screens/h1-home.webp"]').is_visible(), "no Home screen phone in hero"
-    assert hero.locator('img[src="/cards/nudge.webp"]').count() == 1, "no nudge card in hero"
+    # Two layers only: the brand photo and the one Roomie nudge resting on it
+    assert hero.locator('.hero-photo img[src="/photos/hero-laundry.webp"]').is_visible(), "no hero photo"
+    assert hero.locator('img.hero-nudge[src="/cards/hero-nudge.webp"]').is_visible(), "no nudge card in hero"
+    assert hero.locator(".phone, .scene-chip").count() == 0, "hero should stay two layers: photo + nudge"
+    # The headline never spills out of its column, at any desktop width
+    for w in (1024, 1280, 1440, 1680, 1920, 2200):
+        page.set_viewport_size({"width": w, "height": 900})
+        page.wait_for_timeout(200)
+        spill = page.evaluate("""() => { const c = document.querySelector('#hero .hero-copy').getBoundingClientRect();
+            const r = document.createRange(); r.selectNodeContents(document.querySelector('#hero h1'));
+            return [...r.getClientRects()].some(x => x.right > c.right + 1); }""")
+        assert not spill, f"headline spills out of its column at {w}"
+    page.set_viewport_size({"width": 1280, "height": 900})
     assert hero.locator("canvas").count() == 0, "3D canvas should be gone"
     ctx = browser.new_context(viewport={"width": 1280, "height": 900})
     p3 = ctx.new_page()
@@ -164,14 +179,25 @@ def test_effort(browser):
     assert not errors, f"console errors: {errors}"
 
 
+def pops_out(page, scope):
+    """How far each visible .pop card reaches past its phone's right edge, in px."""
+    return page.evaluate("""(scope) => { const root = document.querySelector(scope);
+        const ph = root.querySelector('.device-pop .phone').getBoundingClientRect();
+        return [...root.querySelectorAll('.device-pop .pop')].filter(p => parseFloat(getComputedStyle(p).opacity) > .9)
+          .map(p => Math.round(p.getBoundingClientRect().right - ph.right)); }""", scope)
+
+
 # ---------------------------------------------------------------- Task 5
 WEEK = [
-    ("Monday", "Busy days, set once", "/screens/r7-busy-days.webp"),
-    ("Wednesday", "A chore slips", "/screens/c1c-shared-pool.webp"),
-    ("Thursday", "Someone picks it up", "/screens/h3-claimed.webp"),
-    ("Saturday", "The milk runs out", "/screens/p1-pantry.webp"),
-    ("Sunday", "The week evens out", "/screens/h6-all-done.webp"),
+    ("Monday", "Busy days, set once", "/screens/w-mon-busy.webp"),
+    ("Wednesday", "A chore slips", "/screens/w-wed-lock.webp"),
+    ("Thursday", "Someone picks it up", "/screens/c1c-shared-pool.webp"),
+    ("Saturday", "The milk runs out", "/screens/w-sat-lock.webp"),
+    ("Sunday", "The week evens out", "/screens/w-sun-done.webp"),
 ]
+POPS = {0: "/cards/w-mon-card.webp", 1: "/cards/w-wed-card.webp", 2: "/cards/w-thu-toast.webp", 3: "/cards/w-sat-card.webp", 4: "/cards/w-sun-streak.webp"}
+OWNERS = ["Ramesh’s phone", "Every flatmate’s phone", "Ramesh’s phone", "Ramesh’s phone", "Ramesh’s phone"]
+SECOND = {3: ("/screens/p1-pantry.webp", "Priya’s phone")}
 
 
 @check("week")
@@ -198,6 +224,20 @@ def test_week(browser):
         assert shown == [screen], f"day {i}: stage shows {shown}, want {screen}"
         act = page.evaluate("[...document.querySelectorAll('#week .day')].findIndex(d => d.classList.contains('is-active'))")
         assert act == i, f"day {i}: active timeline item is {act}"
+        # each scene: the key moment pops out past the phone's right edge, and says whose phone it is
+        page.wait_for_timeout(1300)
+        pops = page.evaluate("""() => { const ph = document.querySelector('#week .stage-phone').getBoundingClientRect();
+            return [...document.querySelectorAll('#week .stage .pop')].filter(p => parseFloat(getComputedStyle(p).opacity) > .9)
+              .map(p => { const r = p.getBoundingClientRect(); return [p.getAttribute('src'), r.right - ph.right, r.left > ph.left]; }); }""")
+        assert len(pops) == 1 and pops[0][0] == POPS[i], f"day {i}: pop cards {pops}"
+        assert pops[0][1] > 24 and pops[0][2], f"day {i}: card doesn't pop out of the phone: {pops}"
+        owners = page.evaluate("""() => [...document.querySelectorAll('#week .stage-device > .owner')]
+            .filter(o => parseFloat(getComputedStyle(o).opacity) > .9).map(o => o.textContent.trim())""")
+        assert [o[1:] for o in owners] == [OWNERS[i]], f"day {i}: owner labels {owners}"
+        seconds = page.evaluate("""() => [...document.querySelectorAll('#week .stage .second')]
+            .filter(s => parseFloat(getComputedStyle(s).opacity) > .9)
+            .map(s => [s.querySelector('img').getAttribute('src'), s.querySelector('.owner').textContent.trim().slice(1)])""")
+        assert seconds == ([list(SECOND[i])] if i in SECOND else []), f"day {i}: second phone {seconds}"
     ratio = page.evaluate("""() => { const i = document.querySelector('.phone img');
         return i ? i.naturalWidth / i.naturalHeight : 0; }""")
     assert abs(ratio - 393 / 852) < 0.01, f"phone ratio {ratio}"
@@ -211,6 +251,10 @@ def test_week(browser):
         img = p2.locator(f'#week .day >> nth={i}').locator(f'img[src="{screen}"]')
         img.scroll_into_view_if_needed()
         assert img.is_visible(), f"mobile day {i} has no visible {screen}"
+        card = p2.locator(f'#week .day >> nth={i}').locator(f'img[src="{POPS[i]}"]')
+        assert card.is_visible(), f"mobile day {i} has no visible pop-out card"
+        if i in SECOND:
+            assert p2.locator(f'#week .day >> nth={i}').locator(f'img[src="{SECOND[i][0]}"]').is_visible(), f"mobile day {i} misses the second phone"
     sw, iw = p2.evaluate("[document.documentElement.scrollWidth, innerWidth]")
     assert sw == iw, f"mobile overflow {sw} > {iw}"
 
@@ -232,8 +276,53 @@ def test_more(browser):
     body = shelf.locator("p").all_inner_texts()
     assert any("Do not touch or Ask first" in t for t in body), body
     assert any(t.strip().startswith("Running low? Ask the house") for t in body), body
-    assert shelf.locator('.phone img[src="/screens/p2-my-items.webp"]').count() == 1
-    assert shelf.locator('img[src="/cards/shelf.webp"]').count() == 1
+    assert shelf.locator('.phone img[src="/screens/p2-my-items-slots.webp"]').count() == 1
+    for src in ("/cards/shelf-protein.webp", "/cards/shelf-sourdough.webp"):
+        assert shelf.locator(f'img[src="{src}"]').count() == 1, src
+    shelf.scroll_into_view_if_needed()
+    page.wait_for_timeout(2200)
+    out = pops_out(page, "#shelf")
+    assert len(out) == 2 and min(out) > 24, f"shelf items don't lift out of the phone: {out}"
+    assert not errors, f"console errors: {errors}"
+
+
+FEATURES = ["Effort, not headcount", "Built around your week", "A shared pool, no blame", "Nudges in your tone",
+            "Restock in one tap", "A streak the whole house grows", "Move in with a code"]
+
+
+@check("features")
+def test_features(browser):
+    page, errors = open_page(browser, 1440, 900)
+    order = page.evaluate("[...document.querySelectorAll('main > section')].map(s => s.id)")
+    assert order.index("week") == order.index("features") + 1, order
+    sec = page.locator("#features")
+    assert [t.strip() for t in sec.locator(".fslide h3").all_inner_texts()] == FEATURES
+    for i in range(len(FEATURES)):
+        assert sec.locator(".fslide").nth(i).locator(".phone img, .fcard").count() == 1, f"feature {i} has no real screen"
+    # Desktop: a pinned sideways tour, one feature on screen at a time, its moment lifting out
+    n = len(FEATURES)
+    start = page.evaluate("document.querySelector('#features .ftour').parentElement.getBoundingClientRect().top + scrollY")
+    for i in range(n):
+        page.evaluate(f"window.scrollTo(0, {start} + innerWidth * {n - 1} * 0.8 * {i} / {n - 1})")
+        page.wait_for_timeout(1500)
+        state = page.evaluate("""() => [...document.querySelectorAll('#features .fslide')].map(s => {
+            const r = s.getBoundingClientRect(), pop = s.querySelector('.fpop, .fcard');
+            return [Math.abs(r.left) < innerWidth * .1 && r.top < 10 && r.bottom > innerHeight - 10, s.classList.contains('is-in'),
+                    pop ? parseFloat(getComputedStyle(pop).opacity) : 1]; })""")
+        on_screen = [k for k, s in enumerate(state) if s[0]]
+        assert on_screen == [i], f"step {i}: on screen {on_screen}"
+        assert state[i][1] and state[i][2] > .9, f"step {i}: moment didn't lift out {state[i]}"
+        assert page.locator("#features .fcount").inner_text().strip() == f"{i + 1:02d} / {n:02d}"
+    # Phones: the same features stacked, nothing pinned sideways, nothing overflowing
+    for w in (390, 900):
+        p2, _ = open_page(browser, w, 844)
+        sw, iw = p2.evaluate("[document.documentElement.scrollWidth, innerWidth]")
+        assert sw == iw, f"overflow at {w}: {sw} > {iw}"
+    p2, _ = open_page(browser, 390, 844)
+    for i in range(n):
+        s = p2.locator("#features .fslide").nth(i)
+        s.scroll_into_view_if_needed()
+        assert s.locator("h3").is_visible(), f"mobile feature {i} not visible"
     assert not errors, f"console errors: {errors}"
 
 
@@ -252,10 +341,13 @@ def test_close(browser):
         assert sec.locator(f'img[src="/brand/plant-{stage}.webp"]').count() == 1, f"missing plant {stage}"
     assert sec.get_by_role("button", name="Coming soon on Google Play").count() == 1
     foot = page.locator("footer")
-    for text in ("Made in Kathmandu", "© 2026 Roomie", "pemaghising.com.np"):
+    for text in ("© 2026 Roomie", "pemaghising.com.np"):
         assert foot.get_by_text(text).count() >= 1, f"footer missing {text}"
     assert foot.locator('a[href="https://pemaghising.com.np"]').count() == 1
-    assert foot.locator('img[src="/brand/wordmark.svg"]').count() == 1
+    assert foot.locator('a[href="https://roomie-case-study.vercel.app/"]').inner_text().strip() == "Read the case study"
+    assert foot.locator('img[src="/brand/logo-roomie.webp"]').count() == 1
+    # The brand lockup from the guidelines (Logo/Roomie), not a hand-paired mascot + wordmark
+    assert page.locator('#hero .topbar img[src="/brand/logo-roomie.webp"]').count() == 1
     assert not errors, f"console errors: {errors}"
 
 
@@ -338,6 +430,11 @@ def test_hero_copy_never_flashes(browser):
 def test_close_cta_visible_early(browser):
     page, _ = open_page(browser, 1280, 900)
     y = page.evaluate("document.querySelector('#close').getBoundingClientRect().top + scrollY")
+    # The buttons arrive with the headline, not before it
+    page.evaluate(f"window.scrollTo(0, {y} + 10)")
+    page.wait_for_timeout(1200)
+    early = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#close .stores')).opacity)")
+    assert early < 0.5, f"store buttons already showing before the headline: {early:.2f}"
     page.evaluate(f"window.scrollTo(0, {y} + innerHeight * 0.5)")
     page.wait_for_timeout(1200)
     ops = page.evaluate("""() => { const o = e => { let v = 1; for (let n = e; n; n = n.parentElement) v *= parseFloat(getComputedStyle(n).opacity); return v; };
@@ -374,7 +471,7 @@ def test_phones_are_front_facing(browser):
     scroll_through(page)
     tilted = page.evaluate("""() => {
       const out = [];
-      for (const ph of document.querySelectorAll('main .phone, main .stage-card, main .shelf-card, main .nudge-card')) {
+      for (const ph of document.querySelectorAll('main .phone, main .stage-card, main .shelf-card, main .nudge-card, main .pop')) {
         for (let n = ph; n && n !== document.body; n = n.parentElement) {
           const t = getComputedStyle(n).transform;
           if (t.startsWith('matrix3d')) { out.push((ph.className || ph.tagName) + ' via ' + n.className); break; }

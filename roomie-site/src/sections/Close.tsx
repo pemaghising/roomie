@@ -19,16 +19,18 @@ export function Close() {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
       const plants = gsap.utils.toArray<HTMLElement>(".plant");
-      gsap.set(plants.slice(1), { opacity: 0, scale: 0.92 });
+      gsap.set(plants.slice(1), { opacity: 0 });
       const tl = gsap.timeline({
         scrollTrigger: { trigger: root.current, start: "top top", end: "+=140%", scrub: 0.7, pin: true },
       });
       plants.forEach((p, i) => {
         if (i === 0) return;
-        tl.to(plants[i - 1], { opacity: 0, scale: 1.04, duration: 0.5 }, i - 0.5)
-          .to(p, { opacity: 1, scale: 1, duration: 0.5 }, i - 0.5);
+        tl.to(plants[i - 1], { opacity: 0, duration: 0.5 }, i - 0.5)
+          .to(p, { opacity: 1, duration: 0.5 }, i - 0.5);
       });
-      tl.from(".close-copy h2", { y: 30, opacity: 0, duration: 0.6 }, 0.6);
+      // The promise and the way to act on it arrive together.
+      tl.from(".close-copy h2", { y: 30, opacity: 0, duration: 0.6 }, 0.6)
+        .from(".close-copy .stores", { y: 24, opacity: 0, duration: 0.6 }, 0.7);
     }, root);
     return () => ctx.revert();
   }, [motionOK]);

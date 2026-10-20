@@ -1,5 +1,9 @@
 import { Phone } from "@/ui/Phone";
+import { PopIn } from "@/ui/PopIn";
+import { popVars } from "@/ui/pop";
 import "./more.css";
+
+const ROW = { x: 24 / 393, w: 345 / 393, r: 24 };
 
 export function Shelf() {
   return (
@@ -12,9 +16,13 @@ export function Shelf() {
           <p className="lede">Running low? Ask the house, and it becomes a chore anyone can claim.</p>
         </div>
         <div className="shelf-stage">
-          <Phone src="/screens/p2-my-items.webp" alt="Roomie Pantry, My items: Protein shake tagged Do not touch, Sourdough bread tagged Ask first" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="shelf-card" src="/cards/shelf.webp" alt="" width={393} height={220} loading="lazy" />
+          <PopIn className="shelf-device">
+            <Phone src="/screens/p2-my-items-slots.webp" alt="Roomie Pantry, My items: your personal things, each with a tag" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="pop shelf-card" src="/cards/shelf-protein.webp" alt="Protein shake, tagged Do not touch" style={popVars({ ...ROW, y: 278 / 852 }, 0.2)} loading="lazy" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="pop shelf-card" src="/cards/shelf-sourdough.webp" alt="Sourdough bread, tagged Ask first" style={popVars({ ...ROW, y: 450 / 852 }, 0.5)} loading="lazy" />
+          </PopIn>
         </div>
       </div>
     </section>

@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 const CHORES = [
   { name: "Take out trash", tag: "Light", mins: "about 2 min", weight: 1 },
   { name: "Vacuum living room", tag: "Medium", mins: "about 20 min", weight: 2 },
-  { name: "Deep clean bathroom", tag: "Heavy", mins: "about 45 min", weight: 4 },
+  { name: "Deep clean bathroom", tag: "Heavy", mins: "about 45 min", weight: 3 },
 ] as const;
 
 export function Effort() {

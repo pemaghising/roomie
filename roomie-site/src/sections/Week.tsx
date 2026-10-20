@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Phone } from "@/ui/Phone";
-import { WEEK, type Icon } from "./week-data";
+import { popVars } from "@/ui/pop";
+import { WEEK, type Icon, type Owner, type Tap, type WeekDay } from "./week-data";
 import "./week.css";
 
 const PINNED = "(min-width: 821px) and (prefers-reduced-motion: no-preference)";
@@ -15,6 +16,39 @@ const ICONS: Record<Icon, React.ReactNode> = {
   bag: <><path d="M5 8h14l-1 12H6L5 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></>,
   sprout: <><path d="M12 21v-8" /><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6Z" /><path d="M12 15c0-3-2.5-5-6-5 0 3 2.5 5 6 5Z" /></>,
 };
+
+const slug = (w: string) => (w === "The house" ? "house" : w.toLowerCase());
+const tapVars = (t: Tap) => ({ "--x": t.x, "--y": t.y }) as CSSProperties;
+// The pop waits for the tap that causes it; on Saturday it waits for Priya's tap on the other phone.
+const popDelay = (d: WeekDay) => (d.second ? 0.55 : d.tap ? 0.4 : 0.2);
+
+function OwnerChip({ owner, className = "" }: { owner: Owner; className?: string }) {
+  return (
+    <span className={`owner owner--${slug(owner.who)} ${className}`}>
+      <i aria-hidden="true">{owner.who === "The house" ? "⌂" : owner.who[0]}</i>{owner.label}
+    </span>
+  );
+}
+
+/** Mobile and reduced motion: one still scene per day. */
+function InlineScene({ d }: { d: WeekDay }) {
+  return (
+    <div className={`device-pop ${d.second ? "has-second" : ""}`}>
+      {d.second && (
+        <div className="second">
+          <Phone src={d.second.screen} alt={d.second.alt} />
+          {d.second.tap && <span className="tap" style={tapVars(d.second.tap)} aria-hidden="true" />}
+          <OwnerChip owner={d.second.owner} />
+        </div>
+      )}
+      <Phone src={d.screen} alt={`${d.day}: ${d.title}`} />
+      {d.tap && <span className="tap" style={tapVars(d.tap)} aria-hidden="true" />}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="pop" src={d.pop.src} alt={d.pop.alt} style={popVars(d.pop, 0)} />
+      <OwnerChip owner={d.owner} className={d.second ? "beside" : ""} />
+    </div>
+  );
+}
 
 export function Week() {
   const [active, setActive] = useState(0);
@@ -49,6 +83,8 @@ export function Week() {
     };
   }, []);
 
+  const on = (i: number) => (active === i ? "on" : "");
+
   return (
     <section id="week" className="week">
       <div className="wrap week-head">
@@ -71,13 +107,11 @@ export function Week() {
                   <span className="day-name">{d.day} · {d.time}</span>
                   <h3>{d.title}</h3>
                   <p>{d.body}</p>
-                  <span className={`who who--${d.who === "The house" ? "house" : d.who.toLowerCase()}`}>
+                  <span className={`who who--${slug(d.who)}`}>
                     <i aria-hidden="true">{d.who === "The house" ? "⌂" : d.who[0]}</i>{d.who}
                   </span>
                 </div>
-                <div className="day-inline">
-                  <Phone src={d.screen} alt={`${d.day}: ${d.title}`} />
-                </div>
+                <div className="day-inline"><InlineScene d={d} /></div>
               </li>
             ))}
             </ol>
@@ -85,17 +119,32 @@ export function Week() {
 
           <div className="stage-col" aria-hidden="true">
             <div className="stage">
-              <figure className="phone stage-phone">
-                <span className="btn-l" />
-                <span className="btn-r" />
-                <span className="bezel">
-                  {WEEK.map((d, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={d.screen} className={`screen ${active === i ? "on" : ""}`} src={d.screen} alt="" width={393} height={852} loading={i === 0 ? "eager" : "lazy"} />
-                  ))}
-                  <span className="glare" />
-                </span>
-              </figure>
+              <div className="device-pop stage-device">
+                {WEEK.map((d, i) => d.second && (
+                  <div key={d.second.screen} className={`second ${on(i)}`}>
+                    <Phone src={d.second.screen} alt="" />
+                    {d.second.tap && <span className="tap" style={tapVars(d.second.tap)} />}
+                    <OwnerChip owner={d.second.owner} />
+                  </div>
+                ))}
+                <figure className="phone stage-phone">
+                  <span className="btn-l" />
+                  <span className="btn-r" />
+                  <span className="bezel">
+                    {WEEK.map((d, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={d.screen} className={`screen ${on(i)}`} src={d.screen} alt="" width={393} height={852} loading={i === 0 ? "eager" : "lazy"} />
+                    ))}
+                    <span className="glare" />
+                  </span>
+                </figure>
+                {WEEK.map((d, i) => d.tap && <span key={d.day} className={`tap ${on(i)}`} style={tapVars(d.tap)} />)}
+                {WEEK.map((d, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={d.pop.src} className={`pop ${on(i)}`} src={d.pop.src} alt="" style={popVars(d.pop, popDelay(d))} loading="lazy" />
+                ))}
+                {WEEK.map((d, i) => <OwnerChip key={d.day} owner={d.owner} className={`${on(i)} ${d.second ? "beside" : ""}`} />)}
+              </div>
             </div>
           </div>
         </div>
