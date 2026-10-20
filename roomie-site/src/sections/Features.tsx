@@ -65,7 +65,7 @@ const FEATURES: Feature[] = [
   {
     key: "streak", title: "A streak the whole house grows",
     body: "Every day the house gets its chores done, the streak goes up. Slip, and the plant droops until someone catches up. It’s a shared streak, never a scoreboard.",
-    card: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, every day this week done",
+    card: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, Sunday done and a new week started",
   },
   {
     key: "invite", title: "Move in with a code",

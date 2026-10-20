@@ -35,6 +35,18 @@ export function Hero() {
           <img src="/assets/final/h1-home.png" alt="" />
         </figure>
       </div>
+
+      <dl className="facts">
+        <div><dt>Role</dt><dd>Lead Graphic Designer, leading research, UX, UI and brand</dd></div>
+        <div><dt>Timeline</dt><dd>2 weeks</dd></div>
+        <div><dt>Tools</dt><dd>Figma, Mobbin, Notion and AI tools</dd></div>
+        <div><dt>Delivered</dt><dd>60+ hi-fi screens, a 50+ component library, a 36-page brand book and a marketing site</dd></div>
+      </dl>
+      {/* Tentative (#10): reading time + skim path. Delete this <p> to drop it. */}
+      <p className="skim">
+        About 25 min read. Short on time? Read the three cards below, then jump to{" "}
+        <a href="#final-screens">the final screens</a> or <a href="#reflect">what I learned</a>.
+      </p>
     </div>
   );
 }

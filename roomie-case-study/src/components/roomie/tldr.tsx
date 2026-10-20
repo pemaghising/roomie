@@ -13,14 +13,14 @@ const cards = [
     icon: "scales",
     tone: "purple",
     title: "A neutral third roommate",
-    body: "Roomie weights chores by effort, keeps heavy tasks off your busy days, moves missed chores to a pool anyone can claim, and does the reminding.",
+    body: "Roomie weights chores by effort, keeps heavy tasks off your busy days, moves missed chores to a pool anyone can claim, and does the reminding.",
   },
   {
     tag: "Impact",
     icon: "rocket-launch",
     tone: "green",
     title: "A focused V1, ready to test",
-    body: "62 hi-fi screens across onboarding, home, chores, pantry and settings, on one design system. Money and AI features moved deliberately to Phase 2. It hasn't been tested yet; the plan is in section 05.",
+    body: "62 hi-fi screens across onboarding, home, chores, pantry and settings, on one design system. Money and AI features are planned for Phase 2. It hasn't been tested yet; the plan is in section 05.",
   },
 ];
 

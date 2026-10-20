@@ -15,7 +15,7 @@
 | --- | --- | --- |
 | 01 | Empathize | The chore isn't the hard part. Asking is. |
 | 02 | Define | Fairness is effort, not count. |
-| 03 | Ideate | 25 ideas in. Eight made the cut. |
+| 03 | Ideate | 25 ideas in. Ten made the cut. |
 | 04 | Prototype | Designed to lower the temperature. |
 | 05 | Test | Six flatmates. Forty minutes. No help. |
 | 06 | Reflect | Scores inform. Context decides. |

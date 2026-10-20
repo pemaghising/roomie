@@ -60,6 +60,6 @@ export const WEEK: WeekDay[] = [
     body: "Everything’s done. That’s day 24 of the house streak, and the plant is nearly in bloom.",
     screen: "/screens/w-sun-done.webp",
     owner: { who: "Ramesh", label: "Ramesh’s phone" },
-    pop: { src: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, every day this week done", x: 24 / 393, y: 220 / 852, w: 345 / 393, r: 24 },
+    pop: { src: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, Sunday done and a new week started", x: 24 / 393, y: 220 / 852, w: 345 / 393, r: 24 },
   },
 ];

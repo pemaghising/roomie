@@ -46,7 +46,7 @@ export const empathizeHtml = `
       <div class="card pc"><p class="eyebrow">Ownership &amp; mental load</p><ol><li><b>01</b>No clear ownership of tasks</li><li><b>02</b>The responsible roommate carries the mental load</li></ol></div>
       <div class="card pc"><p class="eyebrow">Money &amp; groceries</p><ol><li><b>03</b>Shared vs. personal groceries are unclear</li><li><b>04</b>Small expenses are awkward to ask back</li></ol></div>
       <div class="card pc"><p class="eyebrow">Communication &amp; scheduling</p><ol><li><b>05</b>Information gets buried in chats</li><li><b>06</b>Changing schedules break chore plans</li></ol></div>
-      <div class="card pc root"><p class="eyebrow">The root problem</p><ol><li><b>07</b>The same coordination problems repeat</li></ol><p>Ownership, money, schedules and communication break down together. The household runs on memory, manual coordination and awkward conversations.</p></div>
+      <div class="card pc root"><p class="eyebrow">The root problem</p><ol><li><b>07</b>The same coordination problems repeat</li></ol><p>Ownership, money, schedules and communication break down together. The household runs on memory, manual coordination and awkward&nbsp;conversations.</p></div>
     </div>
   </div>
 
@@ -56,9 +56,9 @@ export const empathizeHtml = `
   </div>
 
   <div class="block idr" style="--fg:var(--sky-ink)">
-    <div><p class="eyebrow">Insight</p><p>“All-in-one” isn’t a differentiator. Flatastic already combines chores, shopping and expenses.</p></div>
+    <div><p class="eyebrow">Insight</p><p>“All-in-one” isn’t a differentiator. Flatastic already combines chores, shopping and&nbsp;expenses.</p></div>
     <div><p class="eyebrow">Decision</p><p>Position Roomie as a <strong>neutral third party</strong> that carries the mental and social load, not as a tracker.</p></div>
-    <div><p class="eyebrow">Result</p><p>Every later feature had to answer one question: does this remove a remembering or an awkward conversation?</p></div>
+    <div><p class="eyebrow">Result</p><p>Every later feature had to answer one question: does this remove a remembering or an awkward&nbsp;conversation?</p></div>
   </div>
   </div>
 </section>

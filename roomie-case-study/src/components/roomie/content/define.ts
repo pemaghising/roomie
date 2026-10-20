@@ -21,7 +21,7 @@ export const defineHtml = `
     <div class="grid-5">
       <div class="sticky" style="background:var(--lav);--rot:-1.2deg"><h4>The silent burden</h4><p>One person notices everything and ends up doing it.</p></div>
       <div class="sticky" style="background:var(--peach);--rot:1deg"><h4>Awkward asking</h4><p>Reminding a roommate twice costs more socially than just doing it.</p></div>
-      <div class="sticky" style="background:var(--mint);--rot:-.6deg"><h4>Grocery confusion</h4><p>Shared or personal? Already bought? Nobody knows.</p></div>
+      <div class="sticky" style="background:var(--mint);--rot:-.6deg"><h4>Grocery confusion</h4><p>Shared or personal? Already bought? Nobody&nbsp;knows.</p></div>
       <div class="sticky" style="background:var(--sky);--rot:1.4deg"><h4>Real life</h4><p>Exams, late shifts and travel break fixed rotas.</p></div>
       <div class="sticky" style="background:var(--amber);--rot:-1deg"><h4>Mental load</h4><p>Coordination lives in memory and a chat that scrolls away.</p></div>
     </div>
@@ -32,7 +32,7 @@ export const defineHtml = `
     <div class="insights">
       <div class="insight"><b>1</b><h4>Fairness is effort, not count</h4><p>A 2-minute trash run and a 45-minute bathroom clean are not the same. Counting tasks hides the imbalance.</p></div>
       <div class="insight"><b>2</b><h4>The real chore is remembering</h4><p>Planning, assigning and following up is invisible work, and it usually lands on one person.</p></div>
-      <div class="insight"><b>3</b><h4>A reminder from a friend reads as criticism</h4><p>Every root-cause chain ended the same way: there’s no neutral intermediary.<br><span class="hyp">Hypothesis · to validate</span></p></div>
+      <div class="insight"><b>3</b><h4>A reminder from a friend reads as&nbsp;criticism</h4><p>Every root-cause chain ended the same way: there’s no neutral intermediary.<br><span class="hyp">Hypothesis · to validate</span></p></div>
       <div class="insight"><b>4</b><h4>Automation is trusted only when it explains itself</h4><p>“Why me, why this week” has to be answerable in one sentence.</p></div>
     </div>
   </div>
@@ -44,11 +44,11 @@ export const defineHtml = `
       <div class="card persona" style="--bg:var(--sky)">
         <div class="avatar"><img src="/assets/personas/aarav.svg" alt="" width="128" height="128" loading="lazy"></div>
         <div><h4>Aarav Shrestha</h4><p class="role"><b>27 · Software engineer</b><span>New Baneshwor, Kathmandu · lives with 2 colleagues · high tech literacy</span></p></div>
-        <blockquote>“I don’t mind helping out around the house, but I absolutely do not want to be the default apartment manager.”</blockquote>
+        <blockquote>“I don’t mind helping out around the house, but I absolutely do not want to be the default apartment&nbsp;manager.”</blockquote>
         <dl>
           <div><dt>Goals</dt><dd>A clean flat without becoming the person who organises it, and no more passive-aggressive group chats.</dd></div>
-          <div><dt>Pains</dt><dd>Reminding people wears him out, his hours change every week, and anything important gets lost in WhatsApp.</dd></div>
-          <div><dt>Needs</dt><dd>A plan that works around his messy weeks, and for someone else to do the reminding.</dd></div>
+          <div><dt>Pains</dt><dd>Reminding people wears him out, his hours change every week, and anything important gets lost in&nbsp;WhatsApp.</dd></div>
+          <div><dt>Needs</dt><dd>A plan that works around his messy weeks, and for someone else to do the&nbsp;reminding.</dd></div>
           <div><dt>Represents</dt><dd>The busy professional.</dd></div>
         </dl>
       </div>
@@ -68,7 +68,7 @@ export const defineHtml = `
         <div><h4>Sushmita Karki</h4><p class="role"><b>22 · Business student</b><span>Jhamsikhel, Lalitpur · lives with 3 college friends · medium tech literacy</span></p></div>
         <blockquote>“I’d rather buy the milk again myself than argue with my friends about who finished it.”</blockquote>
         <dl>
-          <div><dt>Goals</dt><dd>Keep groceries simple, keep her own things hers, and keep her friendships stress-free.</dd></div>
+          <div><dt>Goals</dt><dd>Keep groceries simple, keep her own things hers, and keep her friendships&nbsp;stress&#8209;free.</dd></div>
           <div><dt>Pains</dt><dd>Buying the same thing twice, flatmates finishing her snacks without asking, and a chore chart on the fridge that nobody follows.</dd></div>
           <div><dt>Needs</dt><dd>One list everyone can see so nothing gets bought twice, and a polite way to say “please don’t touch my stuff”.</dd></div>
           <div><dt>Represents</dt><dd>The university student.</dd></div>
@@ -81,7 +81,7 @@ export const defineHtml = `
         <dl>
           <div><dt>Goals</dt><dd>Protect deep-focus time for client work, and spend as little time as possible on household admin.</dd></div>
           <div><dt>Pains</dt><dd>The work schedule changes every week, fixed cleaning calendars never last, and there’s no patience for setting up another app.</dd></div>
-          <div><dt>Needs</dt><dd>Something that adjusts when the week changes, takes a minute to set up, and stays quiet unless it’s needed.</dd></div>
+          <div><dt>Needs</dt><dd>Something that adjusts when the week changes, takes a minute to set up, and stays quiet unless it’s&nbsp;needed.</dd></div>
           <div><dt>Represents</dt><dd>The busy freelancer.</dd></div>
         </dl>
       </div>
@@ -104,7 +104,7 @@ export const defineHtml = `
           <span class="mood" style="left:10%;top:47.3%" title="Neutral">😐</span><span class="mood" style="left:30%;top:63.6%" title="Anxious">😟</span><span class="mood" style="left:50%;top:36.4%" title="Relieved">🙂</span><span class="mood low" style="left:70%;top:87.3%" title="Lowest point">😣</span><span class="mood" style="left:90%;top:30.9%" title="Resigned">😮‍💨</span>
         </div>
         <div class="rh">Touchpoint</div><div>Kitchen</div><div>WhatsApp group</div><div>Kitchen</div><div>WhatsApp · in person</div><div>Kitchen</div>
-        <div class="rh">Pain</div><div class="pain">No clear owner</div><div class="pain">A reminder reads as criticism</div><div class="pain">One person carries the load</div><div class="pain">Asking twice breeds resentment</div><div class="pain">It all happens again</div>
+        <div class="rh">Pain</div><div class="pain">No clear owner</div><div class="pain">A reminder reads as&nbsp;criticism</div><div class="pain">One person carries the load</div><div class="pain">Asking twice breeds resentment</div><div class="pain">It all happens again</div>
         <div class="rh">Opportunity</div><div class="opp">Every chore has an owner</div><div class="opp">The app sends the nudge</div><div class="opp">Weigh chores by effort</div><div class="opp">A shared pool anyone can claim</div><div class="opp">Rotate fairly around busy days</div>
       </div>
     </div>

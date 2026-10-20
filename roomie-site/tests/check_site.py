@@ -267,7 +267,7 @@ def test_more(browser):
     assert real.locator("h2").inner_text().strip() == "Built for the small moments."
     figs = real.locator("figure.photo")
     assert figs.count() == 2, figs.count()
-    want = [("/photos/01-morning-check.webp", "One glance before chai."), ("/photos/02-the-nudge.webp", "A nudge that never nags.")]
+    want = [("/photos/01-morning-check.webp", "Your whole day in one glance."), ("/photos/02-the-nudge.webp", "A nudge that never nags.")]
     for i, (src, cap) in enumerate(want):
         assert figs.nth(i).locator(f'img[src="{src}"]').count() == 1, f"photo {i} src"
         assert figs.nth(i).locator("figcaption").inner_text().strip() == cap, figs.nth(i).locator("figcaption").inner_text()

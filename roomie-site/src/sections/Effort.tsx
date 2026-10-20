@@ -36,7 +36,7 @@ export function Effort() {
       <div className="wrap effort-grid">
         <div className="effort-copy">
           <p className="eyebrow">Fair isn’t equal</p>
-          <h2>A <span className="nb">2-minute</span> trash run isn’t a <span className="nb">45-minute</span> bathroom.</h2>
+          <h2>A <span className="nb">2-minute</span> trash run isn’t a <span className="nb">45-minute bathroom.</span></h2>
           <p className="lede">
             Every chore is Light, Medium or Heavy. Roomie balances the effort across the house, not the number of chores.
           </p>
