@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     env: loadEnv(mode, process.cwd(), ''),
     setupFiles: ['./src/test-setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'supabase/functions/_shared/**/*.test.ts', 'supabase/functions/tick/**/*.test.ts', 'tests/db/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'supabase/functions/_shared/**/*.test.ts', 'supabase/functions/tick/**/*.test.ts', 'supabase/seed/**/*.test.ts', 'tests/db/**/*.test.ts'],
     testTimeout: 20_000,
   },
 }));
