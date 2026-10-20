@@ -26,10 +26,10 @@ export function Hero() {
 
       <div className="hero-art" aria-hidden="true">
         <figure className="device d-left">
-          <img src="/assets/final/c1-todo.png" alt="" />
+          <img src="/assets/final/c1c-shared-pool.png" alt="" />
         </figure>
         <figure className="device d-right">
-          <img src="/assets/final/c4-add-chore.png" alt="" />
+          <img src="/assets/final/p1-pantry.png" alt="" />
         </figure>
         <figure className="device d-main">
           <img src="/assets/final/h1-home.png" alt="" />
