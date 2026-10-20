@@ -1,66 +1,114 @@
-import * as Haptics from 'expo-haptics';
+// 01 · Welcome, with 03 · Log in as a sheet over it.
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import { FlatList, type NativeScrollEvent, type NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { F } from '@/constants/theme';
-import { Art, type ArtName } from '@/ui/art';
-import { Button, C, Screen } from '@/ui/kit';
+import * as WebBrowser from 'expo-web-browser';
+import { Mail } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useReducedMotion } from '@/ui/motion';
+import { color, layout } from '@/ui/tokens';
+import { AppleMark, Button, GoogleMark, MeshBackground, Sheet, Stagger, Tap, Txt } from '@/ui/v2';
+import { useToast } from '@/ui/toast';
 
-const PAGES: { art: ArtName; title: string; body: string }[] = [
-  { art: 'welcome', title: 'Peaceful\nco-living.', body: 'Share chores, groceries and good moments with the people you live with.' },
-  { art: 'chores', title: 'Chores that\nrun themselves.', body: 'A fair weekly plan, easy swaps and gentle nudges. No more nagging.' },
-  { art: 'trophy', title: 'Win the\nweek together.', body: 'Grow a streak as a house and celebrate every milestone.' },
+const SITE = 'https://roomie-site-sigma.vercel.app/';
+
+export function Legal() {
+  return (
+    <Txt v="Meta" c={color.text.secondary} style={{ textAlign: 'center' }}>
+      {'By continuing, you agree to our\n'}
+      <Txt v="Meta/Medium" c={color.text.link} onPress={() => WebBrowser.openBrowserAsync(SITE)}>Terms</Txt>
+      {' and '}
+      <Txt v="Meta/Medium" c={color.text.link} onPress={() => WebBrowser.openBrowserAsync(SITE)}>Privacy Policy</Txt>.
+    </Txt>
+  );
+}
+
+/** A chip from frame 01 that drifts a few points, each on its own phase (none with Reduce Motion). */
+function Chip({ src, x, y, w, phase }: { src: number; x: number; y: number; w: number; phase: number }) {
+  const reduced = useReducedMotion();
+  const t = useSharedValue(0);
+  useEffect(() => {
+    if (reduced) return;
+    t.value = withDelay(phase, withRepeat(withSequence(withTiming(1, { duration: 2200, easing: Easing.inOut(Easing.sin) }), withTiming(0, { duration: 2200, easing: Easing.inOut(Easing.sin) })), -1));
+  }, [reduced, t, phase]);
+  const style = useAnimatedStyle(() => ({ transform: [{ translateY: -5 * t.value }] }));
+  return (
+    <Animated.View entering={reduced ? undefined : FadeIn.delay(280 + phase / 4).duration(260)} style={[{ position: 'absolute', left: x, top: y }, style]}>
+      <Image source={src} style={{ width: w, height: 90 }} contentFit="contain" />
+    </Animated.View>
+  );
+}
+
+const CHIPS = [
+  { src: require('../../../assets/art/chip-dishes.png'), x: 24 - 24, y: 134 - 24, w: 542 / 3, phase: 0 },
+  { src: require('../../../assets/art/chip-turn.png'), x: 255 - 24, y: 124 - 24, w: 485 / 3, phase: 700 },
+  { src: require('../../../assets/art/chip-milk.png'), x: 180 - 24, y: 354 - 24, w: 499 / 3, phase: 1300 },
 ];
 
 export default function Welcome() {
   const router = useRouter();
-  const [width, setWidth] = useState(0);
-  const [page, setPage] = useState(0);
-  const list = useRef<FlatList>(null);
-
-  const onEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const next = Math.round(e.nativeEvent.contentOffset.x / Math.max(width, 1));
-    if (next !== page) { Haptics.selectionAsync(); setPage(next); }
-  };
-  const last = page === PAGES.length - 1;
+  const toast = useToast();
+  const insets = useSafeAreaInsets();
+  const [login, setLogin] = useState(false);
+  const soon = () => toast.show('Coming soon. Use your email for now.');
 
   return (
-    <Screen scroll={false} footer={
-      <Animated.View entering={FadeInDown.delay(250).duration(240)} style={{ gap: 4 }}>
-        <View style={styles.dots} accessibilityRole="progressbar" accessibilityLabel={`Page ${page + 1} of ${PAGES.length}`}>
-          {PAGES.map((p, i) => <View key={p.art} style={[styles.dot, i === page && styles.dotOn]} />)}
-        </View>
-        {last ? (
-          <Button title="Create Account" onPress={() => router.push('/auth/email?mode=create')} />
-        ) : (
-          <Button title="Next" onPress={() => list.current?.scrollToIndex({ index: page + 1, animated: true })} />
-        )}
-        <Button title="Log In" variant="ghost" onPress={() => router.push('/auth/email?mode=login')} />
-      </Animated.View>
-    }>
-      <View style={{ flex: 1 }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-        {width > 0 && (
-          <FlatList ref={list} data={PAGES} keyExtractor={(p) => p.art} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={onEnd} getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
-            renderItem={({ item }) => (
-              <View style={{ width, flex: 1 }}>
-                <View style={styles.art}><Art name={item.art} width={Math.min(300, width)} /></View>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.body}>{item.body}</Text>
-              </View>
-            )} />
-        )}
+    <View style={styles.root}>
+      <MeshBackground />
+      <View style={[styles.art, { top: 0 }]} accessible={false}>
+        <Animated.View entering={FadeIn.duration(320)} style={styles.mascot}>
+          <Image source={require('../../../assets/art/welcome-mascot.png')} style={{ width: 260, height: 260 }} contentFit="contain" />
+        </Animated.View>
+        {CHIPS.map((c) => (
+          <Chip key={c.phase} {...c} />
+        ))}
       </View>
-    </Screen>
+      <View style={[styles.bottom, { paddingBottom: insets.bottom + 18 }]}>
+        <Stagger gap={0} from={2}>
+          <View style={{ gap: 10, alignItems: 'center', marginBottom: 34 }}>
+            <Txt v="Title/Onboarding" style={{ textAlign: 'center' }} accessibilityRole="header">
+              {'Make your place\nfeel like '}<Txt v="Title/Accent">home.</Txt>
+            </Txt>
+            <Txt v="Body/Default" c={color.text.secondary} style={{ textAlign: 'center' }}>{'Share the chores, share the snacks,\nkeep the peace.'}</Txt>
+          </View>
+          <View style={{ gap: 12 }}>
+            <Button title="Create my account" onPress={() => router.push('/auth/email?mode=create')} />
+            <Button title="I already have one" kind="secondary" onPress={() => setLogin(true)} />
+          </View>
+          <View style={{ marginTop: 18 }}><Legal /></View>
+        </Stagger>
+      </View>
+
+      {login && (
+        <Sheet onClose={() => setLogin(false)} title="Good to see you again" sub="Pick the way you signed up last time.">
+          <View style={{ gap: 12 }}>
+            <Tap onPress={soon} accessibilityLabel="Continue with Apple">
+              <View style={[styles.provider, { backgroundColor: '#16131F' }]}><AppleMark /><Txt v="Body/Button" c={color.text.onAccent}>Continue with Apple</Txt></View>
+            </Tap>
+            <Tap onPress={soon} accessibilityLabel="Continue with Google">
+              <View style={[styles.provider, styles.providerLight]}><GoogleMark /><Txt v="Body/Button">Continue with Google</Txt></View>
+            </Tap>
+            <Tap onPress={() => { setLogin(false); router.push('/auth/email?mode=login'); }} accessibilityLabel="Continue with email">
+              <View style={[styles.provider, styles.providerLight]}><Mail size={18} color={color.text.primary} strokeWidth={1.75} /><Txt v="Body/Button">Continue with email</Txt></View>
+            </Tap>
+          </View>
+          <Txt v="Body/Default" c={color.text.secondary} style={{ textAlign: 'center' }}>
+            {'First time here? '}
+            <Txt v="Body/Label" c={color.text.link} onPress={() => { setLogin(false); router.push('/auth/email?mode=create'); }}>Create an account</Txt>
+          </Txt>
+        </Sheet>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  art: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 40, lineHeight: 48, color: C.text, fontFamily: F.display },
-  body: { fontSize: 16, lineHeight: 24, color: C.sub, fontFamily: F.regular, marginTop: 8, marginBottom: 12 },
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 12 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5E7EB' },
-  dotOn: { width: 24, backgroundColor: '#7C3AED' },
+  root: { flex: 1, backgroundColor: color.bg.canvas },
+  art: { position: 'absolute', width: 393, alignSelf: 'center', height: 470 },
+  mascot: { position: 'absolute', left: 66, top: 152 },
+  bottom: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: layout.margin },
+  provider: { height: 56, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  providerLight: { backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECEAF3' },
 });

@@ -6,17 +6,21 @@ import type { Weekday } from '@domain/time.ts';
 export const PASTELS = ['#ffedd5', '#dbeafe', '#d1fae5', '#fce7f3', '#fef3c7', '#e0e7ff'];
 
 export interface DraftChore { key: string; name: string; icon: string; effort: Effort; cadence: Cadence; selected: boolean }
-export interface Draft { name: string; email: string; mode: 'create' | 'join'; homeName: string; code: string; busyDays: Weekday[]; chores: DraftChore[] }
+export interface HomePreview { name: string; members: string[]; full: boolean }
+export interface Draft {
+  name: string; email: string; mode: 'create' | 'join'; homeName: string; code: string; busyDays: Weekday[]; chores: DraftChore[];
+  nudge: 'motivate' | 'facts'; preview: HomePreview | null; welcomeBack: boolean;
+}
 
+// Frame 09: the four most homes start with, all pre-ticked with their effort.
 export const SUGGESTED: DraftChore[] = [
-  { key: 'trash', name: 'Take out trash', icon: '🗑️', effort: 1, cadence: 'daily', selected: true },
-  { key: 'sweep', name: 'Sweep living room', icon: '🧹', effort: 2, cadence: 'weekly', selected: true },
-  { key: 'laundry', name: 'Do the laundry', icon: '🧺', effort: 2, cadence: 'weekly', selected: true },
-  { key: 'vacuum', name: 'Vacuum rugs', icon: '🧽', effort: 2, cadence: 'weekly', selected: false },
-  { key: 'dishes', name: 'Wash dishes', icon: '🍽️', effort: 1, cadence: 'daily', selected: false },
+  { key: 'dishes', name: 'Wash dishes', icon: '🧽', effort: 1, cadence: 'daily', selected: true },
+  { key: 'vacuum', name: 'Vacuum living room', icon: '🧹', effort: 2, cadence: 'weekly', selected: true },
+  { key: 'bathroom', name: 'Mop bathroom', icon: '🪣', effort: 3, cadence: 'weekly', selected: true },
+  { key: 'trash', name: 'Take out trash', icon: '♻️', effort: 1, cadence: 'daily', selected: true },
 ];
 
-const fresh = (): Draft => ({ name: '', email: '', mode: 'create', homeName: '', code: '', busyDays: [], chores: SUGGESTED.map((c) => ({ ...c })) });
+const fresh = (): Draft => ({ name: '', email: '', mode: 'create', homeName: '', code: '', busyDays: [], chores: SUGGESTED.map((c) => ({ ...c })), nudge: 'motivate', preview: null, welcomeBack: false });
 
 let draft = fresh();
 const listeners = new Set<() => void>();

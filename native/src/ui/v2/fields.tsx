@@ -1,13 +1,15 @@
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, { LinearTransition, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import type { LucideIcon } from 'lucide-react-native';
 import { haptic } from '../haptics';
 import { motion } from '../motion';
 import { color, elevation, radius, type } from '../tokens';
-import { Glass, Tap, Txt } from './primitives';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Glass, gradients, Tap, Txt } from './primitives';
 
 /** v2/Field: 52 tall glass pill, radius 26. Focus draws the lilac→peach 2 px stroke; error is red 1.5 px. */
-export function TextField({ error, ...props }: TextInputProps & { error?: boolean }) {
+export function TextField({ error, icon: Icon, ...props }: TextInputProps & { error?: boolean; icon?: LucideIcon }) {
   const [focused, setFocused] = useState(false);
   const input = (
     <TextInput
@@ -16,13 +18,14 @@ export function TextField({ error, ...props }: TextInputProps & { error?: boolea
       {...props}
       onFocus={(e) => { setFocused(true); props.onFocus?.(e); }}
       onBlur={(e) => { setFocused(false); props.onBlur?.(e); }}
-      style={[type['Body/Input'], styles.input, { color: color.text.primary }, props.style]}
+      style={[type['Body/Input'], styles.input, Icon && { paddingLeft: 0 }, { color: color.text.primary }, props.style]}
     />
   );
-  if (error) return <View style={[styles.field, styles.error]}>{input}</View>;
+  const row = Icon ? <View style={styles.iconRow}><Icon size={18} color={color.text.primary} strokeWidth={1.75} />{input}</View> : input;
+  if (error) return <View style={[styles.field, styles.error]}>{row}</View>;
   return (
     <Glass r={radius.field} fill={0.62} outline={focused} strokeWidth={2} lift={false} style={{ height: 52 }}>
-      <View style={{ height: focused ? 48 : 50, justifyContent: 'center' }}>{input}</View>
+      <View style={{ height: focused ? 48 : 50, justifyContent: 'center' }}>{row}</View>
     </Glass>
   );
 }
@@ -37,11 +40,15 @@ export function CodeInput({ value, onChange, error, keyboard = 'number-pad', aut
   const box = (i: number) => {
     const active = focused && i === Math.min(value.length, 5);
     const ch = chars[i].trim();
-    return (
-      <View key={i} style={[styles.box, error && styles.boxError, active && !error && styles.boxActive]}>
-        <Txt v="Title/Onboarding" c={color.text.primary} style={{ fontFamily: type['Heading/Section'].fontFamily, fontSize: 26 }}>{ch}</Txt>
-      </View>
-    );
+    const glyph = <Txt v="Title/Onboarding" c={color.text.primary} style={{ fontFamily: type['Heading/Section'].fontFamily, fontSize: 26 }}>{ch}</Txt>;
+    if (active && !error) {
+      return (
+        <LinearGradient key={i} colors={gradients.outline} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.box, { padding: 2 }]}>
+          <View style={styles.boxInner}>{ch ? glyph : <View style={styles.caret} />}</View>
+        </LinearGradient>
+      );
+    }
+    return <View key={i} style={[styles.box, styles.boxRest, error && styles.boxError]}>{glyph}</View>;
   };
   return (
     <Pressable onPress={() => ref.current?.focus()} accessibilityLabel={accessibilityLabel} style={styles.codeRow}>
@@ -152,13 +159,16 @@ export function Toggle({ value, onChange, label }: { value: boolean; onChange: (
 }
 
 const styles = StyleSheet.create({
-  input: { paddingHorizontal: 22, height: 48 },
+  input: { paddingHorizontal: 22, height: 48, flex: 1 },
+  iconRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 22 },
   field: { height: 52, borderRadius: radius.field, backgroundColor: 'rgba(252,251,255,0.62)', justifyContent: 'center' },
   error: { borderWidth: 1.5, borderColor: color.border.error },
   codeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'stretch', justifyContent: 'space-between' },
-  box: { flex: 1, maxWidth: 52, height: 56, borderRadius: 14, backgroundColor: 'rgba(252,251,255,0.8)', borderWidth: 1.5, borderColor: 'rgba(135,107,222,0.14)', alignItems: 'center', justifyContent: 'center' },
-  boxActive: { borderColor: color.accent.selectedStart, borderWidth: 2 },
-  boxError: { borderColor: color.border.error },
+  box: { flex: 1, maxWidth: 50, height: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  boxRest: { backgroundColor: 'rgba(252,251,255,0.8)', borderWidth: 1, borderColor: color.border.hairline, ...elevation.day },
+  boxInner: { flex: 1, alignSelf: 'stretch', borderRadius: 12, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
+  caret: { width: 2, height: 24, borderRadius: 1, backgroundColor: color.action.primary },
+  boxError: { borderWidth: 1.5, borderColor: color.border.error, backgroundColor: color.bg.surface },
   dash: { width: 8, height: 2, borderRadius: 1, backgroundColor: 'rgba(31,27,58,0.2)' },
   hidden: { position: 'absolute', opacity: 0, width: 1, height: 1 },
   segRow: { flexDirection: 'row', padding: 4, gap: 2 },

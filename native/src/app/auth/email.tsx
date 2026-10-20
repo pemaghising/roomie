@@ -1,66 +1,104 @@
+// 02 · Create account (name + email) and 04 · Log in with email.
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Mail } from 'lucide-react-native';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
-import { F } from '@/constants/theme';
+import { StyleSheet, View } from 'react-native';
+import { otpMessage } from '@/lib/otp';
 import { updateDraft, useDraft } from '@/lib/draft';
 import { supabase } from '@/lib/supabase';
-import { Button, C, ErrorText, Field, Screen, StepHeader, Sub, Title } from '@/ui/kit';
+import { useToast } from '@/ui/toast';
+import { color } from '@/ui/tokens';
+import { AppleMark, Button, GoogleMark, Heading, Page, Tap, TextField, Txt } from '@/ui/v2';
+import { Legal } from './index';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const rateLimited = (e: { status?: number; message?: string }) => e.status === 429 || /rate limit/i.test(e.message ?? '');
+
+function Label({ children }: { children: string }) {
+  return <Txt v="Body/Label" style={{ marginBottom: 8 }}>{children}</Txt>;
+}
 
 export default function EmailEntry() {
   const { mode } = useLocalSearchParams<{ mode?: 'create' | 'login' }>();
   const creating = mode !== 'login';
   const router = useRouter();
+  const toast = useToast();
   const draft = useDraft();
   const [name, setName] = useState(draft.name);
   const [email, setEmail] = useState(draft.email);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const soon = () => toast.show('Coming soon. Use your email for now.');
 
   const submit = async () => {
     const contact = email.trim().toLowerCase();
-    if (creating && !name.trim()) return setError('Tell us your name.');
-    if (!EMAIL.test(contact)) return setError('Check that email address.');
+    if (creating && !name.trim()) return setError('Tell us what to call you.');
+    if (!EMAIL.test(contact)) return setError('That email doesn’t look right.');
     setBusy(true);
     try {
       const { error: err } = await supabase.auth.signInWithOtp({ email: contact, options: { shouldCreateUser: true } });
-      if (err) return setError(rateLimited(err) ? 'Too many codes requested. Try again in a minute.' : "We couldn't send a code. Try again.");
-      updateDraft({ name: name.trim(), email: contact });
+      if (err) return setError(otpMessage(err));
+      updateDraft({ name: creating ? name.trim() : draft.name, email: contact, welcomeBack: !creating });
       router.push('/auth/verify');
-    } catch {
-      setError("We couldn't send a code. Check your connection and try again.");
+    } catch (e) {
+      setError(otpMessage(e));
     } finally {
       setBusy(false);
     }
   };
 
+  if (!creating) {
+    return (
+      <Page back footer={<View style={{ gap: 20 }}><Button title="Send me a code" onPress={submit} loading={busy} /><Legal /></View>}>
+        <Heading title="What’s your email?" sub="We’ll pop a code in your inbox." />
+        <View>
+          <TextField icon={Mail} value={email} onChangeText={(t) => { setEmail(t); setError(null); }} placeholder="you@example.com" autoFocus
+            keyboardType="email-address" autoComplete="email" textContentType="emailAddress" autoCapitalize="none" autoCorrect={false}
+            returnKeyType="send" onSubmitEditing={submit} error={!!error} accessibilityLabel="Your email" />
+          {error && <Txt v="Meta" c={color.text.danger} style={{ marginTop: 8 }} accessibilityRole="alert">{error}</Txt>}
+        </View>
+      </Page>
+    );
+  }
+
   return (
-    <Screen footer={
-      <View style={{ gap: 6 }}>
-        <Button title={creating ? 'Sign Up' : 'Send code'} onPress={submit} loading={busy} />
-        <Text style={{ textAlign: 'center', fontFamily: F.regular, color: C.sub, fontSize: 15, paddingVertical: 8 }}>
-          {creating ? 'Already have an account? ' : 'New to Roomie? '}
-          <Text style={{ fontFamily: F.bold, color: C.text }} onPress={() => router.setParams({ mode: creating ? 'login' : 'create' })}>
-            {creating ? 'Log In' : 'Create Account'}
-          </Text>
-        </Text>
+    <Page back gap={20}>
+      <Heading title="Let’s get you settled" sub="Name, email, done. No passwords to forget." />
+      <View>
+        <Label>What should we call you?</Label>
+        <TextField value={name} onChangeText={(t) => { setName(t); setError(null); }} placeholder="Your name" autoCapitalize="words"
+          autoComplete="name" textContentType="name" maxLength={30} returnKeyType="next" accessibilityLabel="What should we call you?" />
+        <Txt v="Meta" c={color.text.secondary} style={{ marginTop: 8 }}>Your roommates will see this. Make it you.</Txt>
       </View>
-    }>
-      <StepHeader step={creating ? 1 : undefined} total={6} />
-      <Title>{creating ? "Let's get started." : 'Welcome back.'}</Title>
-      <Sub>{creating ? "Create an account to join or build your serene household. We'll email you a 6-digit code — no password to remember." : "We'll email you a 6-digit code to sign in."}</Sub>
-      <View style={{ gap: 12, marginTop: 28 }}>
-        {creating && (
-          <Field placeholder="Full Name" value={name} onChangeText={(t) => { setName(t); setError(null); }}
-            autoComplete="name" textContentType="name" autoCapitalize="words" returnKeyType="next" />
-        )}
-        <Field placeholder="Email Address" value={email} onChangeText={(t) => { setEmail(t); setError(null); }}
-          keyboardType="email-address" autoComplete="email" textContentType="emailAddress" autoCapitalize="none"
-          autoCorrect={false} returnKeyType="send" onSubmitEditing={submit} autoFocus={!creating} />
+      <View>
+        <Label>Your email</Label>
+        <TextField value={email} onChangeText={(t) => { setEmail(t); setError(null); }} placeholder="you@example.com"
+          keyboardType="email-address" autoComplete="email" textContentType="emailAddress" autoCapitalize="none" autoCorrect={false}
+          returnKeyType="send" onSubmitEditing={submit} error={!!error} accessibilityLabel="Your email" />
+        {error && <Txt v="Meta" c={color.text.danger} style={{ marginTop: 8 }} accessibilityRole="alert">{error}</Txt>}
       </View>
-      <ErrorText>{error}</ErrorText>
-    </Screen>
+      <Button title="Send my code" onPress={submit} loading={busy} />
+      <View style={styles.or}><View style={styles.rule} /><Txt v="Meta" c={color.text.secondary}>Or</Txt><View style={styles.rule} /></View>
+      <View style={{ gap: 12 }}>
+        <Tap onPress={soon} accessibilityLabel="Continue with Google">
+          <View style={[styles.provider, styles.light]}><GoogleMark /><Txt v="Body/Button">Continue with Google</Txt></View>
+        </Tap>
+        <Tap onPress={soon} accessibilityLabel="Continue with Apple">
+          <View style={[styles.provider, { backgroundColor: '#16131F' }]}><AppleMark /><Txt v="Body/Button" c={color.text.onAccent}>Continue with Apple</Txt></View>
+        </Tap>
+      </View>
+      <View style={{ gap: 14 }}>
+        <Txt v="Body/Default" c={color.text.secondary} style={{ textAlign: 'center' }}>
+          {'Been here before? '}<Txt v="Body/Label" c={color.text.link} onPress={() => router.setParams({ mode: 'login' })}>Log in</Txt>
+        </Txt>
+        <Legal />
+      </View>
+    </Page>
   );
 }
+
+const styles = StyleSheet.create({
+  or: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rule: { flex: 1, height: 1, backgroundColor: 'rgba(31,27,58,0.1)' },
+  provider: { height: 56, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  light: { backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECEAF3' },
+});

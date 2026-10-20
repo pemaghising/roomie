@@ -1,76 +1,52 @@
-import * as Haptics from 'expo-haptics';
+// 09 · Pick chores.
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
-import { F } from '@/constants/theme';
+import type { Effort } from '@domain/types.ts';
 import { updateDraft, useDraft } from '@/lib/draft';
-import { Art } from '@/ui/art';
-import { Button, C, ErrorText, Field, Screen, StepHeader, Sub, Title } from '@/ui/kit';
+import { color } from '@/ui/tokens';
+import { AddRow, Button, ChoreOption, effortKind, Glass, Heading, Page, SegmentedControl, TextField, Txt } from '@/ui/v2';
+
+const CADENCE: Record<string, string> = { daily: 'Daily', weekly: 'Weekly', biweekly: 'Every 2 weeks' };
 
 export default function ChoresStep() {
   const router = useRouter();
   const { chores } = useDraft();
   const [adding, setAdding] = useState(false);
   const [custom, setCustom] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [effort, setEffort] = useState<'1' | '2' | '3'>('2');
+  const picked = chores.filter((c) => c.selected).length;
 
-  const toggle = (key: string) => {
-    Haptics.selectionAsync();
-    updateDraft({ chores: chores.map((c) => (c.key === key ? { ...c, selected: !c.selected } : c)) });
-    setError(null);
-  };
+  const toggle = (key: string) => updateDraft({ chores: chores.map((c) => (c.key === key ? { ...c, selected: !c.selected } : c)) });
   const add = () => {
     const name = custom.trim();
-    if (!name) return setAdding(false);
-    updateDraft({ chores: [...chores, { key: `custom-${Date.now()}`, name, icon: '✨', effort: 2, cadence: 'weekly', selected: true }] });
-    setCustom('');
-    setAdding(false);
-  };
-  const next = () => {
-    if (!chores.some((c) => c.selected)) return setError('Keep at least one chore — you can add more later.');
-    router.push('/onboarding/busy');
+    if (name) updateDraft({ chores: [...chores, { key: `custom-${Date.now()}`, name, icon: '✨', effort: Number(effort) as Effort, cadence: 'weekly', selected: true }] });
+    setCustom(''); setAdding(false);
   };
 
   return (
-    <Screen footer={<Button title="Continue" onPress={next} />}>
-      <StepHeader step={4} total={6} />
-      <View style={{ marginBottom: 12 }}><Art name="chores" width={150} /></View>
-      <Title>{"Let's set up your\nchores."}</Title>
-      <Sub>We've suggested a few basics. Tap to keep or remove them.</Sub>
-      <View style={{ gap: 10, marginTop: 24 }}>
+    <Page back step={3} pinFooter footer={<Button title={picked ? `Continue · ${picked} chore${picked === 1 ? '' : 's'}` : 'Pick at least one'} disabled={!picked} onPress={() => router.push('/onboarding/busy')} />}>
+      <Heading title="Pick your chores" sub="We rotate them by effort, so nobody’s stuck with the bathroom." />
+      <View style={{ gap: 10 }}>
+        <Txt v="Body/Label" c={color.text.secondary}>Most homes start with these</Txt>
         {chores.map((c) => (
-          <Animated.View key={c.key} layout={LinearTransition.duration(240)} entering={FadeIn}>
-            <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: c.selected }} onPress={() => toggle(c.key)}
-              style={({ pressed }) => [styles.row, c.selected ? styles.rowOn : styles.rowOff, pressed && { transform: [{ scale: 0.98 }] }]}>
-              <Text style={{ fontSize: 18 }}>{c.icon}</Text>
-              <Text style={[styles.name, c.selected && { color: C.skyText, fontFamily: F.semibold }]}>{c.name}</Text>
-              <View style={[styles.check, c.selected && styles.checkOn]}>{c.selected && <Text style={styles.tick}>✓</Text>}</View>
-            </Pressable>
+          <Animated.View key={c.key} layout={LinearTransition.springify().damping(26).stiffness(480)} entering={FadeIn.duration(160)}>
+            <ChoreOption icon={c.icon} title={c.name} tag={effortKind(c.effort)} meta={CADENCE[c.cadence]} selected={c.selected} onPress={() => toggle(c.key)} />
           </Animated.View>
         ))}
         {adding ? (
-          <Field autoFocus placeholder="e.g. Water the plants" value={custom} onChangeText={setCustom} maxLength={40}
-            returnKeyType="done" onSubmitEditing={add} onBlur={add} />
-        ) : (
-          <Pressable onPress={() => setAdding(true)} style={({ pressed }) => [styles.add, pressed && { transform: [{ scale: 0.98 }] }]}>
-            <Text style={styles.addText}>+  Add custom chore</Text>
-          </Pressable>
-        )}
+          <Animated.View entering={FadeIn.duration(160)}>
+            <Glass fill={0.62}>
+              <View style={{ padding: 14, gap: 12 }}>
+                <TextField autoFocus value={custom} onChangeText={setCustom} placeholder="Water the plants" maxLength={40} returnKeyType="done" onSubmitEditing={add} accessibilityLabel="Chore name" />
+                <SegmentedControl value={effort} onChange={setEffort} options={[{ value: '1', label: 'Light' }, { value: '2', label: 'Medium' }, { value: '3', label: 'Heavy' }]} />
+                <Button title={custom.trim() ? 'Add chore' : 'Cancel'} kind="secondary" onPress={add} />
+              </View>
+            </Glass>
+          </Animated.View>
+        ) : <AddRow label="Add your own chore" dashed onPress={() => setAdding(true)} />}
       </View>
-      <ErrorText>{error}</ErrorText>
-    </Screen>
+    </Page>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { minHeight: 52, borderRadius: 26, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  rowOn: { backgroundColor: C.sky },
-  rowOff: { backgroundColor: '#FFF', borderWidth: 1, borderColor: C.line },
-  name: { flex: 1, fontSize: 16, color: C.text, fontFamily: F.regular },
-  check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#D1D5DB', alignItems: 'center', justifyContent: 'center' },
-  checkOn: { backgroundColor: C.text, borderColor: C.text },
-  tick: { color: '#FFF', fontSize: 12, fontFamily: F.bold },
-  add: { height: 52, borderRadius: 26, backgroundColor: C.lavender, alignItems: 'center', justifyContent: 'center' },
-  addText: { fontSize: 15, color: C.lavenderText, fontFamily: F.semibold },
-});

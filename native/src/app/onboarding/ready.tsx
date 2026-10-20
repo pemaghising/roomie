@@ -1,58 +1,57 @@
+// 13 · All set: the first win after setup.
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
-import { F } from '@/constants/theme';
-import { firstWeek } from '@/lib/first-week';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
+import { haptic } from '@/ui/haptics';
 import { useAppState } from '@/lib/state';
-import { Art } from '@/ui/art';
-import { Button, C, Screen } from '@/ui/kit';
+import { useReducedMotion } from '@/ui/motion';
+import { color } from '@/ui/tokens';
+import { Avatar, Button, ChoreOption, effortKind, Page, Txt } from '@/ui/v2';
 
-function Tile({ value, label }: { value: number; label: string }) {
-  return (
-    <View style={styles.tile} accessible accessibilityLabel={`${value} ${label}`}>
-      <Text style={styles.tileValue}>{value}</Text>
-      <Text style={styles.tileLabel}>{label}</Text>
-    </View>
-  );
-}
-
-/** The first win: setup is over, here is what Roomie made for you. */
 export default function Ready() {
   const router = useRouter();
+  const reduced = useReducedMotion();
   const { data } = useAppState();
+  useEffect(() => { haptic.allDone(); }, []);
   const me = data?.profile.id;
-  const w = data?.household && me ? firstWeek(data, me) : null;
-
+  const mine = (data?.assignments ?? []).filter((a) => a.user_id === me && a.status === 'todo').sort((a, b) => a.day.localeCompare(b.day))[0];
+  const chore = mine && data?.chores.find((c) => c.id === mine.chore_id);
+  const when = mine && data ? (mine.day === data.today ? 'tonight' : new Date(`${mine.day}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'long' })) : '';
+  const members = data?.members ?? [];
   return (
-    <Screen scroll={false} footer={<Button title="Let's go" onPress={() => router.replace('/')} disabled={!w} />}>
-      <View style={styles.center}>
-        <Animated.View entering={ZoomIn.duration(300)}><Art name="trophy" width={240} /></Animated.View>
-        <Animated.View entering={FadeInDown.delay(150).duration(280)} style={{ alignItems: 'center' }}>
-          <Text style={styles.title}>{'Your first week\nis ready.'}</Text>
-          {!w ? <ActivityIndicator color={C.lavenderText} style={{ marginTop: 20 }} /> : (
-            <>
-              <Text style={styles.sub}>
-                {w.planned ? 'Chores are shared out fairly by effort, and heavy ones stay off your busy days.' : 'Your plan is being made. It will show up on Home in a few minutes.'}
-              </Text>
-              <View style={styles.tiles}>
-                <Tile value={w.chores} label={w.chores === 1 ? 'chore' : 'chores'} />
-                <Tile value={w.roommates} label={w.roommates === 1 ? 'person' : 'people'} />
-                {w.planned && <Tile value={w.myTurns} label="your turns" />}
-              </View>
-            </>
-          )}
-        </Animated.View>
+    <Page footer={<Button title="Take me home" onPress={() => router.replace('/')} />} gap={20}>
+      <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(16).stiffness(420)} style={{ alignItems: 'center' }}>
+        <Image source={require('../../../assets/art/all-set.png')} style={styles.art} contentFit="contain" />
+      </Animated.View>
+      <View style={{ gap: 8, alignItems: 'center' }}>
+        <Txt v="Title/Onboarding" style={{ textAlign: 'center' }} accessibilityRole="header">{`Welcome home, ${data?.profile.name ?? ''}`}</Txt>
+        <Txt v="Body/Default" c={color.text.secondary} style={{ textAlign: 'center' }}>Here’s your first chore. The rest can wait.</Txt>
       </View>
-    </Screen>
+      {chore ? (
+        <ChoreOption icon={chore.icon} title={chore.name} tag={effortKind(chore.effort)} meta={`Your turn · ${when}`} selected={false} onPress={() => router.replace('/')} />
+      ) : (
+        <View style={{ alignItems: 'center', gap: 8 }}>
+          <ActivityIndicator color={color.action.primary} />
+          <Txt v="Meta" c={color.text.secondary}>Your first week is being planned.</Txt>
+        </View>
+      )}
+      <View style={styles.mates}>
+        <View style={{ flexDirection: 'row' }}>
+          {members.slice(0, 3).map((m, i) => <View key={m.user_id} style={{ marginLeft: i ? -8 : 0 }}><Avatar name={m.name} size={36} tint={color.bg.tint} /></View>)}
+          {members.length < 3 && Array.from({ length: 3 - members.length }, (_, i) => <View key={i} style={styles.empty} />)}
+        </View>
+        <Txt v="Body/Default" c={color.text.secondary} style={{ flex: 1 }}>
+          {members.length <= 1 ? 'Your roommates can move in with your code' : `${members.length} of you here so far`}
+        </Txt>
+      </View>
+    </Page>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
-  title: { fontSize: 34, lineHeight: 40, color: C.text, fontFamily: F.display, textAlign: 'center', marginTop: 8 },
-  sub: { fontSize: 15, lineHeight: 22, color: C.sub, fontFamily: F.regular, textAlign: 'center', marginTop: 10, maxWidth: 300 },
-  tiles: { flexDirection: 'row', gap: 10, marginTop: 24 },
-  tile: { minWidth: 92, backgroundColor: C.lavender, borderRadius: 20, paddingVertical: 14, paddingHorizontal: 12, alignItems: 'center' },
-  tileValue: { fontSize: 30, color: C.lavenderText, fontFamily: F.display },
-  tileLabel: { fontSize: 12, color: C.lavenderText, fontFamily: F.semibold },
+  art: { width: 345, height: 230 },
+  mates: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  empty: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderStyle: 'dashed', borderColor: 'rgba(122,95,214,0.45)', marginLeft: -8 },
 });

@@ -1,7 +1,7 @@
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, useFonts } from '@expo-google-fonts/inter';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
 import { Geist_300Light, Geist_400Regular, Geist_500Medium, Geist_600SemiBold } from '@expo-google-fonts/geist';
-import { font } from '@/ui/tokens';
+import { color, font } from '@/ui/tokens';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -42,7 +42,8 @@ function redirectFor(gate: Gate, [group, page]: string[]): string | null {
     case 'signed_out': return group === 'auth' ? null : '/auth';
     case 'needs_profile': return group === 'onboarding' && page === 'profile' ? null : '/onboarding/profile';
     case 'needs_household': return group === 'onboarding' && page !== 'profile' ? null : '/onboarding/start';
-    case 'ready': return group === 'auth' || (group === 'onboarding' && page !== 'invite' && page !== 'ready') ? '/' : null;
+    // right after setup: 06 welcome back, 12 invite and 13 all set stay reachable
+    case 'ready': return (group === 'auth' && page !== 'welcome-back') || (group === 'onboarding' && page !== 'invite' && page !== 'ready') ? '/' : null;
     default: return null;
   }
 }
@@ -76,7 +77,7 @@ function Root() {
     );
   }
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFF' } }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.canvas }, animation: 'ios_from_right', animationDuration: 260 }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="activity" />
       <Stack.Screen name="add-chore" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.75, 1], sheetCornerRadius: 28 }} />

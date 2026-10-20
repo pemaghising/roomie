@@ -1,12 +1,31 @@
+// 07 · New or join.
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { ChevronRight } from 'lucide-react-native';
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { F } from '@/constants/theme';
+import { StyleSheet, View } from 'react-native';
+import { signOut } from '@/lib/auth';
 import { updateDraft } from '@/lib/draft';
 import { takePendingInvite } from '@/lib/invite';
-import { signOut } from '@/lib/auth';
-import { Button, C, Screen, StepHeader, Sub, Title } from '@/ui/kit';
+import { color } from '@/ui/tokens';
+import { Glass, Heading, Page, Tap, Txt } from '@/ui/v2';
+
+function Path({ art, tile, title, body, chevron, onPress }: { art: number; tile: string; title: string; body: string; chevron: string; onPress: () => void }) {
+  return (
+    <Tap onPress={onPress} accessibilityLabel={`${title}. ${body.replace('\n', ' ')}`}>
+      <Glass fill={0.62}>
+        <View style={styles.path}>
+          <View style={[styles.tile, { backgroundColor: tile }]}><Image source={art} style={styles.art} contentFit="contain" /></View>
+          <View style={{ flex: 1, gap: 4 }}>
+            <Txt v="Body/Button">{title}</Txt>
+            <Txt v="Body/Default" c={color.text.secondary}>{body}</Txt>
+          </View>
+          <ChevronRight size={18} color={chevron} strokeWidth={2} />
+        </View>
+      </Glass>
+    </Tap>
+  );
+}
 
 export default function Start() {
   const router = useRouter();
@@ -20,38 +39,19 @@ export default function Start() {
     router.push(mode === 'create' ? '/onboarding/home-name' : '/onboarding/join');
   };
   return (
-    <Screen footer={<Button title="Use a different account" variant="ghost" onPress={signOut} />}>
-      <StepHeader step={2} total={6} back={false} />
-      <Title>Your space.</Title>
-      <Sub>Each peaceful home begins with clear intentions. Choose how you want to set up your shared world.</Sub>
-      <View style={{ gap: 16, marginTop: 32 }}>
-        <Card i={0} title="Create a new home" body="Establish a fresh shared sanctuary and invite your roommates to collaborate."
-          bg={C.lavender} fg={C.lavenderText} onPress={() => go('create')} />
-        <Card i={1} title="Join an existing home" body="Enter your household code to seamlessly step into an established shared community."
-          bg={C.peach} fg={C.peachText} onPress={() => go('join')} />
+    <Page back={signOut} step={1}>
+      <Heading title="Start or join a home" sub="Set up a new one, or move into theirs." />
+      <View style={{ gap: 12 }}>
+        <Path art={require('../../../assets/art/start-home.png')} tile="#EFE9FD" title="Start a home" body={'Set it up your way,\nwe keep it fair.'} chevron={color.icon.default} onPress={() => go('create')} />
+        <Path art={require('../../../assets/art/join-home.png')} tile="#FFE3D3" title="Join a home" body={'Got an invite code?\nPop it in here.'} chevron={color.text.danger} onPress={() => go('join')} />
       </View>
-    </Screen>
-  );
-}
-
-function Card({ i, title, body, bg, fg, onPress }: { i: number; title: string; body: string; bg: string; fg: string; onPress: () => void }) {
-  return (
-    <Animated.View entering={FadeInDown.delay(80 + i * 70).duration(240)}>
-      <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.card, { backgroundColor: bg }, pressed && { transform: [{ scale: 0.98 }] }]}>
-        <View style={styles.row}>
-          <Text style={[styles.title, { color: fg }]}>{title}</Text>
-          <View style={styles.arrow}><Text style={{ color: fg, fontSize: 16, fontFamily: F.bold }}>→</Text></View>
-        </View>
-        <Text style={[styles.body, { color: fg }]}>{body}</Text>
-      </Pressable>
-    </Animated.View>
+      <Txt v="Body/Default" c={color.text.secondary} style={{ textAlign: 'center', marginTop: 8 }}>Not sure yet? You can switch homes later.</Txt>
+    </Page>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 28, padding: 24, gap: 10 },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 22, fontFamily: F.display, flex: 1 },
-  arrow: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center', justifyContent: 'center' },
-  body: { fontSize: 15, lineHeight: 22, fontFamily: F.regular, opacity: 0.85 },
+  path: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
+  tile: { width: 72, height: 72, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  art: { width: 58, height: 58 },
 });

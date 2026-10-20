@@ -75,7 +75,8 @@ export function useChoreActions() {
   return { toggle, claim, celebration, closeCelebration: () => setCelebration(null) };
 }
 
-export const formatCode = (code: string) => `${code.slice(0, 3)} ${code.slice(3)}`;
+/** "A3F‑92K", with a non-breaking hyphen so it never splits across lines (frame 12). */
+export const formatCode = (code: string) => `${code.slice(0, 3)}‑${code.slice(3)}`;
 
 /** Same /j/<code> link the web app already resolves; opens the join flow. */
 export const inviteLink = (code: string) => `https://roomie-theta.vercel.app/j/${code}`;
