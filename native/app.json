@@ -20,7 +20,11 @@
         "backgroundImage": "./assets/brand/android-background.png",
         "monochromeImage": "./assets/brand/android-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "output": "single",
@@ -63,6 +67,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e154203c-23cd-4717-9ca1-2f884fffbdd5"
+      }
+    },
+    "owner": "pemaghising"
   }
 }
