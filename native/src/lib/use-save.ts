@@ -1,7 +1,7 @@
 // The save button on the settings screens: runs the write, refreshes the state, says so, and goes back.
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useToast } from '@/ui/toast';
 import { messageOf, STATE_KEY } from './state';
 
@@ -10,18 +10,22 @@ export function useSave(write: () => Promise<unknown>, done = 'Saved.', { stay =
   const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
+  const running = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const run = async () => {
-    if (busy) return;
+    if (running.current) return;
+    running.current = true;
     setBusy(true);
     setError(null);
     try {
       await write();
       await qc.invalidateQueries({ queryKey: STATE_KEY });
       toast.show(done, { tick: true });
+      running.current = false;
       if (stay) setBusy(false);
       else router.back();
     } catch (e) {
+      running.current = false;
       setError(messageOf(e));
       setBusy(false);
     }

@@ -1,7 +1,7 @@
 // Local reminders for today's chores, in the person's chosen tone. Scheduled on the phone, so they work in Expo Go.
 
 export type NudgeStyle = 'motivate' | 'facts';
-export interface Nudge { id: string; title: string; body: string; at: Date }
+export interface Nudge { id: string; title: string; body: string; at: Date; url?: string }
 
 /** Minutes the zone is ahead of UTC on that date ("GMT+05:45" → 345). */
 function offsetMinutes(tz: string, at: Date): number {

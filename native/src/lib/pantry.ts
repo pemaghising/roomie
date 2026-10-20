@@ -74,16 +74,15 @@ export function usePantryActions() {
       stock.mutate({ p_id: i.id, p_stock });
       toast.show(`${i.name} marked as ${STOCK_LABEL[p_stock].replace('Running low', 'Low')}`, { action: { label: 'Undo', onPress: () => stock.mutate({ p_id: i.id, p_stock: was }) } });
     },
-    /** "I'll get it": claim the open request, or open one and claim it in the same tap. */
-    getIt: async (s: AppState, i: PantryItem, me: string) => {
+    /** "I'll get it": claims the open request, or opens one already claimed, without pinging the house. */
+    getIt: async (_s: AppState, i: PantryItem, _me: string) => {
       tap();
-      const r = openRestockFor(s.restocks, i.id);
-      if (r) return claim.mutate({ p_id: r.id, me });
       try {
-        const id = await rpc<string>('request_restock', { p_item: i.id, p_effort: 1 });
-        claim.mutate({ p_id: id, me });
+        await rpc('get_restock', { p_item: i.id });
+        toast.show(`${i.name} is yours to pick up. Thanks.`, { tick: true });
       } catch (e) {
         toast.show(messageOf(e));
+      } finally {
         await qc.invalidateQueries({ queryKey: STATE_KEY });
       }
     },

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { houseWeek, memberWeek, weekRecap, weekStates } from './recap';
+import { houseWeek, memberWeek, recapDay, weekRecap, weekStates } from './recap';
 import type { AppState } from './types';
 
 const member = (id: string, name: string) => ({ user_id: id, name, color: '#fff', role: 'member' as const, busy_days: [] });
@@ -81,4 +81,9 @@ test('weekStates judges any week with the given task source, never the future', 
   expect(past).toEqual(['kept', 'missed', 'none', 'none', 'none', 'none', 'none']);
   const next = weekStates(s, '2026-10-11', () => [a('3', 'me', '2026-10-11', 'todo')] as never);
   expect(next).toEqual(['future', 'future', 'future', 'future', 'future', 'future', 'future']);
+});
+
+test('on Sunday the recap looks back at the week that just ended', () => {
+  expect(recapDay('2026-10-25')).toBe('2026-10-24'); // Sunday → Saturday, the last day of last week
+  expect(recapDay('2026-10-22')).toBe('2026-10-22');
 });

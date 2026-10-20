@@ -62,6 +62,25 @@ describe.skipIf(!hasDb)('srv_* server functions', () => {
     expect(all).toHaveLength(1);
   }, 30_000);
 
+  test('srv_insert_plan never gives a chore the same day twice, even from another plan (old Monday weeks)', async () => {
+    const u = await makeUser('DupWeek');
+    userIds.push(u.id);
+    const h = await seedHousehold(u.id);
+    householdIds.push(h);
+    const today = localParts(new Date(), 'Asia/Kathmandu').date;
+    const week = weekStartOf(today);
+    // a folded Monday-first plan filed under last Sunday that already holds today's turn
+    const [aid] = await seedPlan(h, addDays(week, -7), [{ userId: u.id, day: today }]);
+    const { data: existing } = await admin().from('assignments').select('chore_id').eq('id', aid).single();
+    const { error } = await admin().rpc('srv_insert_plan', {
+      p_household: h, p_week: week, p_status: 'locked', p_consume: false, p_only_if_new: false,
+      p_assignments: [{ choreId: existing!.chore_id, userId: u.id, day: today, effort: 1, reason: {} }],
+    });
+    expect(error).toBeNull();
+    const { data: all } = await admin().from('assignments').select('id').eq('household_id', h).eq('day', today);
+    expect(all).toHaveLength(1);
+  }, 30_000);
+
   test('srv_sweep_day queues ONE pool notification per member, listing the chores, never to the person who missed them', async () => {
     const [a, b, c] = await Promise.all([makeUser('PoolA'), makeUser('PoolB'), makeUser('PoolC')]);
     userIds.push(a.id, b.id, c.id);

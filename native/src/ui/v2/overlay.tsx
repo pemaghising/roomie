@@ -113,7 +113,8 @@ export function MoreMenu({ items, label, size = 32, plain }: { items: MenuItem[]
     t.value = 0;
     t.value = reduced ? 1 : withSpring(1, motion.pop);
   });
-  const close = (then?: () => void) => { setAt(null); then?.(); };
+  // iOS won't present an Alert while a Modal is dismissing, so the action waits for the Modal to go
+  const close = (then?: () => void) => { setAt(null); if (then) setTimeout(then, 320); };
   const card = useAnimatedStyle(() => ({ opacity: Math.min(1, t.value * 1.6), transform: [{ scale: 0.9 + 0.1 * t.value }] }));
   const veil = useAnimatedStyle(() => ({ opacity: Math.min(1, t.value * 1.4) }));
   const { width } = useWindowDimensions();

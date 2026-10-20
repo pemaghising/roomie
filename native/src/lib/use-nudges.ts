@@ -28,13 +28,13 @@ export function useNudges(s: AppState | undefined) {
       // the weekly recap: this coming Sunday at 7 pm
       if (prefs.recap) {
         const sunday = addDays(s.today, (7 - weekdayOf(s.today)) % 7);
-        nudges.push({ id: `recap-${sunday}`, title: 'Roomie', body: 'Your week in the house is wrapped. Take a look.', at: sevenPm(sunday, s.household!.tz) });
+        nudges.push({ id: `recap-${sunday}`, title: 'Roomie', body: 'Your week in the house is wrapped. Take a look.', at: sevenPm(sunday, s.household!.tz), url: '/recap' });
       }
       for (const n of nudges) {
         if (n.at.getTime() <= Date.now() || isQuiet(quiet, n.at.getHours())) continue;
         await Notifications.scheduleNotificationAsync({
           identifier: PREFIX + n.id,
-          content: { title: n.title, body: n.body, data: { url: '/' } },
+          content: { title: n.title, body: n.body, data: { url: n.url ?? '/' } },
           trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: n.at },
         });
       }

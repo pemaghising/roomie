@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { avatarUrl } from '@/lib/avatar';
-import { weekRecap } from '@/lib/recap';
+import { recapDay, weekRecap } from '@/lib/recap';
 import { memberShares } from '@/lib/roommates';
 import { useMe, withHousehold } from '@/lib/state';
 import { haptic } from '@/ui/haptics';
@@ -17,8 +17,9 @@ export default withHousehold(Recap);
 
 function Recap() {
   const { state } = useMe();
-  const r = weekRecap(state);
-  const shares = new Map(memberShares(state).map((m) => [m.user_id, m.label]));
+  const week = { ...state, today: recapDay(state.today) };
+  const r = weekRecap(week);
+  const shares = new Map(memberShares(week).map((m) => [m.user_id, m.label]));
   const card = useRef<View>(null);
   const [busy, setBusy] = useState(false);
 

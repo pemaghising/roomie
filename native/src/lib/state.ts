@@ -63,6 +63,8 @@ export function useAction<A extends Record<string, unknown>>(
   const qc = useQueryClient();
   const toast = useToast();
   const mutation = useMutation({
+    // one queue per RPC: a flag and its Undo reach the server in the order they were tapped
+    scope: { id: fn },
     mutationFn: (args: A) => rpc(fn, pickP(args)),
     onMutate: async (args: A) => {
       await qc.cancelQueries({ queryKey: STATE_KEY });

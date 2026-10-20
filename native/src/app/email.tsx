@@ -34,10 +34,12 @@ export default function Email() {
   const verify = async (token = code) => {
     if (busy || token.length !== 6) return;
     setBusy(true);
-    const { error: e } = await supabase.auth.verifyOtp({ email: clean, token, type: 'email_change' });
+    const { data, error: e } = await supabase.auth.verifyOtp({ email: clean, token, type: 'email_change' });
     setBusy(false);
     if (e) return setError(otpMessage(e));
-    toast.show('Email updated.', { tick: true });
+    // with double confirm on, the change also waits for the current address to say yes
+    if (data.user?.email?.toLowerCase() !== clean) toast.show('Nearly there. Confirm from your current email too, then it switches.', { duration: 6000 });
+    else toast.show('Email updated.', { tick: true });
     router.back();
   };
 

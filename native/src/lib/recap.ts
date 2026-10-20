@@ -1,4 +1,4 @@
-import { addDays, weekStartOf } from '@domain/time.ts';
+import { addDays, weekdayOf, weekStartOf } from '@domain/time.ts';
 import type { AppState, Assignment } from './types';
 
 export interface WeekRecap {
@@ -12,6 +12,9 @@ export interface WeekRecap {
 }
 
 /** The household's week so far: chores done vs. due up to today. A covered chore counts for whoever claimed it. */
+/** The day the recap reads from: on Sunday evening the week that just ended, otherwise today. */
+export const recapDay = (today: string) => (weekdayOf(today) === 0 ? addDays(today, -1) : today);
+
 export function weekRecap(s: AppState): WeekRecap {
   const weekStart = weekStartOf(s.today);
   const planIds = new Set(s.plans.filter((p) => p.week_start === weekStart).map((p) => p.id));
