@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="public/brand/logo-roomie.webp" alt="Roomie" height="56">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../.github/assets/logo-roomie-dark.webp">
+  <img src="public/brand/logo-roomie.webp" alt="Roomie" height="56">
+</picture>
 
 ### The Roomie website
 
