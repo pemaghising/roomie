@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+<img src="public/brand/logo-roomie.webp" alt="Roomie" height="56">
 
-First, run the development server:
+### The Roomie website
+
+**Live:** [roomie-site-sigma.vercel.app](https://roomie-site-sigma.vercel.app)
+
+</div>
+
+The marketing site for Roomie, the chore app that splits chores by effort and does the reminding itself. It sells to flatmates in one scroll:
+
+1. **Hero:** the promise, with a real moment from a shared flat.
+2. **Sound familiar?** The group-chat argument every flat knows.
+3. **Fair isn't equal:** why a 2-minute trash run isn't a 45-minute bathroom.
+4. **Features:** a pinned, sideways tour of seven real app screens.
+5. **How it works:** one week at Parijat Chowk Flat, told phone by phone.
+6. **Real life, the pantry, and the close:** the house plant grows as you scroll.
+
+## Stack
+
+Next.js 16 (App Router, static export) · React 19 · TypeScript · GSAP with ScrollTrigger · Lenis smooth scroll · self-hosted Fraunces and Geist.
+
+Motion respects `prefers-reduced-motion`: pinned sections become plain stacked layouts, with nothing hidden.
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
+npm run build        # static export to out/
+python tests/check_site.py   # 14 browser checks against out/ (Playwright)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── app/          layout, global tokens, page order
+├── sections/     one file per section (Hero, Features, Week, ...)
+└── ui/           Phone frame, pop-out cards, store buttons, smooth scroll
+public/
+├── screens/      real app screens, exported at 2x from Figma
+├── cards/        cards that lift out of the phones
+└── photos/       brand photography
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Part of the [Roomie](../README.md) project by Pema Ghising.
