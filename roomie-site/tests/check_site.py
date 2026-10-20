@@ -102,7 +102,7 @@ def test_store_buttons(browser):
 
 
 # ---------------------------------------------------------------- Task 3
-H1 = "Nobody should have to be the one who asks."
+H1 = "Fair chores. Zero nagging."
 BUBBLES = ["whose turn is the bathroom??", "again? 🙃", "I'll just do it."]
 
 
@@ -123,8 +123,13 @@ def test_hero(browser):
     assert order[:3] == ["hero", "problem", "effort"], order
     # A real-looking device: rim, bezel, camera island and side buttons around the screen.
     ph = hero.locator(".phone").first
-    for part in (".island", ".btn-l", ".btn-r", ".glare"):
+    for part in (".btn-l", ".btn-r", ".glare"):
         assert ph.locator(part).count() >= 1, f"phone missing {part}"
+    assert page.locator("main .island").count() == 0, "no notch on any phone"
+    # One call to action: the store buttons. The top bar carries quiet section links, not a second 'Coming soon'.
+    bar = hero.locator(".topbar")
+    assert bar.get_by_text("Coming soon").count() == 0, "duplicate 'Coming soon' in the top bar"
+    assert [t.strip() for t in bar.locator("nav a").all_inner_texts()] == ["How it works", "The pantry"], bar.locator("nav a").all_inner_texts()
     assert hero.get_by_role("button", name="Coming soon on the App Store").count() == 1
     assert not errors, f"console errors: {errors}"
 
@@ -177,8 +182,10 @@ def test_week(browser):
     days = sec.locator(".day")
     assert days.count() == 5, days.count()
     for i, (day, title, _) in enumerate(WEEK):
-        assert days.nth(i).locator(".day-name").inner_text().strip() == day
+        assert days.nth(i).locator(".day-name").inner_text().strip().startswith(day)
         assert days.nth(i).locator("h3").inner_text().strip() == title
+        assert days.nth(i).locator(".node svg").count() == 1, f"day {i} has no icon node"
+        assert days.nth(i).locator(".who").count() == 1, f"day {i} has no flatmate chip"
     # desktop: a pinned timeline; scrolling through the section steps the active day and the phone's screen
     top, height = page.evaluate("(() => { const r = document.querySelector('#week .timeline-wrap').getBoundingClientRect(); return [r.top + scrollY, r.height]; })()")
     span = height - 900

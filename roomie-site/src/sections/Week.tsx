@@ -2,10 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Phone } from "@/ui/Phone";
-import { WEEK } from "./week-data";
+import { WEEK, type Icon } from "./week-data";
 import "./week.css";
 
 const PINNED = "(min-width: 821px) and (prefers-reduced-motion: no-preference)";
+
+/** Line icons for each moment, drawn in the app's nav style. */
+const ICONS: Record<Icon, React.ReactNode> = {
+  calendar: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 10h18M8 15h3" /></>,
+  slip: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+  hand: <path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11m0-1V4.5a1.5 1.5 0 0 1 3 0V11m0-1V6a1.5 1.5 0 0 1 3 0v6.5a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15l-1.2-2.4a1.5 1.5 0 0 1 2.6-1.5L7 13" />,
+  bag: <><path d="M5 8h14l-1 12H6L5 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></>,
+  sprout: <><path d="M12 21v-8" /><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6Z" /><path d="M12 15c0-3-2.5-5-6-5 0 3 2.5 5 6 5Z" /></>,
+};
 
 export function Week() {
   const [active, setActive] = useState(0);
@@ -55,9 +64,17 @@ export function Week() {
             <ol className="days">
             {WEEK.map((d, i) => (
               <li key={d.day} className={`day ${active === i ? "is-active" : ""} ${i < active ? "is-done" : ""}`}>
-                <span className="day-name">{d.day}</span>
-                <h3>{d.title}</h3>
-                <p>{d.body}</p>
+                <span className="node" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{ICONS[d.icon]}</svg>
+                </span>
+                <div className="day-box">
+                  <span className="day-name">{d.day} · {d.time}</span>
+                  <h3>{d.title}</h3>
+                  <p>{d.body}</p>
+                  <span className={`who who--${d.who === "The house" ? "house" : d.who.toLowerCase()}`}>
+                    <i aria-hidden="true">{d.who === "The house" ? "⌂" : d.who[0]}</i>{d.who}
+                  </span>
+                </div>
                 <div className="day-inline">
                   <Phone src={d.screen} alt={`${d.day}: ${d.title}`} />
                 </div>
@@ -76,7 +93,6 @@ export function Week() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img key={d.screen} className={`screen ${active === i ? "on" : ""}`} src={d.screen} alt="" width={393} height={852} loading={i === 0 ? "eager" : "lazy"} />
                   ))}
-                  <span className="island" />
                   <span className="glare" />
                 </span>
               </figure>

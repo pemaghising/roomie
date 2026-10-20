@@ -32,15 +32,18 @@ export function Hero() {
         <img className="logo" src="/brand/mascot.webp" alt="" width={36} height={36} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="wordmark" src="/brand/wordmark.svg" alt="Roomie" width={104} height={28} />
-        <span className="soon">Coming soon</span>
+        <nav className="topnav" aria-label="Sections">
+          <a href="#week">How it works</a>
+          <a href="#shelf">The pantry</a>
+        </nav>
       </header>
 
       <div className="hero-grid wrap">
         <div className="hero-copy">
           <p className="eyebrow">For everyone who shares a home</p>
-          <h1>Nobody should have to be the one who asks.</h1>
+          <h1>Fair chores. <span className="nb">Zero nagging.</span></h1>
           <p className="lede">
-            Roomie splits chores by effort, works around busy weeks, and does the reminding, so nobody has to play the parent.
+            Roomie splits chores by effort, works around busy weeks, and sends the reminders itself, so nobody in the flat has to play the parent.
           </p>
           <StoreButtons />
         </div>
