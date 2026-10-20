@@ -20,6 +20,10 @@ describe('buildDemoHousehold', () => {
     expect(efforts).toEqual(new Set([1, 2, 3]));
   });
 
+  test('plans lock on their own: there is no weekly review step', () => {
+    expect(seed.household.planMode).toBe('auto');
+  });
+
   test('the house streak is 23 days', () => {
     expect(seed.streakDays).toBe(23);
   });

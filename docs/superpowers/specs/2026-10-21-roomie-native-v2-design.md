@@ -83,7 +83,8 @@ Skills used along the way:
 ## Answers (2026-10-21)
 
 **Decided by Pema:**
-- **Screens with no Figma frame** (kudos, recap, swap, plan review, activity, request sent): restyle them in the v2 language from the same components, and add their designs to Figma afterwards. The paywall is hidden.
+- **Screens with no Figma frame** (kudos, recap, activity, request sent): restyle them in the v2 language from the same components, and add their designs to Figma afterwards. The paywall is hidden.
+- **Not Roomie features (removed, 2026-10-21):** the Sunday plan-review step and chore swaps. Plans are generated already locked (`plan_mode = 'auto'`, migration 21). The `plan` and `swap` routes and every entry point to them go. The activity feed stays.
 - **Testing:** on Pema's iPhone, with a seed script for a demo household (Pema/Ramesh, Priya, Aman, chores, pantry, a few weeks of history). Creating a fresh home still works.
 - **Review:** per phase. At the end of each phase, show screenshots plus an Expo Go QR code, then continue.
 

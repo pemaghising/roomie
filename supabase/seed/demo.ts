@@ -6,7 +6,7 @@ export type Effort = 1 | 2 | 3;
 export type Cadence = 'daily' | 'weekly';
 
 export interface DemoSeed {
-  household: { name: string; tz: 'Asia/Kathmandu' };
+  household: { name: string; tz: 'Asia/Kathmandu'; planMode: 'auto' };
   members: { name: string; email: string; role: 'owner' | 'member'; color: string; busyDays: Weekday[] }[];
   chores: { name: string; icon: string; effort: Effort; cadence: Cadence }[];
   pantry: { name: string; icon: string; shared: boolean; owner?: string; tag?: 'do_not_touch' | 'ask_first'; status: 'in_stock' | 'low' | 'out' }[];
@@ -53,7 +53,7 @@ export function buildDemoHousehold(today: string, ownerEmail: string): DemoSeed 
     assignments.push({ chore, member, day, status: status(day) });
   }
   return {
-    household: { name: 'Parijat Chowk Flat', tz: 'Asia/Kathmandu' },
+    household: { name: 'Parijat Chowk Flat', tz: 'Asia/Kathmandu', planMode: 'auto' },
     members,
     chores: CHORES,
     pantry: [

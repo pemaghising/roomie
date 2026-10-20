@@ -51,7 +51,7 @@ for (const m of seed.members) {
 }
 const owner = ids[seed.members[0].name];
 
-const household = must(await db.from('households').insert({ name: seed.household.name, invite_code: 'A3F92K', tz }).select('id').single(), 'household');
+const household = must(await db.from('households').insert({ name: seed.household.name, invite_code: 'A3F92K', tz, plan_mode: seed.household.planMode }).select('id').single(), 'household');
 const h = household.id as string;
 must(await db.from('members').insert(seed.members.map((m) => ({ household_id: h, user_id: ids[m.name], role: m.role, busy_days: m.busyDays }))), 'members');
 must(await db.from('effort_ledger').insert(seed.members.map((m) => ({ household_id: h, user_id: ids[m.name], balance: 0 }))), 'ledger');
