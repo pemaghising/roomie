@@ -1,7 +1,10 @@
-const STAGES = 8;
+export type PlantStage = 'seed' | 'sprout' | 'leafy' | 'bud' | 'bloom' | 'droop';
 
-/** One growth stage per streak day: the egg at 0, fully grown from day 7 (same art and rule as web). */
-export const stageFor = (streak: number) => Math.min(STAGES, Math.max(1, Math.floor(streak) + 1));
+/** The house plant grows only at milestones (3, 7, 14, 30 days) and droops while a chore is waiting. */
+export function plantFor(streakDays: number, drooped: boolean): PlantStage {
+  if (drooped) return 'droop';
+  return streakDays >= 30 ? 'bloom' : streakDays >= 14 ? 'bud' : streakDays >= 7 ? 'leafy' : streakDays >= 3 ? 'sprout' : 'seed';
+}
 
 export const MILESTONES = [3, 7, 14, 30, 50, 100] as const;
 

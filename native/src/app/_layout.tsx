@@ -8,7 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { F } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/lib/auth';
@@ -37,6 +37,7 @@ function useGate(): Gate {
 
 /** Where a gate may be, and where to send it otherwise. Invite stays reachable right after creating a home. */
 function redirectFor(gate: Gate, [group, page]: string[]): string | null {
+  if (group === 'kit' && __DEV__) return null; // component kit, dev builds only
   switch (gate) {
     case 'signed_out': return group === 'auth' ? null : '/auth';
     case 'needs_profile': return group === 'onboarding' && page === 'profile' ? null : '/onboarding/profile';
@@ -54,7 +55,8 @@ function Root() {
   useRealtime(gate === 'ready' ? state.data?.household?.id : undefined);
 
   // tapping a reminder opens the screen it names (the server sends paths like /chores or /plan)
-  const tapped = Notifications.useLastNotificationResponse();
+  // native only: notifications don't exist on the web build used for screenshots (Platform.OS is fixed per build)
+  const tapped = Platform.OS === 'web' ? null : Notifications.useLastNotificationResponse();
   useEffect(() => {
     const url = tapped?.notification.request.content.data?.url;
     if (gate === 'ready' && typeof url === 'string' && url.startsWith('/')) router.push(url as never);

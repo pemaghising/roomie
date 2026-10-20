@@ -1,9 +1,15 @@
 import { expect, test } from 'vitest';
-import { milestoneState, stageFor } from './plant';
+import { milestoneState, plantFor } from './plant';
 
-test('the plant has one stage per streak day, from the egg at 0 to fully grown from day 7', () => {
-  expect([0, 1, 6, 7, 20].map(stageFor)).toEqual([1, 2, 7, 8, 8]);
-  expect(stageFor(-3)).toBe(1);
+test('the plant only changes at the 3, 7, 14 and 30 day milestones', () => {
+  expect([0, 2, 3, 6, 7, 13, 14, 29, 30, 120].map((d) => plantFor(d, false)))
+    .toEqual(['seed', 'seed', 'sprout', 'sprout', 'leafy', 'leafy', 'bud', 'bud', 'bloom', 'bloom']);
+  expect(plantFor(-3, false)).toBe('seed');
+});
+
+test('a waiting chore droops the plant whatever its size', () => {
+  expect(plantFor(23, true)).toBe('droop');
+  expect(plantFor(1, true)).toBe('droop');
 });
 
 test('a milestone is celebrated once, at the highest one reached', () => {

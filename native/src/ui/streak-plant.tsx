@@ -2,20 +2,14 @@ import { Image } from 'expo-image';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { cancelAnimation, Easing, interpolate, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming, ZoomIn } from 'react-native-reanimated';
-import { stageFor } from '@/lib/plant';
-
-const STAGE_ART = [
-  require('@/assets/images/streak/stage-1.webp'), require('@/assets/images/streak/stage-2.webp'),
-  require('@/assets/images/streak/stage-3.webp'), require('@/assets/images/streak/stage-4.webp'),
-  require('@/assets/images/streak/stage-5.webp'), require('@/assets/images/streak/stage-6.webp'),
-  require('@/assets/images/streak/stage-7.webp'), require('@/assets/images/streak/stage-8.webp'),
-];
+import { plantFor } from '@/lib/plant';
+import { PLANT_ART } from './v2/streak';
 
 const LIFT = 8;
 
 /** The household streak as a growing plant that levitates over a soft ground shadow. Decorative: the streak number is the accessible value. */
 export function StreakPlant({ streak, height = 132 }: { streak: number; height?: number }) {
-  const stage = stageFor(streak);
+  const stage = plantFor(streak, false);
   const reduce = useReducedMotion();
   // 0 = resting on the ground, 1 = fully floated; one reversing loop drives both the plant and its shadow
   const float = useSharedValue(0);
@@ -35,7 +29,7 @@ export function StreakPlant({ streak, height = 132 }: { streak: number; height?:
   return (
     <Animated.View key={stage} entering={ZoomIn.duration(420)} style={styles.wrap} accessible={false} importantForAccessibility="no-hide-descendants">
       <Animated.View style={bob}>
-        <Image source={STAGE_ART[stage - 1]} style={{ width, height }} contentFit="contain" />
+        <Image source={PLANT_ART[stage]} style={{ width, height }} contentFit="contain" />
       </Animated.View>
       <Animated.View style={[styles.shadowWrap, { width: width * 0.8 }, shadow]}>
         <View style={styles.shadowOuter} />
