@@ -72,3 +72,13 @@ export function grabbable(s: AppState, me: string) {
 /** Restock requests I claimed and have not finished: they are errands on my list today. */
 export const myRestocks = (s: AppState, me: string) =>
   s.restocks.filter((r) => r.status === 'open' && r.claimed_by === me).sort(byCreated);
+
+export type Who = 'me' | 'all';
+
+/** My chores on a date, or everyone's (open first, heaviest first). */
+export function tasksOn(s: AppState, me: string, who: Who, d: string): Assignment[] {
+  if (who === 'me') return myTasksOn(s, me, d);
+  return s.assignments
+    .filter((a) => a.day === d && a.status !== 'expired')
+    .sort((x, y) => Number(y.status !== 'done') - Number(x.status !== 'done') || y.effort - x.effort);
+}

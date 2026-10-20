@@ -83,7 +83,7 @@ function Root() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.canvas }, animation: 'ios_from_right', animationDuration: 260 }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="activity" />
-      <Stack.Screen name="add-chore" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.75, 1], sheetCornerRadius: 28 }} />
+      <Stack.Screen name="add-chore" options={OVERLAY} />
       <Stack.Screen name="edit-profile" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.8, 1], sheetCornerRadius: 28 }} />
       <Stack.Screen name="pantry-item" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.55, 0.85], sheetCornerRadius: 28 }} />
       <Stack.Screen name="add-item" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.7, 1], sheetCornerRadius: 28 }} />

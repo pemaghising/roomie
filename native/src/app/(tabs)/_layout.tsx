@@ -11,7 +11,8 @@ import { Nav, type TabName } from '@/ui/v2';
 function TabBar({ state, navigation }: { state: { index: number; routes: { name: string }[] }; navigation: { navigate: (n: string) => void } }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const active = state.routes[state.index]?.name as TabName;
+  const name = state.routes[state.index]?.name;
+  const active = (name === 'calendar' ? 'chores' : name) as TabName;
   return (
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
       {/* the Figma "nav fade": content softly disappears under the nav instead of hitting a hard edge */}
@@ -34,6 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="chores" />
       <Tabs.Screen name="pantry" />
       <Tabs.Screen name="profile" />
+      <Tabs.Screen name="calendar" options={{ href: null }} />
     </Tabs>
   );
 }
