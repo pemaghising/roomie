@@ -57,10 +57,16 @@ export function Week() {
         <div className="stage-col" aria-hidden="true">
           <div className="stage">
             <figure className="phone stage-phone">
-              {WEEK.map((d, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={d.screen} className={`screen ${active === i ? "on" : ""}`} src={d.screen} alt="" width={393} height={852} loading={i === 0 ? "eager" : "lazy"} />
-              ))}
+              <span className="btn-l" />
+              <span className="btn-r" />
+              <span className="bezel">
+                {WEEK.map((d, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={d.screen} className={`screen ${active === i ? "on" : ""}`} src={d.screen} alt="" width={393} height={852} loading={i === 0 ? "eager" : "lazy"} />
+                ))}
+                <span className="island" />
+                <span className="glare" />
+              </span>
             </figure>
             {WEEK.map((d, i) =>
               d.card ? (

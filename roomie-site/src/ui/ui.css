@@ -1,14 +1,49 @@
-/* Device frame around real v2 screen exports */
+/* Device: real v2 screen inside a code-drawn modern phone */
 .phone {
+  --phone-w: 300px;
+  position: relative;
   margin: 0;
-  width: var(--phone-w, 300px);
+  width: var(--phone-w);
   aspect-ratio: 393 / 852;
-  padding: 9px;
-  border-radius: 52px;
-  background: linear-gradient(160deg, #2A2550, var(--ink) 55%);
-  box-shadow: var(--lift), inset 0 0 0 1px rgba(252, 251, 255, .08);
+  padding: calc(var(--phone-w) * .012);            /* metal rim */
+  border-radius: calc(var(--phone-w) * .165);
+  background: linear-gradient(145deg, #F4F1FB 0%, #C9C2DC 22%, #EDEAF6 48%, #ABA3C4 78%, #E6E2F2 100%);
+  box-shadow:
+    0 50px 90px -45px rgba(31, 27, 58, .55),
+    0 22px 40px -28px rgba(91, 67, 184, .45),
+    inset 0 0 0 1px rgba(255, 255, 255, .6);
 }
-.phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 43px; }
+.phone .bezel {
+  position: relative; display: block;
+  width: 100%; height: 100%;
+  padding: calc(var(--phone-w) * .028);            /* black bezel */
+  border-radius: calc(var(--phone-w) * .152);
+  background: #0E0C18;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+  overflow: hidden;
+}
+.phone img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: calc(var(--phone-w) * .125);
+}
+.phone .island {
+  position: absolute; left: 50%; top: calc(var(--phone-w) * .052);
+  width: 30%; height: calc(var(--phone-w) * .085);
+  transform: translateX(-50%);
+  border-radius: 999px; background: #05040A;
+}
+.phone .glare {
+  position: absolute; inset: calc(var(--phone-w) * .028);
+  border-radius: calc(var(--phone-w) * .125);
+  background: linear-gradient(115deg, rgba(255, 255, 255, .18) 0%, rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, .06) 100%);
+  pointer-events: none;
+}
+.phone .btn-l, .phone .btn-r {
+  position: absolute; width: 3px; border-radius: 2px;
+  background: linear-gradient(180deg, #D9D4E8, #A39BBD);
+}
+.phone .btn-l { left: -2px; top: 22%; height: 11%; box-shadow: 0 calc(var(--phone-w) * .14) 0 #B9B2CF; }
+.phone .btn-r { right: -2px; top: 28%; height: 16%; }
 
 /* "Coming soon" store buttons: Roomie style, not the official badges */
 .stores { display: flex; flex-wrap: wrap; gap: 12px; }

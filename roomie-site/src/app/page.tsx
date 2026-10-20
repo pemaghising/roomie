@@ -1,4 +1,5 @@
 import { Hero } from "@/sections/Hero";
+import { Problem } from "@/sections/Problem";
 import { Effort } from "@/sections/Effort";
 import { Week } from "@/sections/Week";
 import { RealLife } from "@/sections/RealLife";
@@ -11,6 +12,7 @@ export default function Home() {
     <>
     <main>
       <Hero />
+      <Problem />
       <Effort />
       <Week />
       <RealLife />

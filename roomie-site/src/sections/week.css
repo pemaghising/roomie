@@ -32,9 +32,9 @@
   transform-style: preserve-3d;
 }
 .stage-phone .screen {
-  position: absolute; inset: 9px;
-  width: calc(100% - 18px); height: calc(100% - 18px);
-  border-radius: 43px; object-fit: cover;
+  position: absolute; inset: calc(var(--phone-w) * .028);
+  width: calc(100% - var(--phone-w) * .056); height: calc(100% - var(--phone-w) * .056);
+  object-fit: cover;
   opacity: 0; transform: scale(.985);
   transition: opacity .55s ease, transform .55s ease;
 }

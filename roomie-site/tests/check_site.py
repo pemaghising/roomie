@@ -111,8 +111,20 @@ def test_hero(browser):
     page, errors = open_page(browser)
     hero = page.locator("#hero")
     assert hero.locator("h1").inner_text().strip() == H1, hero.locator("h1").inner_text()
-    texts = hero.locator(".bubble p").all_inner_texts()
+    # The hero is the solution only: no group chat over the phone.
+    assert hero.locator(".bubble").count() == 0, "group chat should not sit in the hero"
+    # The chat is its own 'Sound familiar?' section, clearly not Roomie UI.
+    prob = page.locator("#problem")
+    assert prob.locator("h2").inner_text().strip() == "Sound familiar?", prob.locator("h2").inner_text()
+    texts = prob.locator(".bubble p").all_inner_texts()
     assert [t.strip() for t in texts] == BUBBLES, texts
+    assert prob.get_by_text("Roomie takes this job off everyone.").count() == 1
+    order = page.evaluate("[...document.querySelectorAll('main > section')].map(s => s.id)")
+    assert order[:3] == ["hero", "problem", "effort"], order
+    # A real-looking device: rim, bezel, camera island and side buttons around the screen.
+    ph = hero.locator(".phone").first
+    for part in (".island", ".btn-l", ".btn-r", ".glare"):
+        assert ph.locator(part).count() >= 1, f"phone missing {part}"
     assert hero.get_by_role("button", name="Coming soon on the App Store").count() == 1
     assert not errors, f"console errors: {errors}"
 

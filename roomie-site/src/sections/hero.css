@@ -42,43 +42,14 @@
 .tilt {
   transform-style: preserve-3d;
   transform: rotateX(6deg) rotateY(-10deg) rotateZ(1deg);
-  --phone-w: clamp(240px, 22vw, 310px);
+  --phone-w: clamp(250px, 23vw, 320px);
 }
 .tilt .phone { box-shadow: -30px 50px 80px -40px rgba(59, 36, 112, .45), var(--lift); }
 .nudge-card {
-  position: absolute; right: -2%; top: 16%;
-  width: min(330px, 62%); height: auto;
+  position: absolute; right: 0; top: 7%;
+  width: min(340px, 64%); height: auto;
   filter: drop-shadow(0 24px 30px rgba(31, 27, 58, .16));
 }
-.chat {
-  position: absolute; left: 0; top: 6%; z-index: 2;
-  width: min(330px, 86%);
-  display: grid; gap: 10px;
-}
-.chat-head {
-  display: flex; align-items: baseline; gap: 8px;
-  font-size: 13px; color: var(--muted);
-}
-.chat-head b { color: var(--ink); font-weight: 600; font-size: 14px; }
-.bubble {
-  justify-self: start;
-  max-width: 260px;
-  padding: 10px 14px 8px;
-  border-radius: 18px 18px 18px 6px;
-  background: rgba(252, 251, 255, .92);
-  box-shadow: var(--glass);
-  backdrop-filter: blur(14px);
-}
-.bubble.me {
-  justify-self: end;
-  border-radius: 18px 18px 6px 18px;
-  background: var(--ink); color: var(--offwhite);
-}
-.bubble .who { display: block; font-size: 12px; font-weight: 600; color: var(--violet-deep); margin-bottom: 2px; }
-.bubble p { font-size: 16px; line-height: 1.35; }
-.bubble small { display: block; margin-top: 4px; font-size: 11px; color: var(--muted); }
-.bubble.me small { color: rgba(252, 251, 255, .65); }
-
 @media (max-width: 860px) {
   .hero-grid { grid-template-columns: 1fr; padding-top: 8px; }
   .hero-stage { height: 460px; order: 2; }
