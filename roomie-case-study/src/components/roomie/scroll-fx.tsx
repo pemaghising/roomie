@@ -4,10 +4,11 @@ import { useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// All scroll-driven motion on the page - hero parallax, each section's
-// card-like enter/hold/exit, the phase number's depth drift - lives here as
-// one GSAP timeline set, mounted once. Renders nothing; it just wires up
-// ScrollTrigger against the server-rendered DOM already on the page.
+// All scroll-driven motion on the page - hero parallax, each chapter opener's
+// field growing to full bleed, quick content reveals - lives here as one GSAP
+// set, mounted once. Renders nothing; it wires ScrollTrigger to the
+// server-rendered DOM. Reveals are time-based and short (they fire once as
+// an element nears the viewport) so nothing waits on the reader's scroll.
 export function ScrollFx() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -32,41 +33,42 @@ export function ScrollFx() {
         );
       }
 
-      document.querySelectorAll<HTMLElement>("section.phase").forEach((section) => {
-        // the enter/hold/exit tween targets the section's inner .wrap, not
-        // the section itself - a transformed ancestor becomes the
-        // containing block for any position:fixed descendant (CSS spec
-        // behavior). The outer card (rounded corners, shadow, background)
-        // stays untouched by transform; only its content scales/rises/recedes.
-        const wrap = section.querySelector<HTMLElement>(":scope > .wrap");
-        if (wrap) {
-          gsap
-            .timeline({ scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: true } })
-            .fromTo(
-              wrap,
-              { opacity: 0, y: 52, scale: 0.96 },
-              { opacity: 1, y: 0, scale: 1, ease: "power3.out", duration: 0.16 },
-            )
-            .to(wrap, { opacity: 1, y: 0, scale: 1, duration: 0.68 })
-            .to(wrap, { opacity: 0.9, scale: 0.97, ease: "power2.in", duration: 0.16 });
-        }
+      // chapter opener: the colour field opens out to full bleed as it
+      // arrives, then its contents rise in a beat behind it.
+      document.querySelectorAll<HTMLElement>(".opener").forEach((op) => {
+        gsap.fromTo(
+          op,
+          { clipPath: "inset(9% 4% 0% 4% round 44px)" },
+          {
+            clipPath: "inset(0% 0% 0% 0% round 0px)",
+            ease: "none",
+            scrollTrigger: { trigger: op, start: "top 94%", end: "top 38%", scrub: true },
+          },
+        );
+        gsap.from(op.querySelectorAll(".op-eye, .opener h2, .op-num, .op-sum, .op-toc li"), {
+          y: 32,
+          opacity: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.06,
+          scrollTrigger: { trigger: op, start: "top 80%", once: true },
+        });
+      });
 
-        const num = section.querySelector<HTMLElement>(".phase-head .num");
-        if (num) {
-          gsap.fromTo(
-            num,
-            { y: -18 },
-            { y: 18, ease: "none", scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: true } },
-          );
-        }
+      document.querySelectorAll<HTMLElement>("section.phase > .wrap").forEach((wrap) => {
+        gsap.from(wrap, {
+          opacity: 0,
+          y: 36,
+          duration: 0.55,
+          ease: "power3.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: wrap, start: "top 88%", once: true },
+        });
       });
 
       // individual content cards (method cards, insight/decision/result
-      // rows, personas, stickies, targets...) rise and fade in as they
-      // cross into view, on top of the whole-section motion above - the
-      // section settles into place, and its own content reveals in a
-      // stagger a beat after, rather than every card just appearing
-      // instantly the moment its parent card stops moving.
+      // rows, personas, stickies, targets...) pop in with a short stagger as
+      // they cross into view.
       const cards = gsap.utils.toArray<HTMLElement>(
         [
           ".card",
@@ -91,12 +93,12 @@ export function ScrollFx() {
         ].join(","),
       );
       if (cards.length) {
-        gsap.set(cards, { opacity: 0, y: 20 });
+        gsap.set(cards, { opacity: 0, y: 18 });
         ScrollTrigger.batch(cards, {
-          start: "top 88%",
+          start: "top 94%",
           once: true,
           onEnter: (batch) =>
-            gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08, overwrite: true }),
+            gsap.to(batch, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.045, overwrite: true }),
         });
       }
     });

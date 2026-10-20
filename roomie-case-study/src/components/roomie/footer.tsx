@@ -1,22 +1,28 @@
 import { ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+// The Roomie marketing site (roomie-site).
+const ROOMIE_SITE = "https://roomie-site-sigma.vercel.app/";
 
 export function Footer() {
   return (
-    <footer className="wrap">
-      <div className="wrap">
+    <footer>
+      <div className="wrap foot-in">
         <p className="big">Thanks for reading.</p>
-        <div className="stack footer-meta">
-          <strong>Pema Ghising</strong>
-          <span className="muted">
-            Lead Graphic Designer · Leapfrog Technology, Kathmandu
-          </span>
-          <Button asChild variant="link" size="sm" className="footer-link px-0">
-            <a href="https://pemaghising.com.np" target="_blank" rel="noopener">
-              pemaghising.com.np
-              <ArrowUpRight />
+        <div className="foot-meta">
+          <div>
+            <strong>Pema Ghising</strong>
+            <span>Lead Graphic Designer · Leapfrog Technology, Kathmandu</span>
+          </div>
+          <div className="foot-links">
+            <a className="foot-link" href={ROOMIE_SITE} target="_blank" rel="noopener">
+              See the Roomie website
+              <ArrowUpRight aria-hidden="true" />
             </a>
-          </Button>
+            <a className="foot-link ghost" href="https://pemaghising.com.np" target="_blank" rel="noopener">
+              pemaghising.com.np
+              <ArrowUpRight aria-hidden="true" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

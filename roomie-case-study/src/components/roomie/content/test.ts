@@ -2,13 +2,13 @@
 export const testHtml = `
 <section class="phase ph-tes" id="test">
   <div class="wrap">
-  <header class="phase-head"><span class="phi" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 3h5M10 3v6L5 18.5A1.7 1.7 0 0 0 6.5 21h11a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg></span><span class="num">05</span><h2>Test</h2><p>Roomie hasn’t been tested with users yet. This is the plan I’d run next, and what each result would change.</p></header>
+  <header class="phase-head"><span class="phi" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 3h5M10 3v6L5 18.5A1.7 1.7 0 0 0 6.5 21h11a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg></span><span class="num">05</span><h2>Test</h2><b class="ess">Six flatmates. Forty minutes. No help.</b><p>Roomie hasn’t been tested with users yet. This is the plan I’d run next, and what each result would change.</p></header>
 
   <div class="block">
     <h3>Round 1: moderated usability test</h3>
     <p class="muted narrow"><strong>Who:</strong> 6 people who share a flat in the Kathmandu Valley: 2 who usually end up doing the extra work, 2 with unpredictable schedules, and 2 who tried a chore app or rota and gave up. No friends or bootcamp classmates; they’re too kind to the design.</p>
     <p class="muted narrow"><strong>How:</strong> 40 minutes each on the Figma prototype, thinking aloud. It opens with “tell me about the last time a chore got missed at home”. Tasks are situations, not screen names, and I don’t help. I note what people do (pause, backtrack, reach for WhatsApp) before what they say.</p>
-    <div class="scroll">
+    <div class="scroll" tabindex="0" role="region" aria-label="Usability test plan">
       <table class="plan">
         <thead><tr><th>Scenario I read out</th><th>Pass if</th><th>Tests insight</th></tr></thead>
         <tbody>
@@ -22,8 +22,8 @@ export const testHtml = `
   </div>
 
   <div class="block risk">
-    <div class="stack"><p class="eyebrow" style="color:var(--amber-ink)">Riskiest assumption</p><h4>Do streaks and “effort debt” motivate, or shame?</h4><p>The research warns against ranking people, but V1 resets streaks and gives a heavier load to whoever misses tasks. I’d show the streak-reset and effort-debt screens in both nudge styles, watch the first reaction, then ask one neutral question:</p></div>
-    <div class="stack" style="align-content:center"><q>Tell me what this screen is saying about you.</q><p>The target is zero. One “judged” gets probed; if 2 of 6 describe it as blame or punishment, streaks become opt-in and effort debt becomes private.</p></div>
+    <div class="stack"><p class="eyebrow" style="color:var(--amber-ink)">Riskiest assumption</p><h4>Do the drooping plant and “Catching up” motivate, or shame?</h4><p>The research warns against ranking people, but V1 lets the house plant droop after an unclaimed miss, resets the streak to a seed when a missed chore outlasts its fallback window (one day for daily chores, two for weekly), and gives a little more to whoever is catching up. I’d show the droop, reset and Catching up screens in both nudge styles, watch the first reaction, then ask one neutral question:</p></div>
+    <div class="stack" style="align-content:center"><q>Tell me what this screen is saying about you.</q><p>The target is zero. One “judged” gets probed; if 2 of 6 describe it as blame or punishment, streaks become opt-in and Catching up becomes private.</p></div>
   </div>
 
   <div class="block">
