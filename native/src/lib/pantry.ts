@@ -1,7 +1,8 @@
 import * as Haptics from 'expo-haptics';
-import type { PantryAsk, PantryItem, PantryRule, Restock, StockLevel } from '@domain/pantry.ts';
+import { useQueryClient } from '@tanstack/react-query';
+import { openRestockFor, STOCK_LABEL, type PantryAsk, type PantryItem, type PantryRule, type Restock, type StockLevel } from '@domain/pantry.ts';
 import { useToast } from '@/ui/toast';
-import { useAction } from './state';
+import { messageOf, rpc, STATE_KEY, useAction } from './state';
 import type { AppState } from './types';
 
 /** `tintFor` returns the web's CSS variables; these are the same brand pastels as hex. */
@@ -24,6 +25,7 @@ const patchRestock = (s: AppState, id: string, patch: Partial<Restock>): AppStat
 /** Every pantry write, optimistic where the result is predictable; the server's answer replaces it. */
 export function usePantryActions() {
   const toast = useToast();
+  const qc = useQueryClient();
   const tap = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
   const stock = useAction<{ p_id: string; p_stock: StockLevel }>('set_item_stock', {
@@ -43,7 +45,7 @@ export function usePantryActions() {
   });
   const claim = useAction<{ p_id: string; me: string }>('claim_restock', {
     optimistic: (s, { p_id, me }) => patchRestock(s, p_id, { claimed_by: me }),
-    onSuccess: () => toast.show("It's yours — thanks for covering."),
+    onSuccess: () => toast.show('It’s yours to pick up. Thanks.', { tick: true }),
   });
   const unclaim = useAction<{ p_id: string }>('unclaim_restock', { optimistic: (s, { p_id }) => patchRestock(s, p_id, { claimed_by: null }) });
   const complete = useAction<{ p_id: string; me: string }>('complete_restock', {
@@ -52,7 +54,7 @@ export function usePantryActions() {
       const next = patchRestock(s, p_id, { status: 'done', done_by: me });
       return r?.item_id ? { ...next, pantry: next.pantry.map((i) => (i.id === r.item_id ? { ...i, stock: 'in_stock' as const } : i)) } : next;
     },
-    onSuccess: () => toast.show('Done. Nice one.'),
+    onSuccess: () => toast.show('Back in stock. Nice one.', { tick: true }),
   });
   const cancel = useAction<{ p_id: string }>('cancel_restock', {
     optimistic: (s, { p_id }) => patchRestock(s, p_id, { status: 'cancelled' }),
@@ -65,6 +67,33 @@ export function usePantryActions() {
   });
 
   return {
+    /** Tapping a shelf tile or changing a flag; Undo puts it back (P1d). */
+    flag: (i: PantryItem, p_stock: StockLevel) => {
+      const was = i.stock;
+      tap();
+      stock.mutate({ p_id: i.id, p_stock });
+      toast.show(`${i.name} marked as ${STOCK_LABEL[p_stock].replace('Running low', 'Low')}`, { action: { label: 'Undo', onPress: () => stock.mutate({ p_id: i.id, p_stock: was }) } });
+    },
+    /** "I'll get it": claim the open request, or open one and claim it in the same tap. */
+    getIt: async (s: AppState, i: PantryItem, me: string) => {
+      tap();
+      const r = openRestockFor(s.restocks, i.id);
+      if (r) return claim.mutate({ p_id: r.id, me });
+      try {
+        const id = await rpc<string>('request_restock', { p_item: i.id, p_effort: 1 });
+        claim.mutate({ p_id: id, me });
+      } catch (e) {
+        toast.show(messageOf(e));
+        await qc.invalidateQueries({ queryKey: STATE_KEY });
+      }
+    },
+    /** "I bought it": closes the request if there is one, otherwise just marks it in stock. */
+    bought: (s: AppState, i: PantryItem, me: string) => {
+      const r = openRestockFor(s.restocks, i.id);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (r) complete.mutate({ p_id: r.id, me });
+      else { stock.mutate({ p_id: i.id, p_stock: 'in_stock' }); toast.show(`${i.name} is back in stock.`, { tick: true }); }
+    },
     setStock: (i: PantryItem, p_stock: StockLevel) => { tap(); stock.mutate({ p_id: i.id, p_stock }); },
     setRule: (i: PantryItem, p_rule: PantryRule) => { tap(); rule.mutate({ p_id: i.id, p_rule }); },
     remove: (i: PantryItem) => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); remove.mutate({ p_id: i.id }); },

@@ -85,9 +85,8 @@ function Root() {
       <Stack.Screen name="activity" />
       <Stack.Screen name="add-chore" options={OVERLAY} />
       <Stack.Screen name="edit-profile" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.8, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="pantry-item" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.55, 0.85], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="add-item" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.7, 1], sheetCornerRadius: 28 }} />
-      <Stack.Screen name="restock" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.75, 1], sheetCornerRadius: 28 }} />
+      <Stack.Screen name="add-item" options={OVERLAY} />
+      <Stack.Screen name="restock" options={OVERLAY} />
       <Stack.Screen name="request-sent" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
       <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
       <Stack.Screen name="kudos" options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.6], sheetCornerRadius: 28 }} />

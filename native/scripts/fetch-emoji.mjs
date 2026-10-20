@@ -20,6 +20,15 @@ export const EMOJI = [
   ['Olive', ['🫒']], ['Cup with straw', ['🥤']], ['Baguette bread', ['🥖']], ['Hot beverage', ['☕']], ['Egg', ['🥚']],
   ['Teapot', ['🫖']], ['Butter', ['🧈']], ['Cheese wedge', ['🧀']], ['Banana', ['🍌']], ['Red apple', ['🍎']],
   ['Carrot', ['🥕']], ['Onion', ['🧅']], ['Potato', ['🥔']], ['Tomato', ['🍅']], ['Honey pot', ['🍯']],
+  ['Croissant', ['🥐']], ['Doughnut', ['🍩']], ['Cupcake', ['🧁']], ['Jar', ['🫙']], ['Canned food', ['🥫']],
+  ['Spaghetti', ['🍝']], ['Pancakes', ['🥞']], ['Cookie', ['🍪']], ['Chocolate bar', ['🍫']], ['Popcorn', ['🍿']],
+  ['Peanuts', ['🥜']], ['Pretzel', ['🥨']], ['Bagel', ['🥯']], ['Bowl with spoon', ['🥣']], ['Steaming bowl', ['🍜']],
+  ['Sheaf of rice', ['🌾']], ['Candy', ['🍬']], ['Hot pepper', ['🌶️', '🌶']], ['Garlic', ['🧄']], ['Ginger root', ['🫚']],
+  ['Leafy green', ['🥬']], ['Broccoli', ['🥦']], ['Cucumber', ['🥒']], ['Ear of corn', ['🌽']], ['Mushroom', ['🍄']],
+  ['Avocado', ['🥑']], ['Beans', ['🫘']], ['Tangerine', ['🍊']], ['Lemon', ['🍋']], ['Grapes', ['🍇']],
+  ['Strawberry', ['🍓']], ['Poultry leg', ['🍗']], ['Cut of meat', ['🥩']], ['Fish', ['🐟']], ['Teacup without handle', ['🍵']],
+  ['Beverage box', ['🧃']], ['Droplet', ['💧']], ['Bubble tea', ['🧋']], ['Ice', ['🧊']], ['High voltage', ['⚡']],
+  ['Beer mug', ['🍺']], ['Wine glass', ['🍷']], ['Ice cream', ['🍨']], ['Pouring liquid', ['🫗']], ['Kiwi fruit', ['🥝']],
 ];
 
 const slug = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '_');

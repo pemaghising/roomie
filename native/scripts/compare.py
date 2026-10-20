@@ -29,6 +29,7 @@ def main():
     ap.add_argument("--route", required=True); ap.add_argument("--out", required=True)
     ap.add_argument("--figma"); ap.add_argument("--width", type=int, default=393); ap.add_argument("--height", type=int, default=852)
     ap.add_argument("--full", action="store_true"); ap.add_argument("--session"); ap.add_argument("--wait", type=int, default=2500)
+    ap.add_argument("--steps", help='JSON list run before the shot: ["click", label] or ["fill", label, text], matched by accessible label')
     a = ap.parse_args()
     httpd = serve(); base = f"http://127.0.0.1:{httpd.server_address[1]}"
     shot = Path(a.out).with_suffix(".app.png")
@@ -41,6 +42,10 @@ def main():
         errors = []
         pg.on("pageerror", lambda e: errors.append(str(e)))
         pg.goto(base + a.route, wait_until="networkidle"); pg.wait_for_timeout(a.wait)
+        for step in json.loads(a.steps or "[]"):
+            el = pg.get_by_label(step[1], exact=True).first
+            el.fill(step[2]) if step[0] == "fill" else el.click()
+            pg.wait_for_timeout(700)
         pg.screenshot(path=str(shot), full_page=a.full)
         b.close()
     httpd.shutdown()

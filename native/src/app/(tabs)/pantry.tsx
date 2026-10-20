@@ -1,58 +1,81 @@
-import { Ionicons } from '@expo/vector-icons';
+// Pantry (frames P1 Shared · P2 My items · P3 Roommates, menus P1e / P2b, W3 "Priya's getting it").
 import { useQueryClient } from '@tanstack/react-query';
-import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Animated, { Easing, FadeIn, FadeInDown, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { BASICS, iconFor, openRestockFor, requestedLine, RULE_LABEL, sameName, sortShelf, type PantryItem, type ShelfTab } from '@domain/pantry.ts';
-import { F } from '@/constants/theme';
-import { pantryHealth } from '@/lib/pantry-health';
-import { TAG } from '@/lib/pantry';
-import { scrollShrink } from '@/lib/tab-shrink';
+import { Alert, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BASICS, canAsk, iconFor, myAsk, openRestockFor, sameName, sortShelf, type PantryItem, type ShelfTab } from '@domain/pantry.ts';
+import { avatarUrl } from '@/lib/avatar';
+import { usePantryActions } from '@/lib/pantry';
+import { lowRow, shelfMeta } from '@/lib/pantry-view';
 import { namesOf } from '@/lib/selectors';
 import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
-import { Art } from '@/ui/art';
-import { Avatar } from '@/ui/avatar';
-import { C, usePull } from '@/ui/kit';
-import { PantryTile } from '@/ui/pantry-tile';
-import { Segmented } from '@/ui/segmented';
+import { durations, enter, motion, useReducedMotion } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
-import { usePantryActions } from '@/lib/pantry';
+import { color, layout } from '@/ui/tokens';
+import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind } from '@/ui/v2';
 
-const ACCENT = '#7C3AED';
-const SLIDE = { duration: 200, easing: Easing.out(Easing.cubic) };
+const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
 const TABS: { value: ShelfTab; label: string }[] = [{ value: 'shared', label: 'Shared' }, { value: 'mine', label: 'My items' }, { value: 'roommates', label: 'Roommates' }];
+/** The stored icon, else one guessed from the name; null lets the tile show a letter. */
+const iconOf = (i: PantryItem) => i.icon ?? (iconFor(i.name) === '🛒' ? null : iconFor(i.name));
+const ruleTag = (i: PantryItem): TagKind[] => (i.rule === 'do_not_touch' ? ['doNotTouch'] : i.rule === 'ask_first' ? ['askFirst'] : []);
 
-const Grid = ({ children }: { children: React.ReactNode }) => <View style={styles.grid}>{children}</View>;
-const Section = ({ title, count }: { title: string; count: number }) => <Text style={styles.section}>{title} · {count}</Text>;
+function Heading({ title, count, note }: { title: string; count?: number; note?: string }) {
+  return (
+    <View style={styles.heading}>
+      <View style={styles.headingLeft}>
+        <Txt v="Heading/Section" accessibilityRole="header">{title}</Txt>
+        {count ? <View style={styles.count}><Txt v="Tag" c={color.text.link}>{count}</Txt></View> : null}
+      </View>
+      {note && <Txt v="Meta" c={color.text.secondary}>{note}</Txt>}
+    </View>
+  );
+}
+
+const Pill = ({ label, onPress, tone = 'violet' }: { label: string; onPress?: () => void; tone?: 'violet' | 'green' }) => (
+  <Tap onPress={onPress} disabled={!onPress} feel="complete" accessibilityLabel={label}>
+    <View style={[styles.pill, tone === 'green' ? { backgroundColor: color.effort.lightBg } : { backgroundColor: color.action.primary }]}>
+      <Txt v="Meta/Medium" c={tone === 'green' ? color.effort.lightFg : color.text.onAccent}>{label}</Txt>
+    </View>
+  </Tap>
+);
 
 export default function Pantry() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const reduced = useReducedMotion();
   const qc = useQueryClient();
   const toast = useToast();
   const params = useLocalSearchParams<{ tab?: string }>();
   const { me, state } = useMe();
-  const pull = usePull(useAppState().refetch);
+  const { refetch, isRefetching } = useAppState();
   const act = usePantryActions();
   const names = namesOf(state);
   const [tab, setTab] = useState<ShelfTab>(params.tab === 'mine' || params.tab === 'roommates' ? params.tab : 'shared');
-  const [menu, setMenu] = useState(false);
   const [adding, setAdding] = useState<string[]>([]);
 
-  const shared = state.pantry.filter((i) => i.owner_id === null);
-  const health = pantryHealth(shared);
+  const shared = sortShelf(state.pantry.filter((i) => i.owner_id === null), 'shared');
+  const low = shared.filter((i) => i.stock !== 'in_stock');
+  const stocked = shared.filter((i) => i.stock === 'in_stock');
   const mine = sortShelf(state.pantry.filter((i) => i.owner_id === me), 'mine');
-  const others = state.members.filter((m) => m.user_id !== me)
-    .map((m) => ({ m, items: sortShelf(state.pantry.filter((i) => i.owner_id === m.user_id), 'roommates') }))
-    .filter((g) => g.items.length > 0);
+  const roommates = state.members.filter((m) => m.user_id !== me);
+  const [who, setWho] = useState<string | null>(null);
+  const pick = who ?? roommates.find((m) => state.pantry.some((i) => i.owner_id === m.user_id))?.user_id ?? roommates[0]?.user_id ?? null;
+  const theirs = sortShelf(state.pantry.filter((i) => i.owner_id === pick), 'roommates');
+  const picked = roommates.find((m) => m.user_id === pick);
   const incoming = state.asks.filter((a) => a.to_user === me && a.status === 'pending');
-  const open = (i: PantryItem) => router.push({ pathname: '/pantry-item', params: { id: i.id } });
+  let n = 0;
+  const E = () => (reduced ? undefined : enter(n++, reduced));
 
+  const confirmRemove = (i: PantryItem) => Alert.alert(`Remove ${i.name}?`, i.owner_id ? 'It comes off your shelf.' : 'It comes off the shared shelf for everyone.', [
+    { text: 'Cancel', style: 'cancel' },
+    { text: 'Remove', style: 'destructive', onPress: () => act.remove(i) },
+  ]);
   const addBasic = async (name: string) => {
-    if (adding.includes(name) || state.pantry.some((i) => i.owner_id === null && sameName(i.name, name))) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (adding.includes(name) || shared.some((i) => sameName(i.name, name))) return;
     setAdding((a) => [...a, name]);
     try {
       await rpc('add_pantry_basics', { p_names: [name] });
@@ -64,162 +87,180 @@ export default function Pantry() {
     }
   };
 
-  const ruleTag = (i: PantryItem) => (i.rule ? { label: RULE_LABEL[i.rule], tone: TAG[i.rule] } : undefined);
-  const note = (i: PantryItem) => { const r = openRestockFor(state.restocks, i.id); return r ? requestedLine(r, names, me) : undefined; };
-  const plus = useAnimatedStyle(() => ({ transform: [{ rotate: withTiming(menu ? '45deg' : '0deg', SLIDE) }] }));
+  const lowItem = (i: PantryItem) => {
+    const row = lowRow(i, state.restocks, me, names);
+    const requested = Boolean(openRestockFor(state.restocks, i.id));
+    return (
+      <Animated.View key={i.id} layout={spring} entering={E()} exiting={FadeOut.duration(durations.fade)}>
+        <Glass fill={0.9} lift={false} r={22}>
+          <View style={styles.lowRow}>
+            <View style={styles.disc}><EmojiBadge value={iconOf(i)} name={i.name} size={40} round tint={color.bg.surface} /></View>
+            <Txt v="Body/Row" numberOfLines={1} style={{ flexShrink: 1 }}>{i.name}</Txt>
+            {row.kind === 'claim' && <View style={{ alignSelf: 'center' }}><Tag kind={i.stock === 'out' ? 'out' : 'low'} /></View>}
+            <View style={{ flex: 1 }} />
+            {row.kind === 'claim' ? <Pill label="I’ll get it" onPress={() => act.getIt(state, i, me)} /> : <Pill label={row.label} tone="green" />}
+            <MoreMenu plain label={`More for ${i.name}`} items={[
+              { label: i.stock === 'out' ? 'Change to Low' : 'Change to Out', onPress: () => act.flag(i, i.stock === 'out' ? 'low' : 'out') },
+              { label: 'I bought it', onPress: () => act.bought(state, i, me) },
+              ...(requested ? [] : [{ label: 'Ask the house', onPress: () => router.push({ pathname: '/restock', params: { item: i.id } }) }]),
+              { label: 'Remove from list', danger: true, icon: Trash2, onPress: () => confirmRemove(i) },
+            ]} />
+          </View>
+        </Glass>
+      </Animated.View>
+    );
+  };
 
-  const subtitle = tab !== 'shared' || health.total === 0 ? 'Everything your home keeps in stock' : health.needs.length === 0 ? 'Fully stocked' : `${health.needs.length} need${health.needs.length === 1 ? 's' : ''} restocking`;
-  const preview = health.needs.slice(0, 2).map((i) => i.name).join(', ') + (health.needs.length > 2 ? ` and ${health.needs.length - 2} more` : '');
+  const pairs = <T,>(xs: T[]) => Array.from({ length: Math.ceil(xs.length / 2) }, (_, k) => xs.slice(k * 2, k * 2 + 2));
 
   return (
-    <SafeAreaView edges={['top']} style={styles.root}>
-      <ScrollView {...scrollShrink} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll} refreshControl={<RefreshControl {...pull} />}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Pantry</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
-        </View>
-        <Segmented options={TABS} value={tab} onChange={setTab} />
+    <View style={styles.root}>
+      <MeshBackground />
+      <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={color.action.primary} />}>
+        <Txt v="Title/Page" accessibilityRole="header">Pantry</Txt>
+        <SegmentedControl value={tab} onChange={setTab} options={TABS} />
 
-        <Animated.View key={tab} entering={FadeIn.duration(180)} style={{ marginTop: 18 }}>
-          {tab === 'shared' && (shared.length === 0 ? (
-            <View style={styles.empty}>
-              <Art name="emptyBox" width={210} />
-              <Text style={styles.emptyTitle}>Nothing on the shelf yet</Text>
-              <Text style={styles.emptyBody}>Add the basics your home always needs.</Text>
-              <View style={styles.chips}>
-                {BASICS.map((b) => (
-                  <Pressable key={b} disabled={adding.includes(b)} onPress={() => addBasic(b)}
-                    style={({ pressed }) => [styles.chip, adding.includes(b) && { opacity: 0.4 }, pressed && { transform: [{ scale: 0.96 }] }]}>
-                    <Text style={styles.chipText}>{iconFor(b)}  {b}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          ) : (
-            <>
-              {health.needs.length > 0 ? (
-                <View style={styles.banner}>
-                  <Text style={{ fontSize: 30 }}>🛒</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.bannerTitle}>Time to restock</Text>
-                    <Text style={styles.bannerBody} numberOfLines={2}>{preview}</Text>
+        {tab === 'shared' && (
+          <Animated.View key="shared" entering={FadeIn.duration(durations.fade)} style={{ gap: 28 }}>
+            {shared.length === 0 ? (
+              <Glass fill={0.62} pad={20} style={{ gap: 12 }}>
+                <View style={{ gap: 12 }}>
+                  <Txt v="Body/Row">Nothing on the shelf yet</Txt>
+                  <Txt v="Meta" c={color.text.secondary}>Start with the basics your home always needs.</Txt>
+                  <View style={styles.chips}>
+                    {BASICS.map((b) => <Chip key={b} label={b} selected={adding.includes(b)} onPress={() => addBasic(b)} />)}
                   </View>
-                  <Pressable accessibilityRole="button" onPress={() => router.push('/restock')} style={({ pressed }) => [styles.bannerBtn, pressed && { opacity: 0.8 }]}>
-                    <Text style={styles.bannerBtnText}>Request</Text>
-                  </Pressable>
                 </View>
-              ) : (
-                <View style={styles.okStrip}><Ionicons name="checkmark-circle" size={20} color="#15803D" /><Text style={styles.okText}>Fully stocked. Nice.</Text></View>
-              )}
-              {health.needs.length > 0 && (
-                <>
-                  <Section title="RUNNING LOW" count={health.needs.length} />
-                  <Grid>{health.needs.map((i) => <PantryTile key={i.id} name={i.name} stock={i.stock} sub={note(i)} onPress={() => open(i)} />)}</Grid>
-                </>
-              )}
-              {health.ok.length > 0 && (
-                <>
-                  <Section title="IN STOCK" count={health.ok.length} />
-                  <Grid>{health.ok.map((i) => <PantryTile key={i.id} name={i.name} stock={i.stock} sub={note(i)} onPress={() => open(i)} />)}</Grid>
-                </>
-              )}
-            </>
-          ))}
-
-          {tab === 'mine' && (
-            <>
-              {incoming.map((a) => {
-                const item = state.pantry.find((i) => i.id === a.item_id);
-                if (!item) return null;
-                return (
-                  <Animated.View key={a.id} entering={FadeIn} exiting={FadeOut} style={styles.ask}>
-                    <Text style={styles.askText}><Text style={{ fontFamily: F.bold }}>{names[a.from_user] ?? 'A roommate'}</Text> wants to use your {item.name}.</Text>
-                    <View style={styles.askButtons}>
-                      <Pressable onPress={() => act.answer(a, false)} style={({ pressed }) => [styles.askNo, pressed && { opacity: 0.7 }]}><Text style={styles.askNoText}>Not this time</Text></Pressable>
-                      <Pressable onPress={() => act.answer(a, true)} style={({ pressed }) => [styles.askYes, pressed && { opacity: 0.85 }]}><Text style={styles.askYesText}>Sure</Text></Pressable>
-                    </View>
+              </Glass>
+            ) : (
+              <>
+                {low.length > 0 && (
+                  <Animated.View layout={spring} entering={E()}>
+                    <Glass fill={0.62} pad={16}>
+                      <View style={{ gap: 10 }}>
+                        <View style={{ paddingHorizontal: 2, paddingTop: 2 }}><Heading title="Running low" count={low.length} /></View>
+                        {low.map(lowItem)}
+                      </View>
+                    </Glass>
                   </Animated.View>
-                );
-              })}
-              {mine.length === 0
-                ? <View style={styles.empty}><Art name="quiet" width={170} /><Text style={styles.emptyBody}>Your shelf is empty. Add things that are yours.</Text></View>
-                : <Grid>{mine.map((i) => <PantryTile key={i.id} name={i.name} tag={ruleTag(i)} onPress={() => open(i)} />)}</Grid>}
-            </>
-          )}
+                )}
+                {stocked.length > 0 && (
+                  <Animated.View layout={spring} style={{ gap: layout.itemGap }}>
+                    <Heading title="In stock" note="Tap an item to flag it" />
+                    {pairs(stocked).map((row) => (
+                      <View key={row[0].id} style={styles.pair}>
+                        {row.map((i) => (
+                          <Animated.View key={i.id} entering={E()} exiting={FadeOut.duration(durations.fade)} style={{ flex: 1 }}>
+                            <ShelfTile icon={iconOf(i)} name={i.name} meta={shelfMeta(i, state.restocks, me, names, state.today)} onPress={() => act.flag(i, 'low')} />
+                          </Animated.View>
+                        ))}
+                        {row.length === 1 && <View style={{ flex: 1 }} />}
+                      </View>
+                    ))}
+                  </Animated.View>
+                )}
+              </>
+            )}
+            <AddRow label="Add a shared item" onPress={() => router.push({ pathname: '/add-item', params: { kind: 'shared' } })} />
+          </Animated.View>
+        )}
 
-          {tab === 'roommates' && (others.length === 0
-            ? <View style={styles.empty}><Art name="together" width={170} /><Text style={styles.emptyBody}>No one has a personal shelf yet.</Text></View>
-            : others.map(({ m, items }) => (
-              <View key={m.user_id} style={{ marginBottom: 8 }}>
-                <View style={styles.who}>
-                  <Avatar name={m.name} color={m.color} path={m.avatar_path} size={28} />
-                  <Text style={styles.whoText}>{m.name}</Text>
-                  <Text style={styles.whoCount}>{items.length}</Text>
-                </View>
-                <Grid>{items.map((i) => <PantryTile key={i.id} name={i.name} tag={ruleTag(i)} onPress={() => open(i)} />)}</Grid>
-              </View>
-            )))}
-        </Animated.View>
-        <View style={{ height: 170 }} />
+        {tab === 'mine' && (
+          <Animated.View key="mine" entering={FadeIn.duration(durations.fade)} style={{ gap: 20 }}>
+            <Txt v="Body/Default" c={color.text.secondary}>Tags tell roommates what’s okay to use.</Txt>
+            {incoming.map((a) => {
+              const item = state.pantry.find((i) => i.id === a.item_id);
+              if (!item) return null;
+              return (
+                <Animated.View key={a.id} entering={E()} exiting={FadeOut.duration(durations.fade)} layout={spring}>
+                  <Glass outline fill={0.9} pad={16}>
+                    <View style={{ gap: 12 }}>
+                      <Txt v="Body/Default">{`${(names[a.from_user] ?? 'A roommate').split(' ')[0]} wants to use your ${item.name}.`}</Txt>
+                      <View style={styles.pair}>
+                        <Button kind="secondary" title="Not this time" onPress={() => act.answer(a, false)} style={{ flex: 1 }} />
+                        <Button title="Sure" onPress={() => act.answer(a, true)} style={{ flex: 1 }} />
+                      </View>
+                    </View>
+                  </Glass>
+                </Animated.View>
+              );
+            })}
+            <View style={{ gap: layout.itemGap }}>
+              <Heading title="Your items" count={mine.length} />
+              {mine.map((i) => (
+                <Animated.View key={i.id} layout={spring} entering={E()} exiting={FadeOut.duration(durations.fade)}>
+                  <ItemCard icon={iconOf(i)} name={i.name} tags={ruleTag(i)} action={
+                    <MoreMenu label={`More for ${i.name}`} items={[
+                      i.rule === 'do_not_touch'
+                        ? { label: 'Move to Ask first', onPress: () => act.setRule(i, 'ask_first') }
+                        : { label: 'Move to Do not touch', onPress: () => act.setRule(i, 'do_not_touch') },
+                      { label: 'Delete item', danger: true, icon: Trash2, onPress: () => confirmRemove(i) },
+                    ]} />} />
+                </Animated.View>
+              ))}
+              <AddRow label="Add a personal item" onPress={() => router.push({ pathname: '/add-item', params: { kind: 'personal' } })} />
+            </View>
+          </Animated.View>
+        )}
+
+        {tab === 'roommates' && (
+          <Animated.View key="roommates" entering={FadeIn.duration(durations.fade)} style={{ gap: 20 }}>
+            <Txt v="Body/Default" c={color.text.secondary}>What’s theirs, and how to treat it.</Txt>
+            {roommates.length === 0 ? <Txt v="Meta" c={color.text.secondary}>No roommates here yet.</Txt> : (
+              <>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingVertical: 2 }}>
+                  {roommates.map((m) => {
+                    const on = m.user_id === pick;
+                    return (
+                      <Tap key={m.user_id} onPress={() => setWho(m.user_id)} feel="select" accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={m.name}>
+                        <Glass outline={on} r={26} fill={0.9} strokeWidth={1.5}>
+                          <View style={styles.person}>
+                            <Avatar name={m.name} uri={m.avatar_path ? avatarUrl(m.avatar_path) : null} tint={m.color} size={32} />
+                            <Txt v="Body/Label" c={on ? color.text.link : color.text.primary}>{m.name.split(' ')[0]}</Txt>
+                          </View>
+                        </Glass>
+                      </Tap>
+                    );
+                  })}
+                </ScrollView>
+                {picked && (
+                  <Animated.View key={picked.user_id} entering={FadeIn.duration(durations.fade)} style={{ gap: layout.itemGap }}>
+                    <Heading title={`${picked.name.split(' ')[0]}’s shelf`} count={theirs.length} />
+                    {theirs.length === 0 && <Txt v="Meta" c={color.text.secondary}>Nothing on their shelf yet.</Txt>}
+                    {theirs.map((i) => {
+                      const ask = myAsk(state.asks, i.id, me);
+                      const askable = canAsk(i, me, state.asks);
+                      const meta = ask?.status === 'pending' ? 'Asked · waiting' : ask?.status === 'yes' ? 'Said sure' : ask?.status === 'no' ? 'Not this time' : askable ? 'Tap to ask' : undefined;
+                      return (
+                        <Animated.View key={i.id} entering={E()} layout={spring}>
+                          <Tap onPress={askable ? () => act.ask(i, picked.name.split(' ')[0]) : undefined} disabled={!askable} accessibilityLabel={askable ? `Ask to use ${i.name}` : i.name}>
+                            <ItemCard icon={iconOf(i)} name={i.name} tags={ruleTag(i)} meta={meta} />
+                          </Tap>
+                        </Animated.View>
+                      );
+                    })}
+                  </Animated.View>
+                )}
+              </>
+            )}
+          </Animated.View>
+        )}
       </ScrollView>
-
-      {menu && <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(120)} style={styles.scrim}><Pressable style={{ flex: 1 }} onPress={() => setMenu(false)} accessibilityLabel="Close menu" /></Animated.View>}
-      {menu && (
-        <View style={styles.menu} pointerEvents="box-none">
-          <Animated.View entering={FadeInDown.delay(60).duration(200)} exiting={FadeOut.duration(100)}>
-            <Pressable onPress={() => { setMenu(false); router.push('/restock'); }} style={({ pressed }) => [styles.pill, pressed && { transform: [{ scale: 0.97 }] }]}><Text style={styles.pillText}>🛒  Request restock</Text></Pressable>
-          </Animated.View>
-          <Animated.View entering={FadeInDown.duration(200)} exiting={FadeOut.duration(100)}>
-            <Pressable onPress={() => { setMenu(false); router.push('/add-item'); }} style={({ pressed }) => [styles.pill, pressed && { transform: [{ scale: 0.97 }] }]}><Text style={styles.pillText}>＋  Add to pantry</Text></Pressable>
-          </Animated.View>
-        </View>
-      )}
-      <Pressable accessibilityRole="button" accessibilityLabel={menu ? 'Close menu' : 'Add to pantry or request restock'}
-        onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setMenu((m) => !m); }}
-        style={({ pressed }) => [styles.fab, pressed && { transform: [{ scale: 0.95 }] }]}>
-        <Animated.View style={plus}><Ionicons name="add" size={24} color="#FFF" /></Animated.View>
-        <Text style={styles.fabText}>{menu ? 'Close' : 'Add'}</Text>
-      </Pressable>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.page },
-  scroll: { paddingHorizontal: 24 },
-  header: { paddingTop: 20, paddingBottom: 16 },
-  title: { fontSize: 32, color: C.text, fontFamily: F.display },
-  subtitle: { fontSize: 14, color: C.sub, fontFamily: F.medium, marginTop: 2 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
-  section: { fontSize: 12, letterSpacing: 0.8, color: C.sub, fontFamily: F.bold, marginTop: 22, marginBottom: 12 },
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFEDD5', borderRadius: 24, padding: 16 },
-  bannerTitle: { fontSize: 16, color: '#9A3412', fontFamily: F.bold },
-  bannerBody: { fontSize: 13, lineHeight: 18, color: '#9A3412', fontFamily: F.regular, opacity: 0.85, marginTop: 2 },
-  bannerBtn: { backgroundColor: C.text, borderRadius: 18, paddingHorizontal: 16, height: 38, alignItems: 'center', justifyContent: 'center' },
-  bannerBtnText: { color: '#FFF', fontSize: 14, fontFamily: F.bold },
-  okStrip: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#DCFCE7', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12 },
-  okText: { fontSize: 14, color: '#15803D', fontFamily: F.bold },
-  empty: { alignItems: 'center', gap: 6, paddingTop: 16 },
-  emptyTitle: { fontSize: 22, color: C.text, fontFamily: F.display, marginTop: 8 },
-  emptyBody: { fontSize: 15, color: C.sub, fontFamily: F.regular, textAlign: 'center' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 18 },
-  chip: { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#DDD6FE', paddingHorizontal: 16, paddingVertical: 11, borderRadius: 22 },
-  chipText: { fontSize: 15, color: C.lavenderText, fontFamily: F.semibold },
-  who: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, marginBottom: 12 },
-  whoText: { fontSize: 16, color: C.text, fontFamily: F.bold },
-  whoCount: { fontSize: 13, color: C.sub, fontFamily: F.semibold },
-  ask: { backgroundColor: C.lavender, borderRadius: 22, padding: 16, gap: 12, marginBottom: 14 },
-  askText: { fontSize: 15, lineHeight: 21, color: C.lavenderText, fontFamily: F.regular },
-  askButtons: { flexDirection: 'row', gap: 10 },
-  askNo: { flex: 1, height: 42, borderRadius: 21, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' },
-  askNoText: { fontSize: 14, color: C.text, fontFamily: F.semibold },
-  askYes: { flex: 1, height: 42, borderRadius: 21, backgroundColor: C.text, alignItems: 'center', justifyContent: 'center' },
-  askYesText: { fontSize: 14, color: '#FFF', fontFamily: F.semibold },
-  scrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(17,24,39,0.35)' },
-  menu: { position: 'absolute', right: 24, bottom: 176, gap: 10, alignItems: 'flex-end' },
-  pill: { backgroundColor: '#FFF', paddingHorizontal: 20, height: 48, borderRadius: 24, justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-  pillText: { fontSize: 15, color: C.text, fontFamily: F.semibold },
-  fab: { position: 'absolute', bottom: 110, right: 24, height: 54, paddingHorizontal: 18, borderRadius: 27, backgroundColor: ACCENT, flexDirection: 'row', alignItems: 'center', gap: 6,
-    shadowColor: ACCENT, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
-  fabText: { color: '#FFF', fontSize: 16, fontFamily: F.bold },
+  root: { flex: 1, backgroundColor: color.bg.canvas },
+  page: { paddingHorizontal: layout.margin, gap: 20 },
+  heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  headingLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  count: { minWidth: 24, height: 22, paddingHorizontal: 7, borderRadius: 11, backgroundColor: color.action.selectedTint, alignItems: 'center', justifyContent: 'center' },
+  lowRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingLeft: 12, paddingRight: 8 },
+  disc: { borderRadius: 20, backgroundColor: color.bg.surface, shadowColor: '#3B2470', shadowOpacity: 0.1, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  pill: { height: 34, paddingHorizontal: 14, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  pair: { flexDirection: 'row', gap: 12 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  person: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, paddingLeft: 6, paddingRight: 16 },
 });

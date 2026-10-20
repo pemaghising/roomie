@@ -1,7 +1,7 @@
 import { BlurView } from 'expo-blur';
-import { Check as CheckIcon } from 'lucide-react-native';
-import { useEffect, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Check as CheckIcon, MoreHorizontal, type LucideIcon } from 'lucide-react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,7 +75,61 @@ export function Sheet({ children, onClose, title, sub }: { children: ReactNode; 
   );
 }
 
+export type MenuItem = { label: string; onPress: () => void; danger?: boolean; icon?: LucideIcon };
+
+/** v2/Item menu (frames P1e, P2b): the ••• button and the card that springs out under it. */
+export function MoreMenu({ items, label, size = 32, plain }: { items: MenuItem[]; label: string; size?: number; plain?: boolean }) {
+  const ref = useRef<View>(null);
+  const { height } = useWindowDimensions();
+  const reduced = useReducedMotion();
+  const [at, setAt] = useState<{ right: number; top: number; up: boolean } | null>(null);
+  const t = useSharedValue(0);
+  const open = () => ref.current?.measureInWindow((x, y, w, h) => {
+    const up = y + h + 60 + items.length * 52 > height - 90;
+    setAt({ right: x + w, top: up ? y - 6 : y + h + 6, up });
+    t.value = 0;
+    t.value = reduced ? 1 : withSpring(1, motion.pop);
+  });
+  const close = (then?: () => void) => { setAt(null); then?.(); };
+  const card = useAnimatedStyle(() => ({ opacity: Math.min(1, t.value * 1.6), transform: [{ scale: 0.9 + 0.1 * t.value }] }));
+  const veil = useAnimatedStyle(() => ({ opacity: Math.min(1, t.value * 1.4) }));
+  const { width } = useWindowDimensions();
+  return (
+    <>
+      <View ref={ref} collapsable={false}>
+      <Tap onPress={open} feel="select" accessibilityLabel={label} accessibilityState={{ expanded: !!at }} hitSlop={8}>
+        <View style={[{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center' }, !plain && { backgroundColor: '#F1EFF6' }, at && styles.moreOn]}>
+          <MoreHorizontal size={18} color={at ? color.text.link : color.text.secondary} strokeWidth={2.25} />
+        </View>
+      </Tap>
+      </View>
+      <Modal transparent visible={!!at} animationType="none" onRequestClose={() => close()} statusBarTranslucent>
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(248,246,252,0.6)' }, veil]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => close()} accessibilityLabel="Close menu" />
+        </Animated.View>
+        {at && (
+          <Animated.View style={[styles.menu, elevation.sheet, { right: width - at.right, transformOrigin: at.up ? 'bottom right' : 'top right' },
+            at.up ? { bottom: height - at.top } : { top: at.top }, card]} accessibilityRole="menu">
+            {items.map((m, i) => (
+              <Tap key={m.label} onPress={() => close(m.onPress)} feel={m.danger ? 'none' : 'select'} accessibilityRole="menuitem">
+                <View style={[styles.menuRow, i < items.length - 1 && styles.menuLine]}>
+                  <Txt v="Body/Default" c={m.danger ? color.text.danger : color.text.primary}>{m.label}</Txt>
+                  {m.icon && <m.icon size={16} color={m.danger ? color.text.danger : color.text.secondary} strokeWidth={2} />}
+                </View>
+              </Tap>
+            ))}
+          </Animated.View>
+        )}
+      </Modal>
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
+  moreOn: { backgroundColor: color.bg.surface, borderWidth: 1.5, borderColor: color.action.primary },
+  menu: { position: 'absolute', minWidth: 220, borderRadius: 18, backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECE8F6', overflow: 'hidden' },
+  menuRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingVertical: 15, paddingHorizontal: 16, minHeight: 50 },
+  menuLine: { borderBottomWidth: 1, borderBottomColor: 'rgba(135,107,222,0.12)' },
   snack: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', maxWidth: 360, paddingVertical: 8, paddingLeft: 18, paddingRight: 8, borderRadius: radius.full, backgroundColor: color.text.primary },
   snackAction: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: radius.full, backgroundColor: 'rgba(252,251,255,0.12)' },
   toast: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'stretch', paddingVertical: 12, paddingLeft: 14, paddingRight: 16, borderRadius: 16, backgroundColor: color.text.primary },

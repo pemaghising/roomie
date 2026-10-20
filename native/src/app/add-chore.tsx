@@ -1,17 +1,17 @@
 // C4 · New chore: a sheet over Chores. The icon is picked from the name; tap it to choose another.
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Pencil, RefreshCw } from 'lucide-react-native';
+import { RefreshCw } from 'lucide-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import type { Cadence, Effort } from '@domain/types.ts';
 import { choreIcon } from '@/lib/chore-icon';
 import { messageOf, planNow, rpc, STATE_KEY, useAppState } from '@/lib/state';
-import { durations, motion } from '@/ui/motion';
+import { durations } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
-import { color, font } from '@/ui/tokens';
-import { Button, Chip, EmojiBadge, Sheet, Tap, Txt } from '@/ui/v2';
+import { color } from '@/ui/tokens';
+import { Button, Chip, ChoiceSwitch, EmojiBadge, IconNameField, Sheet, Tap, Txt } from '@/ui/v2';
 
 const PICKS = ['Water plants', 'Wipe stove', 'Defrost freezer', 'Clean windows', 'Change bedsheets', 'Do the laundry'];
 const ICONS = ['🧽', '🧹', '🪣', '🧺', '🗑️', '♻️', '🍽️', '🍳', '🚿', '🚽', '🪟', '🛏️', '🪴', '🛒'];
@@ -26,26 +26,6 @@ const CADENCES: { value: Cadence; label: string; bg: string; fg: string }[] = [
   { value: 'weekly', label: 'Weekly', bg: color.bg.surface, fg: color.text.link },
   { value: 'biweekly', label: 'Bi-weekly', bg: color.bg.surface, fg: color.text.link },
 ];
-const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness);
-
-/** The tinted three-way switch from C4: the chosen segment takes its own colour (effort) or lifts white (repeats). */
-function Seg<T extends string | number>({ label, options, value, onChange }: { label: string; options: { value: T; label: string; bg: string; fg: string }[]; value: T; onChange: (v: T) => void }) {
-  return (
-    <View style={styles.seg} accessibilityRole="radiogroup" accessibilityLabel={label}>
-      {options.map((o) => {
-        const on = o.value === value;
-        return (
-          <Tap key={o.label} onPress={() => onChange(o.value)} feel="select" style={{ flex: 1 }} accessibilityRole="radio" accessibilityState={{ selected: on }}>
-            <Animated.View layout={spring} style={[styles.segItem, on && { backgroundColor: o.bg }, on && o.bg === color.bg.surface && styles.lift]}>
-              <Txt v="Body/Label" c={on ? o.fg : color.text.secondary}>{o.label}</Txt>
-            </Animated.View>
-          </Tap>
-        );
-      })}
-    </View>
-  );
-}
-
 export default function AddChore() {
   const router = useRouter();
   const qc = useQueryClient();
@@ -81,19 +61,8 @@ export default function AddChore() {
   return (
     <Sheet onClose={close}>
       <Txt v="Body/Label" c={color.text.link}>New chore</Txt>
-      <View style={styles.nameRow}>
-        <Tap onPress={() => setPicking((p) => !p)} feel="select" accessibilityLabel="Change icon" accessibilityState={{ expanded: picking }}>
-          <View>
-            <EmojiBadge value={icon} name={name || 'Chore'} size={64} round tint="#F1ECFD" />
-            <View style={styles.pencil}><Pencil size={10} color={color.text.link} strokeWidth={2.25} /></View>
-          </View>
-        </Tap>
-        <View style={{ flex: 1, gap: 2 }}>
-          <TextInput value={name} onChangeText={(t) => { setName(t); setError(null); }} placeholder="Name the chore" placeholderTextColor={color.text.secondary}
-            maxLength={40} autoFocus accessibilityLabel="Chore name" selectionColor={color.action.primary} style={styles.name} returnKeyType="done" />
-          <Txt v="Meta" c={color.text.secondary}>{chosen ? 'Your pick · tap to change' : 'Icon picked for you · tap to change'}</Txt>
-        </View>
-      </View>
+      <IconNameField icon={icon} name={name} onName={(t) => { setName(t); setError(null); }} placeholder="Name the chore"
+        sub={chosen ? 'Your pick · tap to change' : 'Icon picked for you · tap to change'} onIcon={() => setPicking((p) => !p)} />
 
       {picking && (
         <Animated.View entering={FadeIn.duration(durations.fade)} exiting={FadeOut.duration(durations.fade)} style={styles.icons}>
@@ -118,13 +87,13 @@ export default function AddChore() {
 
       <View style={{ gap: 10 }}>
         <Txt v="Meta/Medium" c={color.text.secondary}>Effort</Txt>
-        <Seg label="Effort" options={EFFORTS} value={effort} onChange={setEffort} />
+        <ChoiceSwitch label="Effort" options={EFFORTS} value={effort} onChange={setEffort} />
         <Txt v="Meta" c={color.text.secondary}>Heavy chores skip your busy days.</Txt>
       </View>
 
       <View style={{ gap: 10 }}>
         <Txt v="Meta/Medium" c={color.text.secondary}>Repeats</Txt>
-        <Seg label="Repeats" options={CADENCES} value={cadence} onChange={setCadence} />
+        <ChoiceSwitch label="Repeats" options={CADENCES} value={cadence} onChange={setCadence} />
       </View>
 
       <View style={styles.note}>
@@ -138,15 +107,8 @@ export default function AddChore() {
 }
 
 const styles = StyleSheet.create({
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  pencil: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#3B2470', shadowOpacity: 0.14, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
-  name: { fontFamily: font.semibold, fontSize: 20, lineHeight: 25, color: color.text.primary, padding: 0 },
   icons: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   iconCell: { padding: 2, borderRadius: 24, borderWidth: 1.5, borderColor: 'transparent' },
   iconOn: { borderColor: color.action.primary },
-  seg: { flexDirection: 'row', padding: 4, borderRadius: 22, backgroundColor: 'rgba(135,107,222,0.1)' },
-  segItem: { height: 40, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  lift: { shadowColor: '#7A5FD6', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
   note: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 16, backgroundColor: 'rgba(135,107,222,0.1)' },
 });

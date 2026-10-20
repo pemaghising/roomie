@@ -1,44 +1,61 @@
+// P1f · Restock request: from an item's menu (`?item=<id>`) or from the + menu. It goes to the shared pool.
 import { useQueryClient } from '@tanstack/react-query';
-import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { Effort } from '@domain/types.ts';
-import { cleanName, openRestockFor, sameName } from '@domain/pantry.ts';
-import { F } from '@/constants/theme';
-import { messageOf, rpc, STATE_KEY, useMe } from '@/lib/state';
-import { Button, C, ErrorText, Field } from '@/ui/kit';
+import { cleanName, iconFor, openRestockFor, sameName, STOCK_LABEL, type PantryItem } from '@domain/pantry.ts';
+import { matchIcons } from '@/lib/icons';
+import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
+import { useToast } from '@/ui/toast';
+import { color } from '@/ui/tokens';
+import { Button, Chip, ChoiceSwitch, IconNameField, Sheet, Txt } from '@/ui/v2';
 
-const EFFORTS: { value: Effort; label: string; tone: { bg: string; fg: string } }[] = [
-  { value: 1, label: 'Light', tone: { bg: '#D1FAE5', fg: '#065F46' } },
-  { value: 2, label: 'Medium', tone: { bg: '#FEF3C7', fg: '#92400E' } },
-  { value: 3, label: 'Heavy', tone: { bg: '#FEE2E2', fg: '#991B1B' } },
+const E = color.effort;
+const EFFORTS: { value: Effort; label: string; bg: string; fg: string }[] = [
+  { value: 1, label: 'Light', bg: E.lightBg, fg: E.lightFg },
+  { value: 2, label: 'Medium', bg: E.mediumBg, fg: E.mediumFg },
+  { value: 3, label: 'Heavy', bg: E.heavyBg, fg: E.heavyFg },
 ];
+const iconOf = (i: PantryItem) => i.icon ?? (iconFor(i.name) === '🛒' ? null : iconFor(i.name));
 
-/** From an item (`?item=<id>`) or free text from the + menu. */
-export default function Restock() {
-  const { item: itemId } = useLocalSearchParams<{ item?: string }>();
+/** Opened cold (a link, a refresh) it waits for the household before rendering. */
+export default function RestockRoute() {
+  const { data } = useAppState();
+  return data?.household ? <Restock /> : null;
+}
+
+function Restock() {
+  const params = useLocalSearchParams<{ item?: string }>();
   const router = useRouter();
   const qc = useQueryClient();
+  const toast = useToast();
   const { state } = useMe();
+  const [itemId, setItemId] = useState(params.item ?? null);
   const item = itemId ? state.pantry.find((i) => i.id === itemId) : undefined;
-  const [name, setName] = useState('');
+  const [name, setName] = useState(item?.name ?? '');
   const [effort, setEffort] = useState<Effort>(1);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const clean = cleanName(name);
+  const shared = state.pantry.filter((i) => i.owner_id === null);
+  // a typed name that matches something on the shared shelf restocks that item
+  const target = item && sameName(item.name, clean) ? item : shared.find((i) => sameName(i.name, clean));
+  const others = shared.filter((i) => i.id !== target?.id && !openRestockFor(state.restocks, i.id))
+    .sort((a, b) => Number(b.stock !== 'in_stock') - Number(a.stock !== 'in_stock')).slice(0, 3);
+  const icon = target ? iconOf(target) : clean ? matchIcons(clean).exact?.name ?? null : 'Shopping cart';
+  const sub = target ? (target.stock === 'in_stock' ? 'Shared · in stock' : `Shared · ${STOCK_LABEL[target.stock].toLowerCase()}`) : 'Something the house needs';
+  const close = () => router.back();
 
   const send = async () => {
-    const clean = cleanName(name);
-    const target = item ?? (clean ? state.pantry.find((i) => i.owner_id === null && sameName(i.name, clean)) : undefined);
-    if (!target && !clean) return setError('What do we need?');
-    if (!target && [...clean].length > 40) return setError('Keep it under 40 characters.');
-    if (target && openRestockFor(state.restocks, target.id)) return setError('Requested');
+    if (!clean || busy) return;
+    if (target && openRestockFor(state.restocks, target.id)) return setError('Already requested.');
     setBusy(true);
     try {
       await rpc('request_restock', target ? { p_item: target.id, p_effort: effort } : { p_name: clean, p_effort: effort });
       await qc.invalidateQueries({ queryKey: STATE_KEY });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace({ pathname: '/request-sent', params: { name: target?.name ?? clean } });
+      toast.show(`${target?.name ?? clean} is in the shared pool.`, { tick: true });
+      close();
     } catch (e) {
       setError(messageOf(e));
       setBusy(false);
@@ -46,40 +63,26 @@ export default function Restock() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: '#FFF' }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>Request Restock</Text>
-      <Text style={styles.sub}>
-        {item ? `We're out of ${item.name}. Send this to the Chores pool so a roommate can pick it up.` : 'This will create a task in the Chores pool for a roommate to pick up.'}
-      </Text>
-      {!item && (
-        <View style={{ marginTop: 18 }}>
-          <Field style={styles.input} autoFocus placeholder="e.g., Dish soap" value={name} accessibilityLabel="What do we need?"
-            onChangeText={(t) => { setName(t); setError(null); }} />
+    <Sheet onClose={close}>
+      <Txt v="Body/Label" c={color.text.link}>Restock request</Txt>
+      <IconNameField icon={icon} name={name} onName={(t) => { setName(t); setItemId(null); setError(null); }} placeholder="What do we need?" sub={sub} />
+      {others.length > 0 && (
+        <View style={{ gap: 10 }}>
+          <Txt v="Meta/Medium" c={color.text.secondary}>Or restock something else</Txt>
+          <View style={styles.chips}>{others.map((i) => <Chip key={i.id} label={i.name} onPress={() => { setItemId(i.id); setName(i.name); setError(null); }} />)}</View>
         </View>
       )}
-      <Text style={styles.label}>EFFORT LEVEL</Text>
-      <View style={styles.pills}>
-        {EFFORTS.map((e) => (
-          <Pressable key={e.label} accessibilityRole="radio" accessibilityState={{ selected: e.value === effort }}
-            onPress={() => { Haptics.selectionAsync(); setEffort(e.value); }}
-            style={({ pressed }) => [styles.pill, { backgroundColor: e.tone.bg, borderColor: e.value === effort ? e.tone.fg : 'transparent' }, pressed && { transform: [{ scale: 0.97 }] }]}>
-            <Text style={[styles.pillText, { color: e.tone.fg }]}>{e.label}</Text>
-          </Pressable>
-        ))}
+      <View style={{ gap: 10 }}>
+        <Txt v="Meta/Medium" c={color.text.secondary}>Effort</Txt>
+        <ChoiceSwitch label="Effort" options={EFFORTS} value={effort} onChange={setEffort} />
+        <Txt v="Meta" c={color.text.secondary}>Goes to the shared pool. Whoever buys it gets the credit.</Txt>
       </View>
-      <ErrorText>{error}</ErrorText>
-      <Button title="Send to Chores Pool" onPress={send} loading={busy} disabled={!item && !cleanName(name)} style={{ marginTop: 22 }} />
-    </ScrollView>
+      {error && <Txt v="Meta" c={color.action.danger} accessibilityRole="alert">{error}</Txt>}
+      <Button title="Request restock" onPress={send} loading={busy} disabled={!clean} />
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 24, paddingTop: 36, paddingBottom: 32 },
-  title: { fontSize: 32, lineHeight: 40, color: C.text, fontFamily: F.display },
-  sub: { fontSize: 15, lineHeight: 22, color: C.sub, fontFamily: F.regular, marginTop: 8 },
-  input: { height: 54, borderRadius: 16, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB' },
-  label: { fontSize: 12, letterSpacing: 0.8, color: C.sub, fontFamily: F.bold, marginTop: 24, marginBottom: 12 },
-  pills: { flexDirection: 'row', gap: 10 },
-  pill: { flex: 1, height: 46, borderRadius: 23, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  pillText: { fontSize: 15, fontFamily: F.bold },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });

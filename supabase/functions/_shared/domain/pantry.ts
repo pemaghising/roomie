@@ -5,7 +5,7 @@ export type PantryRule = 'ask_first' | 'do_not_touch';
 export type ShelfTab = 'shared' | 'mine' | 'roommates';
 
 /** owner_id null = shared (and rule null); otherwise personal with a rule. */
-export interface PantryItem { id: string; owner_id: string | null; name: string; rule: PantryRule | null; stock: StockLevel; created_at: string }
+export interface PantryItem { id: string; owner_id: string | null; name: string; rule: PantryRule | null; stock: StockLevel; created_at: string; icon?: string | null }
 export interface Restock {
   id: string; item_id: string | null; name: string; effort: Effort; requested_by: string; claimed_by: string | null;
   status: 'open' | 'done' | 'cancelled'; done_by: string | null;
