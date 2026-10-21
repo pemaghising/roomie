@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { lenis } from "@/ui/SmoothScroll";
 import { Phone } from "@/ui/Phone";
 import "./features.css";
 
@@ -95,8 +96,6 @@ export function Features() {
         ease: "none",
         scrollTrigger: {
           trigger: el, pin: true, scrub: 0.3, start: "top top",
-          // settles on the nearest feature once you stop scrolling, so a slide never rests half off screen
-          snap: { snapTo: 1 / (n - 1), inertia: false, duration: { min: 0.25, max: 0.6 }, delay: 0.08, ease: "power2.inOut" },
           end: () => "+=" + window.innerWidth * (n - 1) * 0.8,
           invalidateOnRefresh: true,
           onUpdate: (st) => {
@@ -105,7 +104,22 @@ export function Features() {
           },
         },
       });
-      return () => { tween.scrollTrigger?.kill(); tween.kill(); setTourOn(false); };
+      // Once scrolling stops inside the tour, glide to the nearest feature. Lenis does the glide, so it never
+      // fights the smooth scroll the way ScrollTrigger's own snap did.
+      // It follows your direction: nudge more than an eighth of a slide and it carries on to the next one.
+      let at = 0;
+      const settle = () => {
+        const st = tween.scrollTrigger;
+        if (!st || !st.isActive) return;
+        const raw = st.progress * (n - 1), d = raw - at;
+        at = Math.min(n - 1, Math.max(0, d > 0.12 ? Math.ceil(raw - 0.001) : d < -0.12 ? Math.floor(raw + 0.001) : Math.round(raw)));
+        const target = st.start + (at / (n - 1)) * (st.end - st.start);
+        if (Math.abs(target - window.scrollY) < 2) return;
+        if (lenis) lenis.scrollTo(target, { duration: 0.6, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        else window.scrollTo({ top: target, behavior: "smooth" });
+      };
+      ScrollTrigger.addEventListener("scrollEnd", settle);
+      return () => { ScrollTrigger.removeEventListener("scrollEnd", settle); tween.scrollTrigger?.kill(); tween.kill(); setTourOn(false); };
     });
     return () => mm.revert();
   }, []);

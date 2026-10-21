@@ -75,12 +75,13 @@
 
 .hero-stage {
   position: relative; display: flex; justify-content: center;
-  margin-top: clamp(40px, 7vh, 64px);
-  height: calc(var(--pw) * 1.55);
+  /* 80px of headroom above the phone so the parallax lift never slides it out of the clipped stage */
+  margin-top: calc(clamp(40px, 7vh, 64px) - 80px); padding-top: 80px;
+  height: calc(var(--pw) * 1.55 + 80px);
   --pw: clamp(260px, 26vw, 340px);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
-          mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
 }
 .hero-phone { --phone-w: var(--pw); flex: none; align-self: flex-start; }
 .hero-float {
