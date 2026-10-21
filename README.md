@@ -72,15 +72,15 @@ It is a UX case study and product design project by **Pema Ghising**, taken all 
 
 <table>
   <tr>
-    <td width="50%"><img src=".github/assets/site-features.webp" alt="Website: the features tour"></td>
-    <td width="50%"><img src=".github/assets/site-week.webp" alt="Website: one week at Parijat Chowk Flat"></td>
+    <td width="50%"><img src=".github/assets/site-features-2026-10.webp" alt="Website: the features tour"></td>
+    <td width="50%"><img src=".github/assets/site-week-2026-10.webp" alt="Website: one week at Parijat Chowk Flat"></td>
   </tr>
   <tr>
     <td align="center"><sub>Features tour: one feature per screen</sub></td>
     <td align="center"><sub>How it works: a week told phone by phone</sub></td>
   </tr>
   <tr>
-    <td colspan="2"><img src=".github/assets/case-study-hero.webp" alt="Case study: Fair isn't equal"></td>
+    <td colspan="2"><img src=".github/assets/case-study-hero-2026-10.webp" alt="Case study: Fair isn't equal"></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><sub>The case study: Empathize, Define, Ideate, Prototype, Test, Reflect</sub></td>
