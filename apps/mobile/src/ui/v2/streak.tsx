@@ -33,7 +33,8 @@ function Pill({ state, letter }: { state: DayState; letter: string }) {
 export function StreakCard({ days, week, drooped = false }: { days: number; week: DayState[]; drooped?: boolean }) {
   const reduced = useReducedMotion();
   const stage = plantFor(days, drooped);
-  const words = days === 1 ? ['day', 'together'] : ['days', 'strong'];
+  // zero is a seed just planted (day one, or after a reset), so it invites instead of bragging
+  const words = days === 0 ? ['day', 'let’s grow'] : days === 1 ? ['day', 'together'] : ['days', 'strong'];
   const shown = useCountUp(days);
   const fade = reduced ? undefined : FadeIn.duration(durations.enter);
   return (
