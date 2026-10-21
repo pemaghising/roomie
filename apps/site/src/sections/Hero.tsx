@@ -49,7 +49,8 @@ export function Hero() {
           <nav className="topnav" aria-label="Sections">
             <a href="#features">Features</a>
             <a href="#week">How it works</a>
-            <a href="#shelf">The pantry</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://roomie-app-v2-delta.vercel.app" target="_blank" rel="noopener">Prototype</a>
           </nav>
           <a className="topbar-cta" href="#close">Coming soon</a>
         </div>
