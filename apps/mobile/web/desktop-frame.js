@@ -31,6 +31,8 @@
     '#side p{font-size:17px;line-height:1.45;color:#5E5873;margin:0 0 28px}' +
     '#side .qr{display:flex;align-items:center;gap:16px;padding:14px;border-radius:20px;background:#FCFBFF;box-shadow:0 8px 24px rgba(89,71,140,.08)}' +
     '#side .qr img{width:96px;height:96px;border-radius:8px}' +
+    // pretty wrapping keeps a lone word off the last line
+    '#side p,#side .qr span{text-wrap:pretty}' +
     '#side .qr span{font-size:14px;line-height:1.4;color:#5E5873}' +
     '#side .qr b{display:block;font-weight:600;color:#1F1B3A;font-size:15px;margin-bottom:2px}' +
     '@media (max-width:980px){#side{display:none}}';
@@ -47,7 +49,7 @@
     '</span></div><div id="island"></div><div id="homebar"></div></div></div></div>' +
     '<div id="side"><img class="icon" src="/app-icon.png" alt="">' +
     '<h1>Roomie</h1><p>Chores and the pantry, shared fairly between roommates.</p>' +
-    '<div class="qr"><img src="/qr.png" alt="QR code to open Roomie on your phone"><span><b>Open it on your phone</b>Scan with your camera, then add it to your home screen.</span></div></div>';
+    '<div class="qr"><img src="/qr.png" alt="QR code to open Roomie on your phone"><span><b>Open it on your phone</b>Scan with your camera, then add it to your home&nbsp;screen.</span></div></div>';
 
   // scale the phone down on shorter screens so the whole device stays visible
   function fit() {
