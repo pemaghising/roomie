@@ -62,55 +62,40 @@
     radial-gradient(50% 40% at 50% 8%, rgba(239, 233, 253, .9) 0%, transparent 75%),
     var(--mist);
 }
-.hero-center {
-  position: relative; z-index: 3;
-  display: grid; justify-items: center; text-align: center;
-  padding-block: clamp(56px, 9vh, 112px) clamp(80px, 13vh, 140px);
+/* Split hero: copy and download on the left, the real Home screen rising out of a photographed room on the right */
+.hero-split {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); align-items: center; gap: clamp(32px, 5vw, 80px);
+  min-height: 100svh; padding-block: calc(88px + 2vh) clamp(24px, 4vh, 48px);
 }
-.hero-center h1 { font-size: clamp(42px, 5.6vw, 80px); line-height: 1; }
-.hero-center h1 em { display: block; }   /* two lines: the promise, then the payoff */
-.hero-center h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
-.hero-center .lede { margin-top: 24px; max-width: 38em; text-wrap: balance; }
-.hero-center .lede span { display: block; }   /* one sentence per line */
-.hero-cta { margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.hero-copy { display: grid; justify-items: start; }
+.hero-copy h1 { font-size: clamp(48px, 6.2vw, 96px); line-height: .98; }
+.hero-copy h1 em { display: block; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
+.hero-copy .lede { margin-top: 24px; max-width: 26em; text-wrap: pretty; }
+.hero-cta { margin-top: 36px; }
+.hero-copy .stores { margin-top: 20px; }
 
-/* The first screen is the product alone: three phones standing on a glossy lilac floor, in real 3D.
-   Home faces you; Pantry and the shared pool hinge open from its edges like a book. */
-.hero-stage {
-  position: relative; display: grid; place-items: center;
-  --pw: clamp(200px, min(19vw, (100svh - 260px) / 2.08), 330px);
-  height: 100svh; min-height: 640px; padding-top: 0;
-  perspective: 2200px; perspective-origin: 50% 40%;
+.hero-panel {
+  position: relative; overflow: hidden; isolation: isolate;
+  height: min(calc(100svh - 136px), 820px); min-height: 520px; border-radius: 36px;
+  box-shadow: 0 1px 2px rgba(31, 27, 58, .06), 0 40px 80px -40px rgba(59, 36, 112, .45);
 }
-.hero-scene { position: relative; width: var(--pw); height: calc(var(--pw) * 2.08); transform-style: preserve-3d; }
-/* light pooling behind the phones */
-.hero-scene::before {
-  content: ""; position: absolute; left: 50%; top: 42%; translate: -50% -50%;
-  width: calc(var(--pw) * 4.6); height: calc(var(--pw) * 2.6); border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(164, 137, 237, .45), rgba(255, 180, 138, .2) 58%, transparent 100%);
-  filter: blur(40px); transform: translateZ(-400px) scale(1.2); pointer-events: none;
+.hero-room { position: absolute; inset: -6% 0 0; width: 100%; height: 106%; object-fit: cover; object-position: 30% 60%; will-change: transform; }
+/* a soft lilac veil keeps the room calm behind the screen */
+.hero-panel::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(248, 246, 252, .05) 30%, rgba(122, 95, 214, .18)); pointer-events: none; }
+.hero-phone {
+  --phone-w: clamp(220px, min(22vw, 44svh), 330px);
+  position: absolute; z-index: 1; left: 50%; bottom: calc(var(--phone-w) * -.42); translate: -50% 0;
+  filter: drop-shadow(0 40px 50px rgba(31, 27, 58, .35));
 }
-/* the floor line the phones stand on */
-.hero-scene::after {
-  content: ""; position: absolute; left: 50%; top: 100%; translate: -50% 0;
-  width: calc(var(--pw) * 4); height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(122, 95, 214, .25), transparent);
-  pointer-events: none;
-}
-.hero-phone { --phone-w: var(--pw); position: absolute; left: 0; bottom: 0; transform-style: preserve-3d;
-  /* the reflection in the floor */
-  -webkit-box-reflect: below 10px linear-gradient(transparent 78%, rgba(255, 255, 255, .22)); }
-.hero-phone--main { z-index: 2; }
-.hero-phone--side { --phone-w: calc(var(--pw) * .92); z-index: 1; }
-.hero-phone--l { left: calc(var(--pw) * -.9); transform-origin: 100% 50%; transform: translateZ(-90px) rotateY(40deg); }
-.hero-phone--r { left: calc(var(--pw) * .98); transform-origin: 0% 50%; transform: translateZ(-90px) rotateY(-40deg); }
-.hero-phone--side .bezel { filter: saturate(.94) brightness(.97); }
+
 .tag { flex: none; }
 .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
 .tag--heavy { background: var(--heavy-bg); color: var(--heavy-fg); }
 
-@media (max-width: 860px) {
-  .hero-stage { --pw: clamp(160px, min(46vw, (100svh - 240px) / 2.1), 260px); min-height: 540px; }
-  .hero-phone--l { left: calc(var(--pw) * -.78); }
-  .hero-phone--r { left: calc(var(--pw) * .86); }
+@media (max-width: 900px) {
+  .hero-split { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: 32px; padding-top: calc(88px + 16px); }
+  .hero-copy { justify-items: center; text-align: center; }
+  .hero-copy .lede { margin-inline: auto; }
+  .hero-panel { height: min(78vw, 520px); min-height: 380px; border-radius: 28px; }
+  .hero-phone { --phone-w: min(220px, 52vw); }
 }
