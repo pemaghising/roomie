@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import { Check as CheckIcon, MoreHorizontal, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Keyboard, Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -32,7 +31,7 @@ export function Toast({ message, action, onAction }: { message: string; action?:
 }
 
 /**
- * Bottom sheet over a blurred scrim, as in the Figma sheets (radius 32, grabber, 42 bottom padding).
+ * Bottom sheet over a 50% lavender veil, as in the Figma sheets (C4 Add chore) (radius 32, grabber, 42 bottom padding).
  * Springs up on mount; drag down or tap the scrim to dismiss.
  */
 /** `floating` lifts a sheet opened inside a tab screen above the nav (route sheets already sit above it). */
@@ -70,7 +69,6 @@ export function Sheet({ children, onClose, title, sub, floating }: { children: R
   const body = (
     <View style={StyleSheet.absoluteFill}>
       <Animated.View style={[StyleSheet.absoluteFill, scrimStyle]}>
-        <BlurView intensity={18} tint="light" style={StyleSheet.absoluteFill} />
         <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(252,251,255,0.5)' }]} onPress={close} accessibilityLabel="Close" />
       </Animated.View>
       <Animated.View style={[styles.sheet, elevation.sheet, sheetStyle]} accessibilityViewIsModal>
@@ -145,7 +143,7 @@ export function MoreMenu({ items, label, size = 32, plain }: { items: MenuItem[]
       </Tap>
       </View>
       <Modal transparent visible={!!at} animationType="none" onRequestClose={() => close()} statusBarTranslucent>
-        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(248,246,252,0.6)' }, veil]}>
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(252,251,255,0.5)' }, veil]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => close()} accessibilityLabel="Close menu" />
         </Animated.View>
         {at && (

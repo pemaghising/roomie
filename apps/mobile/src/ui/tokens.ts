@@ -33,7 +33,7 @@ export const type = {
   'Title/Page': t(font.title, 34, 41, -0.3),
   'Title/Onboarding': t(font.title, 28, 34, -0.2),
   'Title/Accent': t(font.titleItalic, 28, 34, -0.2),
-  'Title/Greeting': t(font.title, 20, 25),
+  'Title/Greeting': t(font.title, 24, 30, -0.36),
   'Heading/Section': t(font.semibold, 20, 25, -0.2),
   'Body/Button': t(font.medium, 17, 22),
   'Body/Input': t(font.regular, 17, 22),

@@ -23,6 +23,7 @@ describe('v2 tokens', () => {
 
   test('type styles carry the Figma sizes and families', () => {
     expect(type['Title/Page']).toMatchObject({ fontSize: 34, lineHeight: 41 });
+    expect(type['Title/Greeting']).toMatchObject({ fontSize: 24, lineHeight: 30 });
     expect(type['Title/Page'].fontFamily).toMatch(/Fraunces/);
     expect(type['Title/Accent'].fontFamily).toMatch(/Italic/);
     expect(type['Body/Row']).toMatchObject({ fontSize: 16, lineHeight: 21 });
