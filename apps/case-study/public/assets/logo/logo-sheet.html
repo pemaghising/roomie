@@ -1,0 +1,35 @@
+﻿<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Roomie Logo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Playfair+Display:wght@700&display=swap">
+<style>
+:root{--ink:#111827;--lav:#F3E8FF;--lav-ink:#5C3B9B;--mint:#34D399;--mint-ink:#065F46;--paper:#FBFAFF}
+*{box-sizing:border-box}
+body{margin:0;width:1600px;height:1200px;background:var(--paper);font-family:Inter,system-ui,sans-serif;color:var(--ink);padding:80px 96px;display:grid;grid-template-rows:auto 1fr auto;gap:40px}
+.eb{font:600 15px/1 Inter;letter-spacing:.16em;text-transform:uppercase;color:#6b7280}
+.grid{display:grid;grid-template-columns:1.35fr 1fr;grid-template-rows:1fr 1fr;gap:24px}
+.tile{border-radius:32px;display:flex;align-items:center;justify-content:center;position:relative}
+.tile .eb{position:absolute;left:28px;top:26px}
+.lockup{display:flex;align-items:center;gap:28px}
+.word{font:700 132px/1 "Playfair Display",Georgia,serif;letter-spacing:-.02em;position:relative}
+.word .i{position:relative;display:inline-block}
+.word .i svg{position:absolute;left:50%;top:.115em;width:.42em;transform:translateX(-46%)}
+.sizes{display:flex;align-items:flex-end;gap:28px}
+.note{font-size:19px;color:#374151;max-width:1100px;line-height:1.5}
+</style></head><body>
+<div><p class="eb">Roomie · Logo</p><h1 style="font:700 64px/1.1 'Playfair Display',serif;margin:14px 0 0">Balanced, not equal.</h1></div>
+<div class="grid">
+  <div class="tile" style="background:#fff;grid-row:span 2;box-shadow:0 20px 50px -30px rgba(92,59,155,.4)">
+    <span class="eb">Primary lockup</span>
+    <div style="display:grid;gap:70px;justify-items:center">
+      <div class="lockup"><img src="roomie-icon.svg" width="150" height="150" alt="">
+        <span class="word">room<span class="i">ı<svg viewBox="0 0 140 90" aria-hidden="true"><path d="M70 90 V56" stroke="#065F46" stroke-width="9" stroke-linecap="round"/><path d="M67 64 C37 66 18 48 15 24 C44 21 66 36 67 64 Z" fill="#34D399"/><path d="M73 70 C94 71 109 59 112 41 C91 38 74 49 73 70 Z" fill="#6EE7B7"/></svg></span>e</span></div>
+      <div class="sizes"><img src="roomie-icon.svg" width="120" alt=""><img src="roomie-icon.svg" width="80" alt=""><img src="roomie-icon.svg" width="48" alt=""><img src="roomie-icon.svg" width="28" alt=""></div>
+    </div>
+  </div>
+  <div class="tile" style="background:var(--ink)"><span class="eb" style="color:#9ca3af">On dark</span>
+    <div class="lockup" style="gap:18px"><img src="roomie-icon.svg" width="96" alt=""><span class="word" style="font-size:84px;color:#fff">roomie</span></div></div>
+  <div class="tile" style="background:var(--lav)"><span class="eb" style="color:var(--lav-ink)">Mark</span>
+    <svg width="200" height="200" viewBox="130 30 252 390" aria-hidden="true"><path d="M142 246 L256 150 L370 246 V372 Q370 404 338 404 H174 Q142 404 142 372 Z" fill="#5C3B9B" stroke="#5C3B9B" stroke-width="28" stroke-linejoin="round"/><rect x="224" y="296" width="64" height="122" rx="32" fill="#F3E8FF"/><path d="M256 138 V92" stroke="#065F46" stroke-width="12" stroke-linecap="round"/><path d="M252 104 C212 106 186 82 182 50 C220 46 250 66 252 104 Z" fill="#34D399"/><path d="M260 112 C288 114 308 98 312 74 C284 70 262 84 260 112 Z" fill="#6EE7B7"/></svg></div>
+</div>
+<p class="note"><b>The idea:</b> a soft house with a pill-shaped door, and a sprout whose two leaves are different sizes but still balance on one stem. Roommates don't do equal work; they do balanced work. The sprout is the same one that grows with the household's streak in the app.</p>
+</body></html>

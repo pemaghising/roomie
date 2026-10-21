@@ -1,0 +1,341 @@
+ROOMIE
+Primary Research
+IMPORTANT: This is a hypothetical research simulation for a product-design case study. Do not present simulated interviews or findings as real user research.
+1. Research Goal
+Understand how people in Nepal manage shared living—especially chores, shared expenses, groceries, and roommate communication—and identify where the experience creates friction, unfairness, or awkward conversations.
+2. Research Objectives
+Understand how roommates organize their household.
+Understand how chores are assigned, completed, and followed up.
+Understand how rent, electricity, internet, gas, groceries, and other shared costs are managed.
+Understand what happens when someone does not contribute their fair share.
+Explore where AI could reduce coordination effort while keeping users in control.
+3. Research Hypotheses
+Fixed chore arrangements become difficult when roommates have different schedules.
+Shared expenses are often managed using chats, notes, calculators, wallets, or memory.
+People may hesitate to remind roommates about unpaid expenses or unfinished chores.
+Shared and personal groceries can be difficult to distinguish.
+Roommates often use multiple tools instead of one dedicated household system.
+Users may like AI assistance but want transparency, explanations, and the ability to override decisions.
+4. Research Method
+Item
+Plan
+Method
+Semi-structured user interviews
+Sample
+5 hypothetical participants
+Location
+Kathmandu Valley — Kathmandu, Lalitpur, Bhaktapur
+Audience
+Students, young professionals, shared-apartment / hostel residents
+Duration
+20–30 minutes per interview
+
+
+Focus
+Chores, expenses, groceries, communication, existing tools, AI expectations
+5. Target Participants
+ID
+Profile
+Living Situation
+Location
+P01
+Aarav — 24, Software Engineer
+3 friends
+Kathmandu
+P02
+Srijana — 22, University Student
+2 roommates
+Lalitpur
+P03
+Nischal — 27, Marketing Professional
+2 colleagues
+Kathmandu
+P04
+Anisha — 21, University Student
+Shared hostel
+Lalitpur
+P05
+Rohan — 26, Designer
+2 friends
+Bhaktapur
+6. Interview Introduction
+“I'm researching how people manage shared living situations. I'm particularly interested in chores, expenses, groceries, and communication between roommates. There are no right or wrong answers. I'm interested in your actual experiences and how you currently handle these things.”
+7. User Interview Questions
+A. Living Situation
+Tell me about your current living situation. Who do you live with and how long have you been living together?
+How did you become roommates? Did you already know each other?
+B. Chores
+How do you currently divide household chores?
+Tell me about the last time the distribution of chores felt unfair.
+C. Expenses
+What expenses do you normally share with your roommates?
+Tell me about the last time you paid for something on behalf of the household. What happened afterward?
+D. Groceries
+How do you currently manage groceries and household supplies?
+Tell me about a time when grocery shopping or household supplies caused confusion.
+E. Communication & Conflict
+Tell me about a time when a roommate wasn't contributing their fair share.
+What is the most uncomfortable part of living with roommates?
+F. Existing Tools
+What apps, tools, or methods do you currently use to manage shared household responsibilities?
+What works well about your current method, and what doesn't?
+G. Concept & AI
+If one app managed chores, expenses, groceries, and household responsibilities, what would you expect it to help with?
+What would you never want the app to do?
+How would you feel about AI helping decide how chores should be distributed?
+What would make you trust or distrust an AI recommendation?
+8. Hypothetical Interview Summary
+P01 — Aarav: Fixed chore schedule stopped working. Uses eSewa + Messenger for expenses. Finds it difficult to remember who paid. Dislikes repeatedly asking for money. Interested in AI if he can override suggestions.
+P02 — Srijana: Chores are informal. Small expenses are often ignored. Feels one person can end up doing more. Finds confrontation uncomfortable. Wants AI explanations.
+P03 — Nischal: Different work schedules make chores difficult. Uses digital wallets. Says remembering expenses is harder than calculating them. Doesn't want to sound petty over small amounts.
+P04 — Anisha: Hostel has general rules but different habits. Some expenses are shared and others personal. Wants user control rather than AI making decisions.
+P05 — Rohan: Uses group chat for chores and phone notes for expenses. Finds group chats messy. Repeated reminders feel awkward.
+9. Research Response Matrix
+Area
+P01
+P02
+P03
+P04
+P05
+Chore method
+Fixed rotation
+Informal
+Group chat
+Hostel rules
+Informal
+Chore problem
+Forgetting
+Unequal effort
+Schedule conflict
+Accountability
+No clear owner
+Expense method
+eSewa + notes
+Calculator
+Group chat
+Cash + wallet
+Notes
+Expense problem
+Forgotten payments
+Confusion
+Manual calculation
+Delays
+Tracking
+Grocery method
+Shared list
+Group chat
+Informal
+Individual
+Notes
+Communication
+Avoids confrontation
+Passive reminders
+Direct but uncomfortable
+Chat ignored
+Awkward requests
+AI concern
+Wrong decisions
+Privacy
+Lack of control
+Transparency
+Financial mistakes
+10. Affinity Mapping
+Theme 01 — Chores Become Unfair
+Fixed schedules stop working.
+Different work/class schedules affect availability.
+People forget responsibilities.
+Informal systems lack accountability.
+Insight: Static chore systems do not adapt well to changing lifestyles.
+Theme 02 — Expense Tracking Is Fragmented
+Group chats, notes, calculators, wallets, screenshots, and memory are used.
+There is often no single source of truth.
+Insight: The problem is often remembering and tracking shared financial responsibility, not making the payment itself.
+Theme 03 — Reminders Create Social Friction
+People do not want to sound demanding.
+Repeated reminders feel uncomfortable.
+Small amounts may not feel worth arguing over.
+Insight: Maintaining the roommate relationship can feel more important than enforcing accountability.
+Theme 04 — Shared vs Personal Is Complicated
+Some groceries and supplies are communal; others are personal.
+Different people consume different amounts.
+Insight: A fair system needs flexibility instead of assuming everything is split equally.
+Theme 05 — AI Needs Transparency
+Users may want automation.
+Users still want control and explanations.
+Insight: AI should recommend and explain rather than silently make decisions.
+11. Key Research Insights
+Roommates do not necessarily struggle with doing chores; they struggle with maintaining a fair system.
+Shared expenses are often managed through disconnected tools and memory.
+The emotional friction of asking for money or reminding someone about chores can be more problematic than the task itself.
+Different schedules make fixed chore rotations unreliable.
+Users may want AI assistance, but still want control and transparency.
+12. Primary Persona — Aarav Shrestha
+26 • Software Engineer • Kathmandu • Shares a 3-bedroom apartment with two friends
+Goals: Keep responsibilities fair; avoid unnecessary conflict; track shared expenses; spend less time coordinating; maintain a clean home.
+Frustrations: “I don't mind doing chores. I just don't want to feel like I'm doing more than everyone else.”
+“Asking people for money repeatedly feels awkward.”
+“Our schedules are different every week.”
+Behaviors: Uses Messenger for household communication; digital wallets for repayments; phone notes for expenses; informal chore arrangements.
+Needs: Flexible chore management; transparent expense tracking; automatic reminders; fairness visibility; control over AI recommendations.
+Motivation: A peaceful, fair household without unnecessary confrontation.
+13. Secondary Persona — Srijana
+22 • University Student • Lalitpur • Lives with two roommates
+Goals: Save money, keep chores simple, avoid conflict, coordinate with roommates.
+Frustrations: Small expenses are difficult to track; group chats become messy; different cleanliness standards.
+Needs: Simple expense splitting, shared grocery list, easy chore tracking, friendly reminders.
+14. As-Is User Journey
+Scenario: Roommates need to split a monthly electricity bill.
+Stage
+Current Action
+Pain Point
+1. Bill arrives
+Bill is received.
+No shared system
+2. One person pays
+One roommate pays the full amount.
+One person carries the tracking burden
+3. Calculation
+Each share is calculated.
+Manual effort
+4. Group chat
+Amount is posted in Messenger/Viber/WhatsApp.
+Message can get buried
+5. Waiting
+Someone forgets to pay.
+Uncertainty
+6. Reminder
+Roommate asks again.
+Social awkwardness
+7. Payment
+Roommate pays.
+Issue resolved
+8. Tracking
+Transaction disappears into chat history.
+Future confusion
+15. Pain Points
+Functional:
+Manual expense calculation
+No centralized household record
+Chore schedules become outdated
+Grocery lists are scattered
+Behavioral:
+People forget chores
+People forget payments
+People rely on memory
+Group chats are overloaded
+Emotional:
+Asking for repayment feels awkward
+Repeated reminders create tension
+Users do not want to appear controlling
+Unequal chores can create resentment
+Trust:
+AI could make incorrect assumptions
+Users may not trust automatic financial decisions
+Users want control and explanations
+16. Pain Point Prioritization
+Pain Point
+Frequency
+Impact
+Priority
+Expense tracking
+High
+High
+P1 — Must solve
+Chore fairness
+High
+High
+P1 — Must solve
+Awkward reminders
+High
+High
+P1 — Must solve
+Changing schedules
+Medium
+High
+P2 — Important
+Grocery coordination
+Medium
+Medium
+P3 — Secondary
+Advanced analytics
+Low
+Low
+P4 — Later
+17. Impact / Effort Matrix
+HIGH IMPACT / LOW EFFORT — Build first: expense splitting, expense history, chore tracking, basic reminders.
+HIGH IMPACT / HIGH EFFORT — Explore: AI chore allocation, schedule-aware chores, AI fairness analysis.
+LOW IMPACT / LOW EFFORT — Later: custom themes, extra personalization.
+LOW IMPACT / HIGH EFFORT — Do not prioritize now: complex payment infrastructure, smart-home integrations.
+18. How Might We Questions
+How might we help roommates divide chores fairly without requiring someone to constantly manage the household?
+How might we make asking for shared expenses feel less awkward?
+How might we adapt household responsibilities to changing schedules?
+How might we help roommates distinguish shared expenses from personal expenses?
+How might we use AI while keeping users in control of household decisions?
+19. Product & AI Opportunities
+AI Chore Coordinator — Considers availability, previous chores, effort, and preferences to recommend a fair distribution.
+Smart Expense Tracking — Shows who paid, each person's share, and who should receive or pay money.
+Neutral Reminders — Uses friendly, non-confrontational language instead of roommate-to-roommate pressure.
+Fairness Dashboard — Shows household contribution balance without turning chores into a competition.
+Schedule-Aware Chores — Avoids assigning high-effort chores when a user's schedule is unusually busy.
+20. AI Design Principles
+Recommend, not dictate.
+Explain why a recommendation was made.
+Adapt to changing schedules.
+Let users override AI decisions.
+Remain neutral between roommates.
+Clearly distinguish AI suggestions from confirmed actions.
+21. MVP Definition
+Household:
+Create household
+Invite roommates
+Household dashboard
+Chores:
+Create chores
+Assign chores
+Track completion
+AI chore suggestions
+Chore swaps
+Expenses:
+Add expense
+Split expense
+See balances
+Expense history
+AI:
+Fairness recommendations
+Schedule-aware suggestions
+Polite reminders
+Explain AI decisions
+Later:
+Grocery list
+Advanced analytics
+Payment integrations
+AI household assistant
+22. Product Requirements
+Users must understand who owes whom without manually calculating.
+Users must see who is responsible for each chore.
+Users must be able to swap chores.
+AI recommendations must include an explanation.
+Users must be able to override AI decisions.
+The system should distinguish shared vs personal expenses.
+Reminders should use a neutral, non-confrontational tone.
+NPR should be supported for Nepal, with the ability to change currency for other users.
+23. Discovery → Design Chain
+Business Model Canvas → Research Objectives → Hypotheses → Target Users → Interview Plan → Interview Questions → Simulated Responses → Affinity Map → Insights → Personas → As-Is Journey → Pain Points → Prioritization → Impact/Effort → HMW Questions → Product Opportunities → AI Opportunities → MVP → Product Requirements → Low-Fidelity Wireframes
+24. Presentation Story
+Current experience → People use chats, notes, memory, and payment apps → Expenses become difficult to track; chores become unfair; schedules change; reminders become awkward → Core issue: coordination + fairness + social friction → Opportunity: create a neutral household coordinator → Roomie combines AI, chores, expenses, and communication.
+25. Day 3 Presentation Slides
+01 — Primary Research: Understanding shared living in Nepal
+02 — Research Objectives
+03 — Research Method
+04 — Target Users
+05 — Interview Guide
+06 — Research Synthesis / Affinity Map
+07 — Key Insights
+08 — User Persona
+09 — Current Experience / As-Is Journey
+10 — Pain Points
+11 — Prioritization / Impact-Effort
+12 — Design Opportunities + MVP
+26. Next Step
+After Discovery, move into Define: finalize the problem statement, refine the user journey, prioritize HMW statements, define the MVP, and then begin information architecture and low-fidelity wireframes.

@@ -1,0 +1,115 @@
+ROOMIE
+Problem Framing & User Research Discovery Guide
+1. The Current Problem
+Shared living works well on paper — split the rent, split the chores, split the bills — but in practice, the day-to-day coordination breaks down as soon as people's schedules, habits, and expectations start to differ.
+The core problem isn't that roommates don't want to be fair to each other. It's that fairness is hard to see, and pointing out unfairness feels confrontational. Chores drift, expenses get fuzzy, and small imbalances build into resentment — not because anyone did anything wrong, but because nobody has a neutral, shared way to track and talk about it.
+Where the friction shows up
+Chores: fixed schedules stop being fair the moment someone's work or class hours change.
+Expenses: "who paid," "who owes," and "did we split this right" become recurring, awkward conversations.
+Groceries: shared items get forgotten, over-bought, or quietly paid for by one person more than others.
+Accountability: reminding a roommate about a responsibility can come across as nagging or policing, even when it's necessary.
+Visibility: there's no shared, agreed-upon picture of whether the household is actually balanced — so disagreements rely on memory and perception, which are rarely neutral.
+Core problem statement
+Shared living creates friction not from bad intentions, but from a lack of a neutral, transparent system for tracking effort and money — leaving roommates to manage that tension through direct, often uncomfortable, confrontation.
+2. How Roomie Solves It
+Roomie removes the need for roommates to confront each other directly by inserting itself as a neutral third party — the one keeping track, the one sending the reminder, the one doing the math. It doesn't add new rules on top of shared living; it replaces the awkward parts of managing it.
+Current Problem
+How Roomie Solves It
+Chore schedules go stale when availability changes.
+AI regenerates a fair chore plan automatically as schedules change, based on effort points rather than raw task count.
+Reminding a roommate feels confrontational.
+Roomie sends the reminder in a friendly, non-judgmental tone — the app is the messenger, not the person.
+"Who owes who" is unclear and hard to track.
+Every expense is logged, categorized, and split automatically, with balances always visible to everyone.
+Fairness is subjective and hard to prove.
+Household Balance shows a collective, effort-based percentage instead of rankings or accusations.
+Swapping a chore requires an awkward ask.
+Roomie suggests a swap based on real workload data and lets the other person accept — no direct favor-asking.
+Grocery needs are forgotten or duplicated.
+Shared list with purchase tracking and AI suggestions based on household consumption patterns.
+
+In short: the product doesn't try to make roommates more disciplined or more communicative. It removes the situations where discipline and difficult conversations would otherwise be required.
+3. As-Is: What's Happening Right Now
+Before designing the AI-driven solution, it's worth mapping how households actually manage this today, without any dedicated tool. This is the baseline Roomie needs to improve on.
+Chores, today
+Handled informally: a verbal agreement, a shared notes app list, or a whiteboard/sticky-note chart on the fridge.
+Assignment is usually static ("you always do dishes, I always do trash") and rarely revisited.
+When someone's schedule changes, the chore split doesn't update — it just quietly becomes unfair until someone brings it up.
+Reminders happen through direct messages or in-person comments, which can read as nagging even when the intent is neutral.
+Expenses, today
+Tracked through group chat messages, memory, or general-purpose apps like Splitwise, spreadsheets, or notes.
+Categorization and splitting logic is manual and inconsistent between expenses.
+Settling up is often delayed, which creates a running mental tally that one or more roommates feel is inaccurate.
+Asking to be paid back is one of the more socially uncomfortable conversations in shared housing.
+Groceries, today
+Usually a shared physical list, a notes app, or a message thread that gets buried in unrelated chat.
+No visibility into who bought what last, so purchases are duplicated or missed entirely.
+Communication, today
+Most coordination happens in a household group chat (WhatsApp, Messenger, Viber) mixed in with unrelated conversation.
+There's no single source of truth — decisions and agreements get lost in scroll-back.
+Direct confrontation is the default fallback when something isn't working, which is exactly the friction Roomie is designed to remove.
+4. User Interview Guide (Discovery Research)
+These questions are grouped by theme. Each one is paired with the specific insight it's meant to surface, so the interview stays focused on validating (or challenging) the assumptions behind the product rather than just collecting general opinions.
+A. Household Setup & Dynamics
+Question to Ask
+What I'm Trying to Learn
+How many people do you currently live with, and how did the group come together (friends, random assignment, found online)?
+Establishes household context — trust levels between roommates likely differ a lot between close friends vs. strangers, which affects how directly people can communicate.
+How would you describe how well your household runs day-to-day?
+A baseline satisfaction read, to compare against later after they see the concept.
+What's different about everyone's schedules — work, school, or otherwise?
+Confirms whether schedule variability (the core premise behind AI chore rebalancing) is actually common and significant.
+B. Chores — Current Behavior
+Question to Ask
+What I'm Trying to Learn
+How are chores currently divided in your household? Who decided that, and when?
+Reveals whether chore division is a one-time static decision — validates the 'stale schedule' problem.
+Has that division ever stopped feeling fair? What changed?
+Tests the core hypothesis that changing availability breaks fixed chore systems.
+What do you do when you genuinely can't do your chore on time?
+Surfaces the current process (or lack of one) for swaps — informs how the AI swap-suggestion feature should behave.
+How do you remind a roommate about something without it feeling awkward?
+Gets at real coping strategies people already use — useful for calibrating Roomie's reminder tone and wording.
+C. Expenses — Current Behavior
+Question to Ask
+What I'm Trying to Learn
+How do you currently track shared expenses? Walk me through the last time you split a cost.
+Maps the real, current expense workflow — identifies which tools (if any) are already in use and where they fall short.
+Has there ever been confusion or disagreement about who owes what?
+Validates the 'unclear balance' pain point and surfaces how serious the resulting friction actually gets.
+How do you ask a roommate to pay you back? How does that feel to do?
+Directly tests the emotional discomfort Roomie is meant to remove — the 'can you send me the money' problem.
+How often do you actually settle up? What causes delays?
+Identifies real-world settlement frequency and blockers, which informs how the app should prompt or automate settling.
+D. Groceries — Current Behavior
+Question to Ask
+What I'm Trying to Learn
+How do you manage a shared grocery list today, if at all?
+Confirms whether a shared list is even a felt need, or a lower-priority feature relative to chores/expenses.
+Has anyone ever bought something that was already covered, or forgotten something everyone needed?
+Validates duplication/omission as a real (not hypothetical) pain point.
+E. Confrontation & Communication
+Question to Ask
+What I'm Trying to Learn
+Tell me about a time a roommate disagreement over chores or money became genuinely tense.
+Surfaces real emotional stakes — grounds the product's tone and priority features in an actual incident, not an assumption.
+What makes a reminder or request feel fair versus nagging?
+Directly informs the wording, tone, and framing of Roomie's AI-generated reminders.
+Where does most day-to-day coordination happen right now — group chat, in person, an app?
+Identifies the current 'source of truth' Roomie needs to replace or integrate alongside.
+F. Reaction to the Concept
+Question to Ask
+What I'm Trying to Learn
+If an app tracked chore fairness and expenses for you automatically, what would you want it to never do?
+Surfaces trust boundaries and red lines early — critical for an AI system making decisions about people's money and responsibilities.
+Would you trust an AI's explanation for why chores were assigned a certain way? What would make that explanation convincing?
+Tests appetite for the explainability feature and what 'good enough reasoning' looks like to a real user.
+Would you want to be able to override or ignore what the AI suggests?
+Validates the 'AI assists, doesn't control' principle as something users actually want, not just a design safeguard.
+
+What this research is ultimately trying to establish
+Whether the core problem (fairness eroding as schedules change) is felt strongly enough to change behavior, not just something people shrug off.
+Whether confrontation-avoidance is a real, named discomfort — or something people have already normalized and won't pay to remove.
+What 'fair' actually means to different users, since effort-based fairness is a design assumption that needs validating.
+How much trust people are willing to extend to an AI making decisions about money and responsibility — and what breaks that trust.
+Which current tools/habits Roomie is realistically competing with (group chats, Splitwise, memory) — so the product is positioned as a clear upgrade, not an extra step.
