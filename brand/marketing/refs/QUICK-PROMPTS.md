@@ -12,13 +12,17 @@
 ## Style message (paste once at the start of each chat)
 
 ```
-For every image in this chat: brand is Roomie, a calm chore and pantry app for roommates.
-Bright soft daylight, lavender mist and cream tones (#F8F6FC, #EFE9FD, #FCFBFF; never pure white),
-roof violet #7A5FD6 accents, a soft lilac-to-peach glow (#A489ED to #FFB48A). Clean, premium, calm.
-Never dark, gritty, neon or moody. People are relaxed, diverse young adults in shared flats.
+For every image in this chat: brand is Roomie, a calm chore and pantry app for roommates in Kathmandu.
+Bright soft natural daylight, clean and premium, real and lived-in. Colour stays natural: warm whites,
+cream, light wood, real everyday clothes in mixed natural colours (denim, grey, olive, rust, black,
+cream). Lavender is only a quiet hint, at most one small object, never matching outfits or a purple
+room. Never dark, gritty, neon or moody, never staged like stock photos.
+People: Nepali women in their early twenties, flatmates sharing a modern Kathmandu flat, relaxed,
+candid, natural expressions. All flatmates in one image are women.
 NO text, NO logos, NO letters anywhere unless I attach them. If a phone shows a screen, copy the
 attached screen exactly with correct perspective. iPhone 17 Pro, natural titanium.
 ```
+For product and studio shots (merch, billboards, phones on lavender), lavender backgrounds are fine. The natural-colour rule is about people and rooms.
 
 ---
 
@@ -26,8 +30,10 @@ attached screen exactly with correct perspective. iPhone 17 Pro, natural titaniu
 
 **2.2 Shared kitchen** (attach nothing; 16:9)
 ```
-Photo: three flatmates in a bright lived-in shared kitchen, one rinsing a mug, one wiping the
-counter, one laughing while putting milk in the fridge. Plants, light oak, lavender and cream. Candid.
+Photo: three young Nepali women, flatmates, in a bright lived-in shared kitchen in a Kathmandu flat.
+One rinsing a steel cup at the sink, one wiping the counter, one laughing while putting milk in the
+fridge. Everyday clothes in different natural colours, a pressure cooker and spice jars on the
+counter, plants, light wood, morning sun. Candid, mid-conversation, nobody looking at the camera.
 ```
 
 **2.3 Pantry shelf** (attach nothing; 4:5)
@@ -100,8 +106,8 @@ blank rounded pill stickers in pale green, amber and coral.
 
 **5.4 Tee** (4:5)
 ```
-Person in a relaxed lavender t-shirt with the attached mascot small on the chest, bright flat,
-cropped shoulders to waist.
+Young Nepali woman in a relaxed cream t-shirt with the attached mascot small on the chest, bright
+Kathmandu flat, cropped shoulders to waist.
 ```
 
 **5.5 Fridge magnet** (attach `plant-bloom.png`; 4:5)
