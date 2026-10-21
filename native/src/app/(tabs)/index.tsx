@@ -24,7 +24,7 @@ import { effortKind, Glass, Tap, GreetingHeader, MeshBackground, PoolBanner, Sec
 
 function Note({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
   return (
-    <Glass fill={0.9}>
+    <Glass fill={0.9} r={20}>
       <View style={styles.note}>
         <View style={styles.noteIcon}>{icon}</View>
         <View style={{ flex: 1, gap: 2 }}>
@@ -171,8 +171,9 @@ export default function Home() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.bg.canvas },
   page: { paddingHorizontal: layout.margin, gap: 16 },
-  note: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
-  noteIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(135,107,222,0.1)', alignItems: 'center', justifyContent: 'center' },
+  // Figma "Note card": 12 / 16 / 12 / 12 padding, 20 radius, 36 icon tile at 14 % lilac
+  note: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingLeft: 12, paddingRight: 16 },
+  noteIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(135,107,222,0.14)', alignItems: 'center', justifyContent: 'center' },
   got: { height: 34, paddingHorizontal: 12, borderRadius: 17, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   quiet: { alignItems: 'center', gap: 6, paddingVertical: 22, paddingHorizontal: 20 },
 });

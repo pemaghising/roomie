@@ -49,11 +49,14 @@ export const type = {
 } as const satisfies Record<string, TextStyle>;
 
 type Shadow = { shadowColor: string; shadowOpacity: number; shadowRadius: number; shadowOffset: { width: number; height: number }; elevation: number };
+const WEB = typeof document !== 'undefined'; // kept free of react-native so the tokens load in unit tests
+// iOS draws shadowRadius at about half a CSS/Figma blur; the web build passes it straight to box-shadow
 const shadow = (radius: number, y: number, opacity: number, elevation: number, shadowColor = '#8C66D9'): Shadow =>
-  ({ shadowColor, shadowOpacity: opacity, shadowRadius: radius / 2, shadowOffset: { width: 0, height: y }, elevation });
+  ({ shadowColor, shadowOpacity: opacity, shadowRadius: WEB ? radius : radius / 2, shadowOffset: { width: 0, height: y }, elevation });
 
 export const elevation = {
-  glass: shadow(24, 8, 0.08, 3),
+  // Figma card shadow (#59478C, y 8, blur 24), a touch stronger so cards hold their edge on the pale canvas
+  glass: shadow(24, 8, 0.1, 3, '#59478C'),
   liftButton: shadow(12, 4, 0.16, 4, '#7A5FD6'),
   liftSmall: shadow(8, 2, 0.14, 2, '#7A5FD6'),
   day: shadow(16, 4, 0.08, 2),

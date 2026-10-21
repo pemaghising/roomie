@@ -85,8 +85,10 @@ export default function Calendar() {
             </Glass>
           </Animated.View>
         ) : (
-          <Animated.View key="week" entering={swipe.entering} style={styles.week}>
-            {Array.from({ length: 7 }, (_, k) => cell(addDays(ws, k), true))}
+          <Animated.View key="week" entering={swipe.entering}>
+            <Glass fill={0.62} pad={10}>
+              <View style={styles.week}>{Array.from({ length: 7 }, (_, k) => cell(addDays(ws, k), true))}</View>
+            </Glass>
           </Animated.View>
         )}
 
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
   week: { flexDirection: 'row', justifyContent: 'space-between' },
   cell: { flex: 1, alignItems: 'center', gap: 4, paddingVertical: 3 },
   circle: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  pillTall: { width: 44, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  pillTall: { width: '100%', maxWidth: 44, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center', gap: 2 },
   selected: { borderWidth: 1.5, borderColor: color.action.primary },
   dot: { width: 4, height: 4, borderRadius: 2 },
   legend: { flexDirection: 'row', gap: 16, marginTop: -6 },

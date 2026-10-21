@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet, View, type DimensionValue } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { color, layout } from './tokens';
 import { MeshBackground } from './v2/page';
 
@@ -19,7 +19,7 @@ export function Bone({ w = '100%', h = 16, r = 10, style }: { w?: DimensionValue
 /** What the home screen looks like while the household is still loading: the same shapes, in grey. */
 export function HomeSkeleton() {
   return (
-    <SafeAreaView edges={['top']} style={styles.root} accessible accessibilityLabel="Loading your home" accessibilityRole="progressbar">
+    <View style={[styles.root, { paddingTop: useSafeAreaInsets().top }]} accessible accessibilityLabel="Loading your home" accessibilityRole="progressbar">
       <MeshBackground />
       <View style={styles.page}>
         <View style={styles.header}>
@@ -37,7 +37,7 @@ export function HomeSkeleton() {
           </View>
         ))}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

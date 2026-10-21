@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { initNotifications } from '@/lib/push';
 import { queryClient } from '@/lib/query';
@@ -100,7 +101,7 @@ export default function RootLayout() {
     [font.light]: Geist_300Light, [font.regular]: Geist_400Regular, [font.medium]: Geist_500Medium, [font.semibold]: Geist_600SemiBold,
   });
   if (!fontsLoaded) return null;
-  return (
+  const app = (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
@@ -113,4 +114,9 @@ export default function RootLayout() {
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
+  // inside the desktop phone frame (web/desktop-frame.js) the frame draws the status bar and home indicator
+  return IN_FRAME ? <SafeAreaInsetsContext.Provider value={FRAME_INSETS}>{app}</SafeAreaInsetsContext.Provider> : app;
 }
+
+const IN_FRAME = Platform.OS === 'web' && typeof window !== 'undefined' && window.self !== window.top;
+const FRAME_INSETS = { top: 54, bottom: 34, left: 0, right: 0 };
