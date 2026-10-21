@@ -21,7 +21,7 @@ export function Close() {
       const plants = gsap.utils.toArray<HTMLElement>(".plant");
       gsap.set(plants.slice(1), { opacity: 0 });
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: root.current, start: "top top", end: "+=140%", scrub: 0.7, pin: true },
+        scrollTrigger: { trigger: root.current, start: "top top", end: "+=140%", scrub: true, pin: true },
       });
       plants.forEach((p, i) => {
         if (i === 0) return;

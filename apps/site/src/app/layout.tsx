@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { SmoothScroll } from "@/ui/SmoothScroll";
 
 // Self-hosted so builds never need the network.
 const fraunces = localFont({
@@ -31,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${fraunces.variable} ${geist.variable}`}>
       <body>
-        <SmoothScroll>{children}</SmoothScroll>
+        {children}
       </body>
     </html>
   );

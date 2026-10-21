@@ -14,7 +14,12 @@
 /* The timeline */
 .timeline { position: relative; padding-left: 64px; }
 .days { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.track { position: absolute; left: 19px; top: 24px; bottom: 24px; width: 2px; border-radius: 2px; background: var(--track); }
+.track {
+  position: absolute; left: 19px; top: 24px; bottom: -48px; width: 2px; border-radius: 2px; background: var(--track);
+  /* the line dissolves into the page past the last day instead of stopping dead */
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 160px), transparent);
+          mask-image: linear-gradient(180deg, #000 calc(100% - 160px), transparent);
+}
 .track-fill {
   position: absolute; inset: 0; border-radius: 2px;
   background: linear-gradient(180deg, var(--violet), var(--grad-end));

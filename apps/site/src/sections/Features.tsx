@@ -94,7 +94,7 @@ export function Features() {
         x: () => -(tr.scrollWidth - window.innerWidth),
         ease: "none",
         scrollTrigger: {
-          trigger: el, pin: true, scrub: 0.6, start: "top top",
+          trigger: el, pin: true, scrub: true, start: "top top",
           end: () => "+=" + window.innerWidth * (n - 1) * 0.8,
           invalidateOnRefresh: true,
           onUpdate: (st) => {

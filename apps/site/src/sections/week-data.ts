@@ -1,7 +1,8 @@
 export type Who = "Ramesh" | "Aman" | "Priya" | "The house";
 export type Icon = "calendar" | "slip" | "hand" | "bag" | "sprout";
 /** x, y, w are fractions of the 393 × 852 screen; r is the card's corner radius in screen points. */
-export type Pop = { src: string; alt: string; x: number; y: number; w: number; r: number };
+/** `slot`: the card lifts out of the screen and leaves a dashed gap. Notifications and toasts arrive, so they leave none. */
+export type Pop = { src: string; alt: string; x: number; y: number; w: number; r: number; slot?: boolean };
 export type Tap = { x: number; y: number };
 export type Owner = { who: Who; label: string };
 export type WeekDay = {
@@ -21,7 +22,7 @@ export const WEEK: WeekDay[] = [
     screen: "/screens/w-mon-busy.webp",
     owner: { who: "Ramesh", label: "Ramesh’s phone" },
     tap: { x: 300 / 393, y: 452 / 852 },
-    pop: { src: "/cards/w-mon-card.webp", alt: "Tue, Wed and Fri. Heavy chores stay off these days.", x: 24 / 393, y: 297 / 852, w: 345 / 393, r: 24 },
+    pop: { src: "/cards/w-mon-card.webp", alt: "Tue, Wed and Fri. Heavy chores stay off these days.", x: 24 / 393, y: 297 / 852, w: 345 / 393, r: 24, slot: true },
   },
   {
     day: "Wednesday", time: "7 pm", who: "Aman", icon: "slip",
@@ -29,7 +30,7 @@ export const WEEK: WeekDay[] = [
     body: "Aman’s buried in exams and misses the bathroom. It moves to the shared pool, no name attached.",
     screen: "/screens/w-wed-lock.webp",
     owner: { who: "The house", label: "Every flatmate’s phone" },
-    pop: { src: "/cards/w-wed-card.webp", alt: "Roomie · now: Mop bathroom floor slipped into the shared pool. Anyone can claim it, no names attached.", ...LOCK_CARD },
+    pop: { src: "/cards/w-wed-card.webp", alt: "Roomie · now: Mop bathroom floor is in the shared pool. Anyone can claim it, no names attached.", ...LOCK_CARD },
   },
   {
     day: "Thursday", time: "8 am", who: "Ramesh", icon: "hand",
@@ -60,6 +61,6 @@ export const WEEK: WeekDay[] = [
     body: "Everything’s done. That’s day 24 of the house streak, and the plant is nearly in bloom.",
     screen: "/screens/w-sun-done.webp",
     owner: { who: "Ramesh", label: "Ramesh’s phone" },
-    pop: { src: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, Sunday done and a new week started", x: 24 / 393, y: 220 / 852, w: 345 / 393, r: 24 },
+    pop: { src: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, Sunday done and a new week started", x: 24 / 393, y: 220 / 852, w: 345 / 393, r: 24, slot: true },
   },
 ];

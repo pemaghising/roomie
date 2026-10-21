@@ -32,6 +32,7 @@ function OwnerChip({ owner, className = "" }: { owner: Owner; className?: string
 
 /** The dashed gap a card leaves in the screen when it lifts out. The hidden copy of the card sets the slot's height. */
 function Slot({ d, className = "" }: { d: WeekDay; className?: string }) {
+  if (!d.pop.slot) return null;
   return (
     <span className={`pop-slot ${className}`} style={popVars(d.pop, popDelay(d))} aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -226,9 +226,14 @@ body{font-variant-numeric:lining-nums}
 .hero-art{position:relative;aspect-ratio:1/1.08;align-self:center}
 .hero-art::before{content:"";position:absolute;inset:0 -4%;border-radius:50%;background:radial-gradient(closest-side,rgba(167,139,250,.28),rgba(167,139,250,.08) 62%,transparent)}
 @media (prefers-reduced-motion:no-preference){.hero-art::before{animation:glow 14s ease-in-out infinite alternate}@keyframes glow{to{transform:rotate(18deg) scale(1.06)}}}
-.device{position:absolute;margin:0;padding:8px;background:#15151d;border-radius:15.5%/7.4%;box-shadow:inset 0 0 0 1.5px #3b3b48,0 50px 90px -40px rgba(122,95,214,.6),0 20px 40px -24px rgba(31,27,58,.4)}
-.device img{display:block;width:100%;border-radius:12.5%/5.8%}
-.device::before{content:"";position:absolute;right:-3px;top:22%;width:3px;height:11%;border-radius:0 3px 3px 0;background:#2b2b36}
+/* Same phone as the marketing site: metal rim, black bezel, side buttons, soft glare. Sized in cqw so it scales with each device */
+.device{position:absolute;margin:0;container-type:inline-size;border-radius:16.5cqw;background:linear-gradient(145deg,#F4F1FB 0%,#C9C2DC 22%,#EDEAF6 48%,#ABA3C4 78%,#E6E2F2 100%);box-shadow:0 50px 90px -45px rgba(31,27,58,.55),0 22px 40px -28px rgba(91,67,184,.45),inset 0 0 0 1px rgba(255,255,255,.6)}
+.device .bezel{position:relative;display:block;margin:1.2cqw;padding:2.8cqw;border-radius:15.2cqw;background:#0E0C18;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);overflow:hidden}
+.device img{display:block;width:100%;height:auto;border-radius:12.5cqw}
+.device .glare{position:absolute;inset:2.8cqw;border-radius:12.5cqw;background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 32%,rgba(255,255,255,0) 70%,rgba(255,255,255,.06) 100%);pointer-events:none}
+.device::before,.device::after{content:"";position:absolute;width:3px;border-radius:2px;background:linear-gradient(180deg,#D9D4E8,#A39BBD)}
+.device::before{left:-2px;top:22%;height:11%}
+.device::after{right:-2px;top:28%;height:16%}
 .d-main{width:46%;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2}
 .d-left{width:39%;left:6%;top:50%;transform:translateY(-47%) rotate(-7deg)}
 .d-right{width:39%;right:6%;top:50%;transform:translateY(-53%) rotate(7deg)}
@@ -535,7 +540,6 @@ tbody tr:last-child td{border-bottom:0}
   .hero{padding-block:40px 32px;row-gap:40px}
   .meta{padding:28px 22px;row-gap:24px}
   .meta > div:not(:first-child){padding-top:22px}
-  .device{padding:5px}
   .grid-4,.smart,.ia,.targets,.grid-5,.minis{grid-template-columns:1fr}
   .idr{grid-template-columns:1fr}.idr > div + div{border-left:0;border-top:1px dashed var(--line)}
   .whys li{grid-template-columns:40px 1fr;margin-left:0}.whys .a{grid-column:2}

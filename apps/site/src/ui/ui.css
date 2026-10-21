@@ -4,7 +4,7 @@
   position: relative;
   margin: 0;
   width: var(--phone-w);
-  aspect-ratio: 393 / 852;
+  aspect-ratio: 1 / 2.0745;                        /* screen 393 × 852 inside .04w of rim and bezel on every side */
   padding: calc(var(--phone-w) * .012);            /* metal rim */
   border-radius: calc(var(--phone-w) * .165);
   background: linear-gradient(145deg, #F4F1FB 0%, #C9C2DC 22%, #EDEAF6 48%, #ABA3C4 78%, #E6E2F2 100%);
@@ -66,18 +66,18 @@
 }
 
 /* Scenes: whose phone, the tap, and the moment that lifts out of the screen.
-   Screen coordinates map onto the frame: bezel inset .04w, cover-fit image .9631w × 2.0879w. */
+   Screen coordinates map onto the frame: bezel inset .04w, the screen fills .92w × 1.9945w exactly. */
 .device-pop { --W: min(300px, 36vh); --phone-w: var(--W); position: relative; width: var(--phone-w); }
 .device-pop .phone { --phone-w: inherit; position: relative; z-index: 1; }
 
 .pop {
   --reach: 1.3; --s: 1.12;
-  --pop-t: translateX(calc(var(--phone-w) * (var(--reach) - .01845 - var(--x) * .9631 - var(--w) * .9631 * var(--s)))) translateY(calc(var(--phone-w) * var(--rise, 0))) scale(var(--s));
+  --pop-t: translateX(calc(var(--phone-w) * (var(--reach) - .04 - var(--x) * .92 - var(--w) * .92 * var(--s)))) translateY(calc(var(--phone-w) * var(--rise, 0))) scale(var(--s));
   position: absolute; z-index: 3;
-  left: calc(var(--phone-w) * (.01845 + var(--x) * .9631));
-  top: calc(var(--phone-w) * (.04 + var(--y) * 2.0879));
-  width: calc(var(--phone-w) * var(--w) * .9631); height: auto;
-  border-radius: calc(var(--phone-w) * var(--r) * .9631);
+  left: calc(var(--phone-w) * (.04 + var(--x) * .92));
+  top: calc(var(--phone-w) * (.04 + var(--y) * 1.9945));
+  width: calc(var(--phone-w) * var(--w) * .92); height: auto;
+  border-radius: calc(var(--phone-w) * var(--r) * .92);
   transform-origin: 0 0;
   transform: var(--pop-t);
   box-shadow:
@@ -103,10 +103,10 @@
 /* Where the card was: an empty dashed slot, like the pantry's My items screen */
 .pop-slot {
   position: absolute; z-index: 2; display: block;
-  left: calc(var(--phone-w) * (.01845 + var(--x) * .9631));
-  top: calc(var(--phone-w) * (.04 + var(--y) * 2.0879));
-  width: calc(var(--phone-w) * var(--w) * .9631);
-  border-radius: calc(var(--phone-w) * var(--r) * .9631);
+  left: calc(var(--phone-w) * (.04 + var(--x) * .92));
+  top: calc(var(--phone-w) * (.04 + var(--y) * 1.9945));
+  width: calc(var(--phone-w) * var(--w) * .92);
+  border-radius: calc(var(--phone-w) * var(--r) * .92);
   background: #F1EEFB;
   outline: 1.5px dashed #C7BCEF; outline-offset: -1.5px;
 }
@@ -117,8 +117,8 @@
 .tap {
   position: absolute; z-index: 2; pointer-events: none;
   width: calc(var(--phone-w) * .085); aspect-ratio: 1; border-radius: 50%;
-  left: calc(var(--phone-w) * (.01845 + var(--x) * .9631));
-  top: calc(var(--phone-w) * (.04 + var(--y) * 2.0879));
+  left: calc(var(--phone-w) * (.04 + var(--x) * .92));
+  top: calc(var(--phone-w) * (.04 + var(--y) * 1.9945));
   translate: -50% -50%;
   background: rgba(252, 251, 255, .28);
   border: 2px solid rgba(252, 251, 255, .95);

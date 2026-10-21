@@ -32,8 +32,6 @@ export function Hero() {
       // The phone rises into the glow, then the two moments float out beside it.
       gsap.from(".hero-phone", { opacity: 0, y: 60, duration: 1.3, ease: "expo.out" });
       gsap.from(".hero-float", { opacity: 0, y: 24, duration: 1, delay: 0.8, stagger: 0.15, ease: "expo.out" });
-      gsap.to(".hero-phone", { y: -40, ease: "none",
-        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: 0.6 } });
     }, root);
     return () => ctx.revert();
   }, [motionOK]);
@@ -50,9 +48,8 @@ export function Hero() {
             <a href="#features">Features</a>
             <a href="#week">How it works</a>
             <a href="#faq">FAQ</a>
-            <a href="https://roomie-app-v2-delta.vercel.app" target="_blank" rel="noopener">Prototype</a>
           </nav>
-          <a className="topbar-cta" href="#close">Coming soon</a>
+          <a className="topbar-cta" href="https://roomie-app-v2-delta.vercel.app" target="_blank" rel="noopener" aria-label="Try Roomie: open the interactive prototype in a new tab"><span>Try Roomie</span></a>
         </div>
       </header>
 
@@ -68,9 +65,9 @@ export function Hero() {
         <Phone className="hero-phone" src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak, the plant in bloom, and today's tasks" priority />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="hero-float hero-nudge" src="/cards/hero-nudge.webp" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={361} height={86} />
-        <div className="hero-float hero-busy" aria-label="Heavy jobs stay off your busy days">
+        <div className="hero-float hero-busy" aria-label="Heavy chores never land on days you marked busy">
           <span className="tag tag--heavy">Heavy</span>
-          <span>Kept off your busy Wednesday</span>
+          <span>chores never land on days you marked busy</span>
         </div>
       </div>
     </section>

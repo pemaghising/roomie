@@ -22,7 +22,7 @@ export function Effort() {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: root.current, start: "top 70%", end: "center 45%", scrub: 0.8 },
+        scrollTrigger: { trigger: root.current, start: "top 70%", end: "center 45%", scrub: true },
       });
       tl.from(".chore", { x: 60, opacity: 0, stagger: 0.15, ease: "power2.out" })
         .from(".seg", { scaleX: 0, transformOrigin: "left center", stagger: 0.18, ease: "power2.inOut" }, 0.2)
