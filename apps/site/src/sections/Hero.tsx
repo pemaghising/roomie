@@ -62,7 +62,7 @@ export function Hero() {
 
       <div className="hero-center wrap">
         <h1>Fair chores. <em className="nb">Zero nagging.</em></h1>
-        <p className="lede">Chores split by effort, reminders sent for you. Nobody has to play the parent.</p>
+        <p className="lede"><span>Chores split by effort, reminders sent for you.</span> <span>Nobody has to play the parent.</span></p>
         <div className="hero-cta">
           <TryRoomie size="lg" label="Try Roomie now" />
         </div>
