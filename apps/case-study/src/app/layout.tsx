@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://roomie-case-study.vercel.app"),
   title: "Roomie Case Study",
   description:
     "Roomie: a product design case study by Pema Ghising. Designing a household app where fair isn't the same as equal.",
