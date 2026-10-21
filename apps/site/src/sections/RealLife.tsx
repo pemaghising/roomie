@@ -31,9 +31,11 @@ export function RealLife() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(".life-photo img").forEach((img) => {
-        gsap.fromTo(img, { scale: 1.06 }, {
-          scale: 1, ease: "none",
+      // Parallax inside each frame: the photo drifts against the scroll, a touch more in the tall one.
+      gsap.utils.toArray<HTMLElement>(".life-photo img").forEach((img, i) => {
+        const d = i === 0 ? 9 : 7;
+        gsap.fromTo(img, { yPercent: -d }, {
+          yPercent: d, ease: "none",
           scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true },
         });
       });

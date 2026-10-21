@@ -39,6 +39,7 @@ export function Hero() {
       gsap.from(".film-word--a .w1, .film-word--a .w2", { yPercent: 140, duration: 1.3, stagger: 0.1, ease: "expo.out" });
       gsap.from(".film-phone", { yPercent: 40, opacity: 0, duration: 1.6, delay: 0.15, ease: "expo.out" });
       gsap.set(".film-word--b .w1, .film-word--b .w2", { yPercent: 140 });
+      gsap.set(".film-screen", { filter: "brightness(1)" });
 
       // The film, scrubbed across the pinned stage. Words never cross-fade: the old pair rolls up
       // out of its masks as the new pair rolls up in, so only one phrase is ever readable.
@@ -53,10 +54,12 @@ export function Hero() {
         .to(".film-word--a .w2", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 1.08)
         .to(".film-word--b .w1", { yPercent: 0, duration: 0.7, ease: "power3.out" }, 1.55)
         .to(".film-word--b .w2", { yPercent: 0, duration: 0.7, ease: "power3.out" }, 1.63)
-        .to(".film-screen--1", { clipPath: "inset(0% 0 0 0)", duration: 0.5, ease: "power2.inOut" }, 1.6)
+        .to(".film-screen--1", { clipPath: "circle(150% at 33% 93%)", duration: 0.7, ease: "power2.inOut" }, 1.6)
+        .to(".film-screen--0", { filter: "brightness(0.82)", duration: 0.7, ease: "power2.inOut" }, 1.6)
         .to(".film-step--0", { opacity: 0, y: -12, duration: 0.3 }, 1.5)
         .to(".film-step--1", { opacity: 1, y: 0, duration: 0.4 }, 1.8)
-        .to(".film-screen--2", { clipPath: "inset(0% 0 0 0)", duration: 0.5, ease: "power2.inOut" }, 2.6)
+        .to(".film-screen--2", { clipPath: "circle(150% at 47% 93%)", duration: 0.7, ease: "power2.inOut" }, 2.6)
+        .to(".film-screen--1", { filter: "brightness(0.82)", duration: 0.7, ease: "power2.inOut" }, 2.6)
         .to(".film-step--1", { opacity: 0, y: -12, duration: 0.3 }, 2.5)
         .to(".film-step--2", { opacity: 1, y: 0, duration: 0.4 }, 2.8)
         .to(".film-step--2", { opacity: 0, y: -12, duration: 0.3 }, 3.3)

@@ -13,8 +13,9 @@
   box-shadow: 0 1px 2px rgba(31, 27, 58, .05), 0 30px 60px -36px rgba(59, 36, 112, .45);
   outline: 1px solid rgba(255, 255, 255, .7); outline-offset: -1px;
 }
-.life-photo img { width: 100%; height: 100%; object-fit: cover; display: block; will-change: transform; }
-.life-photo--tall { height: 100%; }
+/* the photo is taller than its frame, so it can drift inside it on scroll */
+.life-photo img { position: absolute; left: 0; top: -12%; width: 100%; height: 124%; object-fit: cover; display: block; will-change: transform; }
+.life-photo--tall { height: 100%; min-height: 100%; }
 .life-photo--tall img { object-position: 50% 30%; }
 .life-photo--a { aspect-ratio: 1536 / 1024; }
 .life-photo--b { aspect-ratio: 1600 / 900; }

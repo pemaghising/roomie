@@ -22,9 +22,11 @@ export function Problem() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
+      // Messages arrive one by one once the thread is properly in view, and replay if you scroll back.
       gsap.from(".bubble", {
-        y: 18, opacity: 0, stagger: 0.35, duration: 0.5, ease: "power2.out",
-        scrollTrigger: { trigger: ".thread", start: "top 75%" },
+        y: 22, scale: 0.92, opacity: 0, stagger: 0.55, duration: 0.6, ease: "back.out(1.6)",
+        transformOrigin: (i: number, el: HTMLElement) => (el.classList.contains("me") ? "100% 100%" : "0% 100%"),
+        scrollTrigger: { trigger: ".thread", start: "top 62%", toggleActions: "play none none reverse" },
       });
       gsap.from(".problem-turn", { y: 14, opacity: 0, duration: 0.6, scrollTrigger: { trigger: ".problem-turn", start: "top 85%" } });
     }, root);
