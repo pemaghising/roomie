@@ -185,7 +185,7 @@ export function Features() {
             <article key={f.key} className={`fslide fslide--${f.key} ${!tourOn || active === i ? "is-in" : ""}`}>
               <div className="fslide-inner wrap">
                 <div className="fslide-copy">
-                  <p className="fkicker"><span className="ficon" aria-hidden="true"><f.icon strokeWidth={1.75} /></span>{f.label}</p>
+                  <p className="fkicker"><span className="ficon" aria-hidden="true"><f.icon strokeWidth={1.6} absoluteStrokeWidth /></span>{f.label}</p>
                   <h3>{f.title}</h3>
                   <p>{f.body}</p>
                 </div>
