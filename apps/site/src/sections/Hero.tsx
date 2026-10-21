@@ -58,7 +58,6 @@ export function Hero() {
         <p className="lede">Chores split by effort, reminders sent for you. Nobody has to play the parent.</p>
         <div className="hero-cta">
           <TryRoomie size="lg" label="Try Roomie now" />
-          <p className="try-note">Runs in your browser</p>
         </div>
       </div>
 

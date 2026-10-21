@@ -71,7 +71,6 @@
 /* headline → lede 20, lede → action 32: one rhythm, the button and its caption read as one unit */
 .hero-center .lede { margin-top: 20px; max-width: 38em; text-wrap: balance; }
 .hero-cta { margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
-.hero-cta .try-note { font-size: 14px; color: var(--ink-3); }
 
 .hero-stage {
   position: relative; display: flex; justify-content: center;
