@@ -9,7 +9,7 @@
 
 ![Expo](https://img.shields.io/badge/Expo-SDK%2057-1F1B3A?style=flat-square&logo=expo&logoColor=white)
 ![React Native](https://img.shields.io/badge/React%20Native-0.86-1F1B3A?style=flat-square&logo=react&logoColor=61DAFB)
-![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20RLS-1F1B3A?style=flat-square&logo=supabase&logoColor=3ECF8E)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres-1F1B3A?style=flat-square&logo=supabase&logoColor=3ECF8E)
 ![Next.js](https://img.shields.io/badge/Next.js-16-1F1B3A?style=flat-square&logo=nextdotjs&logoColor=white)
 ![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-1F1B3A?style=flat-square&logo=vercel&logoColor=white)
 
@@ -26,7 +26,7 @@ It is a UX case study and product design project by **Pema Ghising**, taken all 
 | | What it is | Live |
 | --- | --- | --- |
 | [`apps/mobile`](apps/mobile) | The Roomie app for iPhone and Android (Expo, React Native). Also runs on the web inside a phone frame | [roomie-app-v2-delta.vercel.app](https://roomie-app-v2-delta.vercel.app) · Expo Go |
-| [`supabase`](supabase) | The backend: Postgres with row-level security, every write as an RPC, the scheduled `tick` function, and the chore logic shared with the app | Supabase |
+| [`supabase`](supabase) | The backend: a Postgres database where each person only sees their own home, a server check on every change, the job that plans the week and sends reminders, and the chore-splitting logic the app shares | Supabase |
 | [`apps/site`](apps/site) | The marketing website: features, a week in a shared flat, the pantry | [roomie-site-sigma.vercel.app](https://roomie-site-sigma.vercel.app) |
 | [`apps/case-study`](apps/case-study) | The design-thinking case study, from research to reflection | [roomie-case-study.vercel.app](https://roomie-case-study.vercel.app) |
 | [`research`](research) | The written case study, decisions log, evidence map and research sources | |
@@ -73,10 +73,10 @@ It is a UX case study and product design project by **Pema Ghising**, taken all 
 │   ├── site/          Marketing website (Next.js, GSAP, Lenis), static export
 │   └── case-study/    Case study website (Next.js)
 ├── supabase/
-│   ├── migrations/    Schema, row-level security and every RPC
+│   ├── migrations/    Database tables, access rules and server functions
 │   ├── functions/     tick (scheduled) and _shared/domain, the chore logic the app imports
 │   └── seed/          Demo household
-├── tests/db/          Database tests: RLS, RPCs and the tick, against a dev project
+├── tests/db/          Database tests: access rules, server functions and the weekly planner
 ├── research/          case-study.md, decisions-log.md, evidence-map.md, sources/
 └── docs/              Specs, plans and design notes
 ```
