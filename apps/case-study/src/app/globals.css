@@ -1184,12 +1184,9 @@ p,li,td,dd,figcaption,.rows span,.pill,.st-note{text-wrap:pretty}
 .rail-ui button:disabled{opacity:.35;cursor:default;box-shadow:none}
 .rail-ui button:focus-visible{outline:3px solid var(--lav-3);outline-offset:2px}
 .rail-ui svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.rail .strip{gap:20px;padding:6px 4px 18px;scrollbar-width:none;scroll-snap-type:x proximity;cursor:grab;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,48px)),transparent 100%);
-          mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,48px)),transparent 100%)}
+/* padding gives the phone shadows room (overflow clips them otherwise); negative margins keep the row aligned */
+.rail .strip{gap:20px;padding:14px 28px 44px;margin:-14px -28px -26px;scroll-padding-inline:28px;scrollbar-width:none;scroll-snap-type:x proximity;cursor:grab}
 .rail .strip::-webkit-scrollbar{display:none}
-.rail:not(.at-start) .strip{--fl:32px}
-.rail.at-end .strip{--fr:0px}
 .rail .strip.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none}
 .rail .strip.dragging .phone img{pointer-events:none}
 .rail-item{flex:0 0 190px;scroll-snap-align:start;display:grid;gap:12px;align-content:start}

@@ -10,7 +10,7 @@ import "./hero.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** The promise: the app does the reminding. Centred headline over a lilac-peach glow, the Home screen rising below. */
+/** The promise: the app does the reminding. The Home screen first, fading into the glow, then the headline and the action. */
 export function Hero() {
   const motionOK = useMotionOK();
   const root = useRef<HTMLElement>(null);
@@ -60,14 +60,6 @@ export function Hero() {
         </div>
       </header>
 
-      <div className="hero-center wrap">
-        <h1>Fair chores. <em className="nb">Zero nagging.</em></h1>
-        <p className="lede"><span>Chores split by effort, reminders sent for you.</span> <span>Nobody has to play the parent.</span></p>
-        <div className="hero-cta">
-          <TryRoomie size="lg" label="Try Roomie now" />
-        </div>
-      </div>
-
       <div className="hero-stage">
         <Phone className="hero-phone" src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak, the plant in bloom, and today's tasks" priority />
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -75,6 +67,14 @@ export function Hero() {
         <div className="hero-float hero-busy" aria-label="Heavy chores never land on days you marked busy">
           <span className="tag tag--heavy">Heavy</span>
           <span>chores never land on days you marked busy</span>
+        </div>
+      </div>
+
+      <div className="hero-center wrap">
+        <h1>Fair chores. <em className="nb">Zero nagging.</em></h1>
+        <p className="lede"><span>Chores split by effort, reminders sent for you.</span> <span>Nobody has to play the parent.</span></p>
+        <div className="hero-cta">
+          <TryRoomie size="lg" label="Try Roomie now" />
         </div>
       </div>
     </section>
