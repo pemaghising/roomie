@@ -10,7 +10,7 @@ import "./hero.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** The promise: the app does the reminding. A fan of three real screens fading into the glow, then the headline and the action. */
+/** First screen: the product alone, a fan of three real screens. The promise and the action follow on scroll. */
 export function Hero() {
   const motionOK = useMotionOK();
   const root = useRef<HTMLElement>(null);
@@ -35,7 +35,7 @@ export function Hero() {
       gsap.from(".hero-phone--r", { opacity: 0, x: -120, rotate: 0, duration: 1.4, delay: 0.25, ease: "expo.out" });
       // On scroll the fan spreads a little and the front layers lift faster than the back ones.
       const scroll = { trigger: root.current, start: "top top", end: "bottom top", scrub: true };
-      gsap.to(".hero-phone--main", { yPercent: -6, ease: "none", scrollTrigger: scroll });
+      gsap.to(".hero-fan", { yPercent: -8, scale: 0.94, ease: "none", scrollTrigger: scroll });
       gsap.to(".hero-phone--l", { xPercent: -10, rotate: -10, ease: "none", scrollTrigger: scroll });
       gsap.to(".hero-phone--r", { xPercent: 10, rotate: 10, ease: "none", scrollTrigger: scroll });
     }, root);
