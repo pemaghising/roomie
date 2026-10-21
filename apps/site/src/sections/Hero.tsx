@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { StoreButtons } from "@/ui/StoreButtons";
+import { TryRoomie } from "@/ui/TryRoomie";
 import { Phone } from "@/ui/Phone";
 import { useMotionOK } from "@/ui/useMotionOK";
 import "./hero.css";
@@ -49,7 +49,7 @@ export function Hero() {
             <a href="#week">How it works</a>
             <a href="#faq">FAQ</a>
           </nav>
-          <a className="topbar-cta" href="https://roomie-app-v2-delta.vercel.app" target="_blank" rel="noopener" aria-label="Try Roomie: open the interactive prototype in a new tab"><span>Try Roomie</span></a>
+          <TryRoomie className="topbar-cta" />
         </div>
       </header>
 
@@ -58,7 +58,8 @@ export function Hero() {
         <p className="lede">
           Roomie splits chores by effort, works around busy weeks, and sends the reminders itself, so nobody in the flat has to play the parent.
         </p>
-        <StoreButtons />
+        <TryRoomie size="lg" label="Try Roomie now" />
+        <p className="try-note">Runs in your browser. The iPhone and Android apps are coming soon.</p>
       </div>
 
       <div className="hero-stage">

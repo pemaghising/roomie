@@ -44,32 +44,11 @@
   transition: background .2s ease, color .2s ease;
 }
 .topnav a:hover { background: rgba(122, 95, 214, .13); color: var(--violet-deep); }
-/* An outline pill. On hover the app's lilac-peach selection gradient travels round it, with a soft halo of the same colours. */
-@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.topbar-cta {
-  --ring: conic-gradient(from var(--spin), var(--grad-start), var(--grad-end), #E7A6F0, var(--grad-start));
-  justify-self: end; position: relative; isolation: isolate;
-  display: inline-flex; padding: 1px; border-radius: 999px;
-  background: var(--track); text-decoration: none;
-}
-.topbar-cta > span {
-  display: inline-flex; align-items: center; min-height: 42px; padding: 0 22px; border-radius: inherit;
-  background: var(--offwhite); color: var(--ink);
-  font-size: 15px; font-weight: 500; white-space: nowrap;
-}
-.topbar-cta::after {
-  content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; pointer-events: none;
-  background: var(--ring); filter: blur(12px); opacity: 0; transition: opacity .35s ease;
-}
-.topbar-cta:hover, .topbar-cta:focus-visible { padding: 1.5px; background: var(--ring); animation: cta-spin 3s linear infinite; }
-.topbar-cta:hover > span, .topbar-cta:focus-visible > span { min-height: 41px; }
-.topbar-cta:hover::after, .topbar-cta:focus-visible::after { opacity: .6; animation: cta-spin 3s linear infinite; }
-@keyframes cta-spin { to { --spin: 360deg; } }
-@media (prefers-reduced-motion: reduce) { .topbar-cta, .topbar-cta::after { animation: none !important; } }
+.topbar-cta { justify-self: end; }
 @media (prefers-reduced-motion: reduce) {
   .topbar, .topbar-inner, .brand .lockup { transition: none; }
 }
-.topnav a:focus-visible, .topbar-cta:focus-visible, .brand:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.topnav a:focus-visible, .brand:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
 @media (max-width: 720px) {
   .topbar-inner { grid-template-columns: 1fr auto; }
   .topnav { display: none; }
@@ -90,7 +69,8 @@
 .hero-center h1 { font-size: clamp(44px, 7.2vw, 96px); line-height: 1; }
 .hero-center h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
 .hero-center .lede { margin-top: clamp(20px, 3vh, 28px); max-width: 32em; }
-.hero-center .stores { margin-top: clamp(28px, 4vh, 36px); justify-content: center; }
+.hero-center .try { margin-top: clamp(28px, 4vh, 36px); }
+.hero-center .try-note { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
 
 .hero-stage {
   position: relative; display: flex; justify-content: center;

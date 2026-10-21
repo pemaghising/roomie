@@ -133,3 +133,37 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal .pop { opacity: 1; transform: var(--pop-t); transition: none; }
 }
+
+/* Try Roomie: an outline pill (1px track). On hover or focus the app's lilac-peach selection gradient
+   travels round it as a 2px ring, with a soft halo. Whole-pixel widths so the ring is even on both sides. */
+@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.try {
+  --ring: conic-gradient(from var(--spin), var(--grad-start), var(--grad-end), #E7A6F0, var(--grad-start));
+  --h: 44px;
+  position: relative; isolation: isolate;
+  display: inline-flex; padding: 1px; border-radius: 999px;
+  background: var(--track); text-decoration: none;
+}
+.try > span {
+  display: inline-flex; align-items: center; min-height: calc(var(--h) - 2px); padding: 0 22px; border-radius: inherit;
+  background: var(--offwhite); color: var(--ink);
+  font-size: 15px; font-weight: 500; white-space: nowrap;
+}
+.try--lg { --h: 56px; }
+.try--lg > span { padding: 0 32px; font-size: 17px; font-weight: 600; }
+.try::after {
+  content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: var(--ring); filter: blur(12px); opacity: 0; transition: opacity .35s ease;
+}
+/* the big one glows a little even at rest, so it reads as the thing to press */
+.try--lg { padding: 2px; background: var(--ring); }
+.try--lg > span { min-height: calc(var(--h) - 4px); }
+.try--lg::after { opacity: .3; }
+.try:hover, .try:focus-visible { padding: 2px; margin: -1px; background: var(--ring); animation: try-spin 3s linear infinite; }
+.try--lg:hover, .try--lg:focus-visible { margin: 0; }
+.try:hover > span, .try:focus-visible > span { min-height: calc(var(--h) - 4px + 2px); }
+.try--lg:hover > span, .try--lg:focus-visible > span { min-height: calc(var(--h) - 4px); }
+.try:hover::after, .try:focus-visible::after { opacity: .6; animation: try-spin 3s linear infinite; }
+.try:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+@keyframes try-spin { to { --spin: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .try, .try::after { animation: none !important; } }
