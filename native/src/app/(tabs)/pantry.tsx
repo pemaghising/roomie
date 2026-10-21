@@ -8,6 +8,7 @@ import { Alert, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BASICS, canAsk, iconFor, myAsk, openRestockFor, sameName, sortShelf, type PantryItem, type ShelfTab } from '@domain/pantry.ts';
+import { LinearGradient } from 'expo-linear-gradient';
 import { avatarUrl } from '@/lib/avatar';
 import { usePantryActions } from '@/lib/pantry';
 import { lowRow, shelfMeta } from '@/lib/pantry-view';
@@ -16,7 +17,7 @@ import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
 import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color, layout } from '@/ui/tokens';
-import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind, useSwipeTabs, useTitleBar } from '@/ui/v2';
+import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, gradients, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind, useSwipeTabs, useTitleBar } from '@/ui/v2';
 
 const spring = smooth;
 const TABS: { value: ShelfTab; label: string }[] = [{ value: 'shared', label: 'Shared' }, { value: 'mine', label: 'My items' }, { value: 'roommates', label: 'Roommates' }];
@@ -97,7 +98,7 @@ export default function Pantry() {
       <Animated.View key={i.id} layout={spring} entering={E()} exiting={FadeOut.duration(durations.fade)}>
         <Glass fill={0.9} lift={false} r={22}>
           <View style={styles.lowRow}>
-            <View style={styles.disc}><EmojiBadge value={iconOf(i)} name={i.name} size={40} round tint={color.bg.surface} /></View>
+            <View style={styles.disc}><EmojiBadge value={iconOf(i)} name={i.name} size={40} tint={color.bg.surface} /></View>
             {row.kind === 'claim' ? (
               <>
                 <Txt v="Body/Row" numberOfLines={1} style={{ flexShrink: 1, minWidth: 48 }}>{i.name}</Txt>
@@ -230,12 +231,14 @@ export default function Pantry() {
                     const on = m.user_id === pick;
                     return (
                       <Tap key={m.user_id} onPress={() => setWho(m.user_id)} feel="select" accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={m.name}>
-                        <Glass outline={on} r={26} fill={0.9} strokeWidth={1.5}>
-                          <View style={styles.person}>
-                            <Avatar name={m.name} uri={m.avatar_path ? avatarUrl(m.avatar_path) : null} tint={m.color} size={32} />
+                        {/* Figma P3: picked = lilac fill + gradient stroke; others = off-white with a faint lilac edge */}
+                        <LinearGradient colors={on ? gradients.outline : ['rgba(135,107,222,0.12)', 'rgba(135,107,222,0.12)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                          style={[styles.personEdge, { padding: on ? 2 : 1 }, !on && styles.personLift]}>
+                          <View style={[styles.person, { backgroundColor: on ? '#F4F0FF' : color.bg.surface }]}>
+                            <Avatar plain name={m.name} uri={m.avatar_path ? avatarUrl(m.avatar_path) : null} size={32} />
                             <Txt v="Body/Label" c={on ? color.text.link : color.text.primary}>{m.name.split(' ')[0]}</Txt>
                           </View>
-                        </Glass>
+                        </LinearGradient>
                       </Tap>
                     );
                   })}
@@ -247,7 +250,8 @@ export default function Pantry() {
                     {theirs.map((i) => {
                       const ask = myAsk(state.asks, i.id, me);
                       const askable = canAsk(i, me, state.asks);
-                      const meta = ask?.status === 'pending' ? 'Asked · waiting' : ask?.status === 'yes' ? 'Said sure' : ask?.status === 'no' ? 'Not this time' : askable ? 'Tap to ask' : undefined;
+                      const owner = picked.name.split(' ')[0];
+                      const meta = ask?.status === 'pending' ? 'Asked · waiting' : ask?.status === 'yes' ? `Approved by ${owner}` : ask?.status === 'no' ? `${owner} said not this time` : askable ? 'Tap to ask' : undefined;
                       return (
                         <Animated.View key={i.id} entering={E()} layout={spring}>
                           <Tap onPress={askable ? () => act.ask(i, picked.name.split(' ')[0]) : undefined} disabled={!askable} accessibilityLabel={askable ? `Ask to use ${i.name}` : i.name}>
@@ -276,9 +280,11 @@ const styles = StyleSheet.create({
   headingLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   count: { minWidth: 24, height: 22, paddingHorizontal: 7, borderRadius: 11, backgroundColor: color.action.selectedTint, alignItems: 'center', justifyContent: 'center' },
   lowRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingLeft: 10, paddingRight: 4 },
-  disc: { borderRadius: 20, backgroundColor: color.bg.surface, shadowColor: '#3B2470', shadowOpacity: 0.1, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  disc: { borderRadius: 12, backgroundColor: color.bg.surface, shadowColor: '#3B2470', shadowOpacity: 0.1, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
   pill: { height: 34, paddingHorizontal: 12, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   pair: { flexDirection: 'row', gap: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  person: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, paddingLeft: 6, paddingRight: 16 },
+  personEdge: { borderRadius: 999 },
+  personLift: { shadowColor: '#8C66D9', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  person: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, paddingLeft: 6, paddingRight: 16, borderRadius: 999 },
 });

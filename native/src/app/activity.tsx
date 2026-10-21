@@ -3,8 +3,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { activityIcon, activityText, groupActivity } from '@/lib/activity-text';
+import { activityIcon, activityText, askLines, groupActivity } from '@/lib/activity-text';
 import { avatarUrl } from '@/lib/avatar';
+import { usePantryActions } from '@/lib/pantry';
 import { isUnread, namesOf } from '@/lib/selectors';
 import { rpc, STATE_KEY, useMe, withHousehold } from '@/lib/state';
 import type { ActivityItem } from '@/lib/types';
@@ -32,6 +33,9 @@ function Activity() {
   useEffect(() => { rpc('mark_activity_seen').then(() => qc.invalidateQueries({ queryKey: STATE_KEY })).catch(() => {}); }, [qc]);
   const groups = groupActivity(state.activity, state.household!.tz, state.today, (id) => wasUnread.has(id));
   const member = (id: string | null) => state.members.find((m) => m.user_id === id);
+  const pantry = usePantryActions();
+  // waiting on me first, then the newest
+  const asks = askLines(state.asks, state.pantry, names, me).sort((a, b) => Number(b.answer) - Number(a.answer) || b.ask.created_at.localeCompare(a.ask.created_at));
 
   const row = (item: ActivityItem, isNew: boolean, last: boolean) => {
     const who = member(item.actor);
@@ -40,8 +44,8 @@ function Activity() {
     return (
       <View key={item.id} style={[styles.row, !last && styles.divider]}>
         <View>
-          {who ? <Avatar name={who.name} uri={who.avatar_path ? avatarUrl(who.avatar_path) : null} tint={who.color} size={40} />
-            : <EmojiBadge value={icon} size={40} round tint={color.action.selectedTint} />}
+          {who ? <Avatar plain name={who.name} uri={who.avatar_path ? avatarUrl(who.avatar_path) : null} size={40} />
+            : <EmojiBadge value={icon} size={40} tint={color.action.selectedTint} />}
           {who && <View style={styles.badge}><Emoji value={icon} size={14} /></View>}
         </View>
         <View style={{ flex: 1, gap: 8 }}>
@@ -66,7 +70,7 @@ function Activity() {
         <Heading title="Activity" size="page" />
         {wasUnread.size > 0 && <View style={styles.count}><Txt v="Tag" c={color.text.link}>{`${wasUnread.size} new`}</Txt></View>}
       </View>
-      {state.activity.length === 0 && (
+      {state.activity.length === 0 && asks.length === 0 && (
         <Glass fill={0.62}>
           <View style={{ alignItems: 'center', gap: 6, padding: 24 }}>
             <Emoji value="🏠" size={34} />
@@ -74,6 +78,36 @@ function Activity() {
             <Txt v="Meta" c={color.text.secondary} style={{ textAlign: 'center' }}>Finished, claimed and restocked things show up here.</Txt>
           </View>
         </Glass>
+      )}
+      {asks.length > 0 && (
+        <View style={{ gap: 10 }}>
+          <Txt v="Meta/Medium" c={color.text.link}>Asks</Txt>
+          <SettingsCard>{asks.map((l, i) => {
+            const who = member(l.other);
+            return (
+              <View key={l.ask.id} style={[styles.row, i < asks.length - 1 && styles.divider]}>
+                <View>
+                  {who ? <Avatar plain name={who.name} uri={who.avatar_path ? avatarUrl(who.avatar_path) : null} size={40} /> : <EmojiBadge value="🙋" size={40} tint={color.action.selectedTint} />}
+                  <View style={styles.badge}><Emoji value={l.ask.status === 'yes' ? '✅' : l.ask.status === 'no' ? '🙅' : '🙋'} size={14} /></View>
+                </View>
+                <View style={{ flex: 1, gap: 10 }}>
+                  <Txt v="Body/Default">{l.text}</Txt>
+                  {l.answer && (
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <Tap onPress={() => pantry.answer(l.ask, true)} feel="complete" accessibilityLabel={`Approve ${l.text}`}>
+                        <View style={[styles.answer, { backgroundColor: color.action.primary }]}><Txt v="Meta/Medium" c={color.text.onAccent}>Approve</Txt></View>
+                      </Tap>
+                      <Tap onPress={() => pantry.answer(l.ask, false)} feel="select" accessibilityLabel={`Not now: ${l.text}`}>
+                        <View style={[styles.answer, { backgroundColor: color.action.selectedTint }]}><Txt v="Meta/Medium" c={color.text.link}>Not now</Txt></View>
+                      </Tap>
+                    </View>
+                  )}
+                </View>
+                <Txt v="Meta" c={color.text.secondary}>{ago(l.ask.created_at)}</Txt>
+              </View>
+            );
+          })}</SettingsCard>
+        </View>
       )}
       {groups.map(({ label, items }) => (
         <View key={label} style={{ gap: 10 }}>
@@ -92,5 +126,6 @@ const styles = StyleSheet.create({
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(135,107,222,0.12)' },
   badge: { position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
   cheer: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, height: 26, borderRadius: 13, backgroundColor: color.action.selectedTint },
+  answer: { height: 32, paddingHorizontal: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: color.action.primary },
 });

@@ -20,7 +20,7 @@ function BusyDays() {
       <DayPicker value={days} onChange={setDays} />
       <Glass fill={0.9}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 }}>
-          <EmojiBadge value="📅" size={44} round tint={color.bg.surface} />
+          <EmojiBadge value="📅" size={44} tint={color.bg.surface} />
           <View style={{ flex: 1, gap: 2 }}>
             <Txt v="Body/Row">{days.length ? busyLabel(days) : 'No busy days'}</Txt>
             <Txt v="Meta" c={color.text.secondary}>{days.length ? 'Heavy chores stay off these days' : 'Any chore can land on any day'}</Txt>

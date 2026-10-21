@@ -49,7 +49,9 @@ export function roommates(s: AppState, today: string) {
 export const isUnread = (s: AppState, me: string) => (x: AppState['activity'][number]) =>
   x.created_at > s.profile.activity_seen_at && x.actor !== me;
 
-export const unreadCount = (s: AppState, me: string): number => s.activity.filter(isUnread(s, me)).length;
+// an ask waiting on my answer lights the bell too
+export const unreadCount = (s: AppState, me: string): number =>
+  s.activity.filter(isUnread(s, me)).length + s.asks.filter((a) => a.to_user === me && a.status === 'pending').length;
 
 export const nextUp =(s: AppState, me: string, today: string): Assignment | undefined =>
   s.assignments.filter((a) => a.user_id === me && a.status === 'todo' && a.day > today).sort((x, y) => x.day.localeCompare(y.day))[0];

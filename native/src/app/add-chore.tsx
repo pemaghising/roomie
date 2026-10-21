@@ -95,7 +95,7 @@ function AddChore({ editing }: { editing?: Chore }) {
         <Animated.View entering={FadeIn.duration(durations.fade)} exiting={FadeOut.duration(durations.fade)} style={styles.icons}>
           {ICONS.map((e) => (
             <Tap key={e} onPress={() => { setChosen(e); setPicking(false); }} feel="select" accessibilityLabel={`Icon ${e}`} accessibilityState={{ selected: e === icon }}>
-              <View style={[styles.iconCell, e === icon && styles.iconOn]}><EmojiBadge value={e} size={40} round /></View>
+              <View style={[styles.iconCell, e === icon && styles.iconOn]}><EmojiBadge value={e} size={40} /></View>
             </Tap>
           ))}
         </Animated.View>
@@ -140,7 +140,7 @@ function AddChore({ editing }: { editing?: Chore }) {
 
 const styles = StyleSheet.create({
   icons: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  iconCell: { padding: 2, borderRadius: 24, borderWidth: 1.5, borderColor: 'transparent' },
+  iconCell: { padding: 2, borderRadius: 16, borderWidth: 1.5, borderColor: 'transparent' },
   iconOn: { borderColor: color.action.primary },
   note: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 16, backgroundColor: 'rgba(135,107,222,0.1)' },
 });

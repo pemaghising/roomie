@@ -30,9 +30,12 @@ export function Glass({ children, style, r = radius.card, fill = 0.55, outline =
   const inner = (
     <View style={[styles.clip, { borderRadius: outline ? r - strokeWidth : r }]}>
       {/* an outlined card sits on the gradient, so it needs a solid base or the stroke tints the whole fill */}
+      {/* the blur gets its own radius: browsers don't clip a backdrop filter to a rounded parent, which squared the corners */}
       {outline ? <View style={[StyleSheet.absoluteFill, { backgroundColor: color.bg.surface }]} />
-        : <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />}
+        : <BlurView intensity={30} tint="light" style={[StyleSheet.absoluteFill, { borderRadius: r, overflow: 'hidden' }]} />}
       <View style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(252,251,255,${fill})` }]} />
+      {/* liquid glass sheen: light catches the top of the pane and fades by the middle */}
+      {!outline && <LinearGradient colors={SHEEN} locations={[0, 0.55]} style={StyleSheet.absoluteFill} pointerEvents="none" />}
       <View style={[styles.content, pad !== undefined && { padding: pad }]}>{children}</View>
     </View>
   );
@@ -81,5 +84,12 @@ export function Tap({ children, style, onPress, feel, hitSlop = 6, ...rest }: Pr
 const styles = StyleSheet.create({
   clip: { overflow: 'hidden' },
   content: {},
-  hairline: { borderWidth: 1, borderColor: color.border.hairline, overflow: 'hidden' },
+  // a rim lit from the top left, as on Liquid Glass: bright along the top and left, softer bottom and right
+  hairline: {
+    borderWidth: 1, overflow: 'hidden',
+    borderTopColor: 'rgba(252,251,255,0.95)', borderLeftColor: 'rgba(252,251,255,0.9)',
+    borderRightColor: 'rgba(252,251,255,0.55)', borderBottomColor: 'rgba(252,251,255,0.45)',
+  },
 });
+
+const SHEEN = ['rgba(252,251,255,0.5)', 'rgba(252,251,255,0)'] as const;

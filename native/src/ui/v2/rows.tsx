@@ -88,7 +88,7 @@ export function PoolBanner({ count, onPress }: { count: number; onPress: () => v
 export function ReasonRow({ icon, title, reason, tag, last }: { icon?: string | null; title: string; reason: string; tag: TagKind; last?: boolean }) {
   return (
     <View style={[styles.reason, !last && styles.divider]}>
-      <View style={[elevation.liftSmall, { shadowColor: '#111827', shadowOpacity: 0.06, borderRadius: 22 }]}><EmojiBadge value={icon} name={title} round /></View>
+      <View style={[elevation.liftSmall, { shadowColor: '#111827', shadowOpacity: 0.06, borderRadius: 13 }]}><EmojiBadge value={icon} name={title} /></View>
       <View style={[styles.text, { gap: 2 }]}>
         <Txt v="Body/Label">{title}</Txt>
         <Txt v="Meta" c={color.text.secondary}>{reason}</Txt>
@@ -144,7 +144,7 @@ export function ShelfTile({ icon, name, meta, onPress }: { icon?: string | null;
     <Tap onPress={onPress} disabled={!onPress} style={{ flex: 1 }} accessibilityLabel={`${name}, ${meta}`}>
       <Glass style={{ flex: 1 }} fill={0.62}>
         <View style={styles.tile}>
-          <View style={[elevation.liftSmall, { shadowColor: '#111827', shadowOpacity: 0.06, borderRadius: 24, alignSelf: 'flex-start' }]}><EmojiBadge value={icon} name={name} size={48} round tint={color.bg.surface} /></View>
+          <View style={[elevation.liftSmall, { shadowColor: '#111827', shadowOpacity: 0.06, borderRadius: 14, alignSelf: 'flex-start' }]}><EmojiBadge value={icon} name={name} size={48} tint={color.bg.surface} /></View>
           <View style={{ gap: 2 }}>
             <Txt v="Body/Row" numberOfLines={1}>{name}</Txt>
             <Txt v="Meta" c={color.text.secondary} numberOfLines={1}>{meta}</Txt>

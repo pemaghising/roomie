@@ -236,3 +236,33 @@ describe.skipIf(!hasDb)('orphaned households', () => {
     expect(m!.role).toBe('owner');
   }, 30_000);
 });
+
+describe.skipIf(!hasDb)('activity feed records the pantry and chore changes', () => {
+  let a: U; let b: U; let h: string;
+  beforeAll(async () => {
+    [a, b] = await Promise.all([makeUser('Asha'), makeUser('Bimal')]);
+    h = await seedHousehold(a.id, [b.id]);
+  }, 30_000);
+  const kinds = async () => ((await a.client.rpc('get_state')).data.activity as { kind: string; payload: Record<string, unknown> }[]);
+
+  test('added, flagged, I’ll get it, can’t get it, back in stock and removed each leave one entry', async () => {
+    const { data: item } = await a.client.rpc('add_pantry_item', { p_name: 'Oat milk', p_owner_personal: false });
+    expect((await b.client.rpc('set_item_stock', { p_id: item, p_stock: 'low' })).error).toBeNull();
+    const { data: rid } = await b.client.rpc('get_restock', { p_item: item });
+    expect((await b.client.rpc('unclaim_restock', { p_id: rid })).error).toBeNull();
+    expect((await a.client.rpc('set_item_stock', { p_id: item, p_stock: 'in_stock' })).error).toBeNull();
+    expect((await a.client.rpc('remove_pantry_item', { p_id: item })).error).toBeNull();
+    const feed = (await kinds()).map((x) => x.kind).reverse();
+    expect(feed).toEqual(['item_added', 'item_flagged', 'restock_claimed', 'restock_unclaimed', 'item_back', 'item_removed']);
+  });
+
+  test('editing and removing a chore are recorded', async () => {
+    expect((await a.client.rpc('add_chore', { p_name: 'Wash up', p_icon: '🧽', p_effort: 1, p_cadence: 'daily' })).error).toBeNull();
+    const chore = (await a.client.rpc('get_state')).data.chores[0];
+    expect((await a.client.rpc('update_chore', { p_id: chore.id, p_name: 'Dishes', p_icon: null, p_effort: 2, p_cadence: chore.cadence })).error).toBeNull();
+    expect((await a.client.rpc('archive_chore', { p_id: chore.id })).error).toBeNull();
+    const feed = await kinds();
+    expect(feed.slice(0, 2).map((x) => x.kind)).toEqual(['chore_removed', 'chore_edited']);
+    expect(feed[0].payload.chore).toBe('Dishes');
+  });
+});

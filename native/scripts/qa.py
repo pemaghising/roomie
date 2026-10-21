@@ -73,6 +73,7 @@ def run_step(pg, base, out, step):
                 # the web dev build's warning toast (nested pressables are fine on iOS) would block taps
                 pg.add_style_tag(content="#error-toast{display:none!important}")
             elif kind == "wait": pg.wait_for_timeout(arg)
+            elif kind == "keys": pg.keyboard.type(arg, delay=60)  # into whatever has focus (code inputs)
             elif kind == "scrollto":
                 el = find(pg, arg); ok = el is not None
                 if el: pg.mouse.move(200, 300); pg.mouse.wheel(0, 260); pg.wait_for_timeout(500)

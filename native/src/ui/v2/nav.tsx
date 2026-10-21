@@ -40,7 +40,7 @@ export function Nav({ active, onTab, onAdd }: { active: TabName; onTab: (t: TabN
     <View style={styles.wrap} pointerEvents="box-none">
       <View style={[styles.capsule, elevation.glass]}>
         <View style={styles.clip}>
-          <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
+          <BlurView intensity={40} tint="light" style={[StyleSheet.absoluteFill, { borderRadius: 999, overflow: 'hidden' }]} />
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(252,251,255,0.72)' }]} />
           <Animated.View style={[styles.pill, { width: w }, pill]} />
           <View style={styles.tabs} accessibilityRole="tablist">

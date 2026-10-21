@@ -44,7 +44,7 @@ export default function Reminders() {
       <View style={{ gap: 14 }}>
         {REASONS.map((r) => (
           <View key={r.text} style={styles.row}>
-            <EmojiBadge value={r.icon} size={40} round tint={color.action.selectedTint} />
+            <EmojiBadge value={r.icon} size={40} tint={color.action.selectedTint} />
             <Txt v="Body/Default" style={{ flex: 1 }}>{r.text}</Txt>
           </View>
         ))}

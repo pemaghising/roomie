@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { activityIcon, activityText, groupActivity } from './activity-text';
+import { activityIcon, activityText, askLines, groupActivity } from './activity-text';
 import type { ActivityItem } from './types';
 
 const names = { me: 'Rahul', pri: 'Priya', aar: 'Aarav' };
@@ -31,4 +31,13 @@ test('unseen events lead as New, then the rest by day, newest first', () => {
 test('with nothing unseen there is no New section', () => {
   const groups = groupActivity([item(1, 'joined', 'pri', {}, '2026-10-07T04:00:00Z')], 'Asia/Kathmandu', '2026-10-07', () => false);
   expect(groups.map((g) => g.label)).toEqual(['Today']);
+});
+
+test('asks show to the two people involved: the owner can answer, the asker sees who approved', () => {
+  const pantry = [{ id: 'i1', name: 'Oat milk' }];
+  const ask = (status: 'pending' | 'yes' | 'no', from: string, to: string) => ({ id: 'k', item_id: 'i1', from_user: from, to_user: to, status, created_at: '2026-10-07T05:00:00Z' });
+  expect(askLines([ask('pending', 'aar', 'me')], pantry, names, 'me')[0]).toMatchObject({ text: 'Aarav asked to use your Oat milk', answer: true });
+  expect(askLines([ask('yes', 'me', 'pri')], pantry, names, 'me')[0]).toMatchObject({ text: 'Priya approved your ask for Oat milk', answer: false });
+  expect(askLines([ask('pending', 'me', 'pri')], pantry, names, 'me')[0].text).toBe('You asked Priya for Oat milk · waiting');
+  expect(askLines([ask('no', 'me', 'pri')], pantry, names, 'me')[0].text).toBe('Priya said not this time for Oat milk');
 });

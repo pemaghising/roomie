@@ -39,10 +39,11 @@ export function Emoji({ value, name, size = 26 }: { value?: string | null; name?
   );
 }
 
-/** v2/Emoji badge: 44 tile (radius 13) holding a 26 pt 3D emoji. */
-export function EmojiBadge({ value, name, size = 44, round = false, tint }: { value?: string | null; name?: string; size?: number; round?: boolean; tint?: string }) {
+/** v2/Emoji badge: rounded-square tile (44 at radius 13, scaled for other sizes) holding a 3D emoji. Never a circle. */
+export const badgeRadius = (size: number) => Math.round(size * 0.3);
+export function EmojiBadge({ value, name, size = 44, tint }: { value?: string | null; name?: string; size?: number; tint?: string }) {
   return (
-    <View style={[styles.badge, { width: size, height: size, borderRadius: round ? size / 2 : 13 }, tint ? { backgroundColor: tint } : null]}>
+    <View style={[styles.badge, { width: size, height: size, borderRadius: badgeRadius(size) }, tint ? { backgroundColor: tint } : null]}>
       <Emoji value={value} name={name} size={Math.round(size * 0.6)} />
     </View>
   );

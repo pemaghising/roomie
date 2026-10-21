@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { color, font, layout } from '../tokens';
 import { IconButton } from './buttons';
 import { gradients, Tap, Txt } from './primitives';
+import { letterTile } from './tag-style';
 
 /** Section title ("Your tasks today") with an optional link on the right ("Why these?", "See all"). */
 export function SectionHeader({ title, link, onLink, note }: { title: string; link?: string; onLink?: () => void; note?: string }) {
@@ -33,8 +34,18 @@ export function Heading({ title, accent, sub, size = 'onboarding' }: { title: st
 }
 
 /** v2/Avatar: photo or initial inside the violet → orchid → peach ring, with an optional sun badge. */
-export function Avatar({ name, uri, tint = '#F3F0FF', size = 52, sun }: { name: string; uri?: string | null; tint?: string; size?: number; sun?: boolean }) {
+export function Avatar({ name, uri, tint = '#F3F0FF', size = 52, sun, plain }: { name: string; uri?: string | null; tint?: string; size?: number; sun?: boolean; plain?: boolean }) {
   const ring = Math.max(2, size * 0.048);
+  if (plain) {
+    // small avatar inside chips (Figma P3 roommate chips): no ring, a Geist letter on a pastel
+    const t = letterTile(name);
+    return (
+      <View style={{ width: size, height: size, minWidth: size, minHeight: size, borderRadius: size / 2, backgroundColor: t.bg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel={name}>
+        {uri ? <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
+          : <Text style={{ fontFamily: font.medium, fontSize: size * 0.44, color: t.fg }}>{t.letter}</Text>}
+      </View>
+    );
+  }
   return (
     <View style={{ width: size, height: size }} accessibilityLabel={name}>
       <LinearGradient colors={gradients.add} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: size, height: size, borderRadius: size / 2, padding: ring }}>

@@ -153,7 +153,7 @@ export function ChoiceSwitch<T extends string | number>({ label, options, value,
   );
 }
 
-/** The icon + name header of the C4 / P2d / P1f sheets: a round icon with a pencil, a big name input and a line under it. */
+/** The icon + name header of the C4 / P2d / P1f sheets: a rounded-square icon with a pencil, a big name input and a line under it. */
 export function IconNameField({ icon, name, onName, sub, onIcon, placeholder, editable = true }: {
   icon?: string | null; name: string; onName: (t: string) => void; sub: string; onIcon?: () => void; placeholder: string; editable?: boolean;
 }) {
@@ -161,7 +161,7 @@ export function IconNameField({ icon, name, onName, sub, onIcon, placeholder, ed
     <View style={styles.nameRow}>
       <Tap onPress={onIcon} disabled={!onIcon} feel="select" accessibilityLabel="Change icon">
         <View>
-          <EmojiBadge value={icon} name={name || placeholder} size={64} round tint="#F1ECFD" />
+          <EmojiBadge value={icon} name={name || placeholder} size={64} tint="#F1ECFD" />
           {onIcon && <View style={styles.pencil}><Pencil size={10} color={color.text.link} strokeWidth={2.25} /></View>}
         </View>
       </Tap>
