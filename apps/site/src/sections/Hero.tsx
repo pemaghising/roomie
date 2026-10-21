@@ -29,15 +29,30 @@ export function Hero() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
-      // The fan opens: Home rises, then the side phones slide out from behind it.
-      gsap.from(".hero-phone--main", { opacity: 0, y: 60, duration: 1.3, ease: "expo.out" });
-      gsap.from(".hero-phone--l", { opacity: 0, x: 120, rotate: 0, duration: 1.4, delay: 0.25, ease: "expo.out" });
-      gsap.from(".hero-phone--r", { opacity: 0, x: -120, rotate: 0, duration: 1.4, delay: 0.25, ease: "expo.out" });
-      // On scroll the fan spreads a little and the front layers lift faster than the back ones.
-      const scroll = { trigger: root.current, start: "top top", end: "bottom top", scrub: true };
-      gsap.to(".hero-fan", { yPercent: -8, scale: 0.94, ease: "none", scrollTrigger: scroll });
-      gsap.to(".hero-phone--l", { xPercent: -10, rotate: -10, ease: "none", scrollTrigger: scroll });
-      gsap.to(".hero-phone--r", { xPercent: 10, rotate: 10, ease: "none", scrollTrigger: scroll });
+      // GSAP owns every transform here, so the entrance, scroll and pointer layers never fight.
+      gsap.set(".hero-phone--l", { rotationY: 40, z: -90 });
+      gsap.set(".hero-phone--r", { rotationY: -40, z: -90 });
+      // Open once: Home rises onto the floor, then the side phones swing open from its edges.
+      gsap.from(".hero-phone--main", { opacity: 0, y: 70, duration: 1.4, ease: "expo.out" });
+      gsap.from(".hero-phone--l", { opacity: 0, rotationY: 88, duration: 1.8, delay: 0.35, ease: "expo.out" });
+      gsap.from(".hero-phone--r", { opacity: 0, rotationY: -88, duration: 1.8, delay: 0.35, ease: "expo.out" });
+      // Scrolling keeps opening the book flat while the scene sinks back.
+      const scroll = { trigger: root.current, start: "top top", end: "bottom top", scrub: 0.6 };
+      gsap.to(".hero-phone--l", { rotationY: 18, ease: "none", scrollTrigger: scroll, immediateRender: false });
+      gsap.to(".hero-phone--r", { rotationY: -18, ease: "none", scrollTrigger: scroll, immediateRender: false });
+      gsap.to(".hero-scene", { yPercent: -8, scale: 0.9, ease: "none", scrollTrigger: scroll });
+      // The scene leans a few degrees toward the pointer.
+      const scene = root.current?.querySelector<HTMLElement>(".hero-scene");
+      if (scene && window.matchMedia("(pointer: fine)").matches) {
+        const rx = gsap.quickTo(scene, "rotationX", { duration: 0.9, ease: "power3.out" });
+        const ry = gsap.quickTo(scene, "rotationY", { duration: 0.9, ease: "power3.out" });
+        const onMove = (e: PointerEvent) => {
+          ry(((e.clientX / window.innerWidth) - 0.5) * 10);
+          rx(-((e.clientY / window.innerHeight) - 0.5) * 6);
+        };
+        window.addEventListener("pointermove", onMove);
+        return () => window.removeEventListener("pointermove", onMove);
+      }
     }, root);
     return () => ctx.revert();
   }, [motionOK]);
@@ -60,7 +75,7 @@ export function Hero() {
       </header>
 
       <div className="hero-stage">
-        <div className="hero-fan">
+        <div className="hero-scene">
           <Phone className="hero-phone hero-phone--side hero-phone--l" src="/screens/p1-pantry.webp" alt="Roomie Pantry: milk out, rice low, each with I'll get it" priority />
           <Phone className="hero-phone hero-phone--side hero-phone--r" src="/screens/c1c-shared-pool.webp" alt="Roomie Chores: the shared pool, chores anyone can claim" priority />
           <Phone className="hero-phone hero-phone--main" src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak, the plant in bloom, and today's tasks" priority />
