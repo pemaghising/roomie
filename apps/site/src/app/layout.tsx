@@ -22,6 +22,7 @@ const geist = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://roomie-site-sigma.vercel.app"),
   title: "Roomie · Make your place feel like home",
   description:
     "Roomie splits chores by effort, works around busy weeks, and does the reminding, so nobody has to play the parent. Coming soon on the App Store and Google Play.",
