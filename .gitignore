@@ -10,3 +10,4 @@ playwright-report
 .superpowers
 *.tsbuildinfo
 .vercel
+.mcp.json
