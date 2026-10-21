@@ -45,14 +45,14 @@
 }
 .topnav a:hover { background: var(--lilac); color: var(--violet-deep); }
 .topbar-cta {
-  justify-self: end; min-height: 44px; padding: 0 18px; border-radius: 999px;
-  background: var(--ink); color: var(--offwhite);
-  display: inline-flex; align-items: center; gap: 9px;
-  font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap;
-  box-shadow: 0 8px 18px -10px rgba(31, 27, 58, .6);
-  transition: background .2s ease;
+  justify-self: end; min-height: 44px; padding: 0 22px; border-radius: 999px;
+  background: transparent; color: var(--ink);
+  border: 1px solid var(--track);
+  display: inline-flex; align-items: center;
+  font-size: 15px; font-weight: 500; text-decoration: none; white-space: nowrap;
+  transition: background .2s ease, border-color .2s ease;
 }
-.topbar-cta:hover { background: var(--plum); }
+.topbar-cta:hover { background: rgba(252, 251, 255, .6); border-color: var(--grad-start); }
 @media (prefers-reduced-motion: reduce) {
   .topbar, .topbar-inner, .brand .lockup { transition: none; }
 }
