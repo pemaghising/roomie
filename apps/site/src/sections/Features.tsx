@@ -91,6 +91,7 @@ export function Features() {
     mm.add(TOUR, () => {
       setTourOn(true);
       const n = FEATURES.length;
+      const on = { enter: () => {}, enterBack: () => {}, leave: () => {} };
       const tween = gsap.to(tr, {
         x: () => -(tr.scrollWidth - window.innerWidth),
         ease: "none",
@@ -98,28 +99,71 @@ export function Features() {
           trigger: el, pin: true, scrub: 0.3, start: "top top",
           end: () => "+=" + window.innerWidth * (n - 1) * 0.8,
           invalidateOnRefresh: true,
+          onEnter: () => on.enter(), onEnterBack: () => on.enterBack(),
+          onLeave: () => on.leave(), onLeaveBack: () => on.leave(),
           onUpdate: (st) => {
             el.style.setProperty("--p", st.progress.toFixed(4));
             setActive(Math.min(n - 1, Math.round(st.progress * (n - 1))));
           },
         },
       });
-      // Once scrolling stops inside the tour, glide to the nearest feature. Lenis does the glide, so it never
-      // fights the smooth scroll the way ScrollTrigger's own snap did.
-      // It follows your direction: nudge more than an eighth of a slide and it carries on to the next one.
-      let at = 0;
-      const settle = () => {
-        const st = tween.scrollTrigger;
-        if (!st || !st.isActive) return;
-        const raw = st.progress * (n - 1), d = raw - at;
-        at = Math.min(n - 1, Math.max(0, d > 0.12 ? Math.ceil(raw - 0.001) : d < -0.12 ? Math.floor(raw + 0.001) : Math.round(raw)));
-        const target = st.start + (at / (n - 1)) * (st.end - st.start);
-        if (Math.abs(target - window.scrollY) < 2) return;
-        if (lenis) lenis.scrollTo(target, { duration: 0.6, easing: (t) => 1 - Math.pow(1 - t, 3) });
-        else window.scrollTo({ top: target, behavior: "smooth" });
+      // Paged like a slideshow: while pinned, one scroll gesture moves exactly one feature and further input
+      // waits until the glide lands, so it can't slip past or stop between slides. Past 07 (or before 01)
+      // the page scrolls normally again.
+      const st = tween.scrollTrigger!;
+      // 1px inside each end: landing exactly on start/end counts as leaving the pin and would release the tour
+      const posOf = (i: number) => Math.min(st.end - 1, Math.max(st.start + 1, st.start + (i / (n - 1)) * (st.end - st.start)));
+      let at = 0, inside = false, busy = false, lastEvt = 0, lastAbs = 0, touchY = 0;
+      const go = (y: number) => {
+        if (Math.abs(y - window.scrollY) < 1) return;
+        busy = true;
+        // Lenis skips onComplete when interrupted, so a timer always releases the lock too
+        const t = window.setTimeout(() => { busy = false; }, 800);
+        const done = () => { window.clearTimeout(t); busy = false; };
+        if (lenis) lenis.scrollTo(y, { duration: 0.7, easing: (k) => 1 - Math.pow(1 - k, 3), onComplete: done });
+        else window.scrollTo({ top: y, behavior: "smooth" });
       };
-      ScrollTrigger.addEventListener("scrollEnd", settle);
-      return () => { ScrollTrigger.removeEventListener("scrollEnd", settle); tween.scrollTrigger?.kill(); tween.kill(); setTourOn(false); };
+      const engage = (i: number) => { inside = true; at = i; go(posOf(i)); };
+      const release = () => { inside = false; };
+      const step = (dir: 1 | -1) => {
+        if (busy) return;
+        const next = at + dir;
+        if (next < 0 || next > n - 1) { release(); go(dir > 0 ? st.end + 2 : st.start - 2); return; }
+        at = next;
+        go(posOf(at));
+      };
+      const onWheel = (e: WheelEvent) => {
+        if (!inside) return;
+        // capture phase + stopImmediatePropagation: Lenis never sees the wheel, so it can't add its own scroll
+        e.preventDefault(); e.stopImmediatePropagation();
+        const now = performance.now(), abs = Math.abs(e.deltaY);
+        // a trackpad sends a long decaying stream per swipe: only a pause or a fresh push counts as a new gesture
+        const fresh = now - lastEvt > 160 || abs > lastAbs * 1.6 + 4;
+        lastEvt = now; lastAbs = abs;
+        if (fresh && abs > 3) step(e.deltaY > 0 ? 1 : -1);
+      };
+      const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0].clientY; };
+      const onTouchMove = (e: TouchEvent) => { if (inside) e.preventDefault(); };
+      const onTouchEnd = (e: TouchEvent) => {
+        if (!inside) return;
+        const dy = touchY - e.changedTouches[0].clientY;
+        if (Math.abs(dy) > 40) step(dy > 0 ? 1 : -1);
+      };
+      // Only take over when arriving at an end of the tour, not when a nav link jumps straight past it
+      on.enter = () => { if (Math.abs(window.scrollY - st.start) < window.innerHeight * 0.6) engage(0); };
+      on.enterBack = () => { if (Math.abs(window.scrollY - st.end) < window.innerHeight * 0.6) engage(n - 1); };
+      on.leave = release;
+      window.addEventListener("wheel", onWheel, { passive: false, capture: true });
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("touchend", onTouchEnd);
+      return () => {
+        window.removeEventListener("wheel", onWheel, { capture: true });
+        window.removeEventListener("touchstart", onTouchStart);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+        release(); tween.scrollTrigger?.kill(); tween.kill(); setTourOn(false);
+      };
     });
     return () => mm.revert();
   }, []);
