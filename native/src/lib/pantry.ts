@@ -97,7 +97,7 @@ export function usePantryActions() {
     setRule: (i: PantryItem, p_rule: PantryRule) => { tap(); rule.mutate({ p_id: i.id, p_rule }); },
     remove: (i: PantryItem) => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); remove.mutate({ p_id: i.id }); },
     claim: (r: Restock, me: string) => { tap(); claim.mutate({ p_id: r.id, me }); },
-    unclaim: (r: Restock) => { tap(); unclaim.mutate({ p_id: r.id }); },
+    unclaim: (r: Restock) => { tap(); unclaim.mutate({ p_id: r.id }); toast.show(`${r.name} is back with the house.`); },
     complete: (r: Restock, me: string) => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); complete.mutate({ p_id: r.id, me }); },
     cancel: (r: Restock) => { tap(); cancel.mutate({ p_id: r.id }); },
     ask: (i: PantryItem, name: string) => { tap(); ask.mutate({ p_item: i.id, name }); },

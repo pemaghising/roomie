@@ -1,5 +1,5 @@
 // Reanimated side of the motion system. Values come from motion-config.ts.
-import { Easing, LinearTransition, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import { Easing, FadeIn, FadeInDown, LinearTransition, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
 import { durations, enterConfig, motion } from './motion-config';
 
@@ -11,19 +11,13 @@ export const ease = Easing.bezier(0.2, 0.9, 0.25, 1);
 /** Rows moving when the list changes: eased, no spring, no overshoot (Pema: no bounce on tick). */
 export const smooth = LinearTransition.duration(220).easing(ease);
 
-/** Entering animation for item i of a list: fade + 12 px rise, staggered; a plain fade with Reduce Motion. */
+/**
+ * Entering animation for item i of a list: fade + small rise, staggered; a plain fade with Reduce Motion.
+ * Reanimated's built-in preset, not a custom worklet: a custom one could leave a tab's first frame invisible on iOS.
+ */
 export function enter(i: number, reduced: boolean) {
   const c = enterConfig(i, reduced);
-  return () => {
-    'worklet';
-    return {
-      initialValues: { opacity: 0, transform: [{ translateY: c.distance }] },
-      animations: {
-        opacity: withDelay(c.delay, withTiming(1, { duration: c.duration, easing: ease })),
-        transform: [{ translateY: withDelay(c.delay, withTiming(0, { duration: c.duration, easing: ease })) }],
-      },
-    };
-  };
+  return reduced ? FadeIn.duration(c.duration).delay(c.delay) : FadeInDown.duration(c.duration).delay(c.delay).easing(ease);
 }
 
 /** Press feedback for any tappable surface: scale to 0.97 on a firm spring (none with Reduce Motion). */

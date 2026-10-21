@@ -1,6 +1,7 @@
 // Kudos (no frame; v2 sheet): send a roommate a small cheer. It shows in the house feed.
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { avatarUrl } from '@/lib/avatar';
@@ -18,13 +19,14 @@ const CHEERS = [
 
 export default function Kudos() {
   const router = useRouter();
+  const back = useBack();
   const qc = useQueryClient();
   const toast = useToast();
   const { to } = useLocalSearchParams<{ to: string }>();
   const { data } = useAppState();
   const them = data?.members.find((m) => m.user_id === to);
   const [busy, setBusy] = useState<string | null>(null);
-  const close = () => router.back();
+  const close = () => back();
 
   const send = async (emoji: string) => {
     if (busy || !them) return;

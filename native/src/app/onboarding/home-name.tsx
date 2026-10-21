@@ -22,7 +22,7 @@ export default function HomeName() {
     <Page back step={2} footer={<Button title="Continue" onPress={next} disabled={!name.trim()} />}>
       <Heading title="Name your home" sub="Pick something everyone will recognise." />
       <View>
-        <TextField value={name} onChangeText={(t) => { setName(t); setError(null); }} placeholder="Parijat Chowk Flat" autoFocus
+        <TextField value={name} onChangeText={(t) => { setName(t); setError(null); }} placeholder="Parijat Chowk Flat"
           autoCapitalize="words" maxLength={40} returnKeyType="next" onSubmitEditing={next} accessibilityLabel="Home name" />
         {error && <Txt v="Meta" c={color.text.danger} style={{ marginTop: 8 }}>{error}</Txt>}
       </View>

@@ -106,11 +106,20 @@
 ],
 [
 "tap",
+"Add a shared item"
+],
+[
+"type",
+"Name the item",
 "Milk"
 ],
 [
-"wait",
-2500
+"tap",
+"Add item"
+],
+[
+"see",
+"~on the shared shelf"
 ],
 [
 "tap",

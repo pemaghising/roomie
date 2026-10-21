@@ -42,12 +42,34 @@ def main():
         b = p.chromium.launch()
         pg = b.new_page(viewport={"width": 393, "height": 852}, device_scale_factor=2)
         pg.on("pageerror", lambda e: errors.append(str(e)[:200]))
+        noise = ("favicon", "WebSocket connection", "cannot be a descendant", "cannot contain a nested", "status of 501", "navigator.vibrate")
+        pg.on("console", lambda m: errors.append("console: " + m.text[:200]) if m.type == "error" and not any(x in m.text for x in noise) else None)
         pg.goto(base + "/kit")
         if session: pg.evaluate("([k, v]) => localStorage.setItem(k, v)", [session["key"], json.dumps(session["value"])])
         for n, step in enumerate(flow):
             kind, arg = step[0], step[1] if len(step) > 1 else None
             ok = True
-            if kind == "go": pg.goto(base + arg, wait_until="networkidle"); pg.wait_for_timeout(2500)
+            try:
+                ok = run_step(pg, base, out, step)
+            except Exception as e:  # a blocked or missing element fails the step; the run carries on
+                ok = False; errors.append(f"step {n}: {str(e).splitlines()[0][:160]}")
+            if kind == "rings": arg = f"{arg} (saw {pg.evaluate(RINGS)})"
+            print(("ok  " if ok else "FAIL"), n, kind, arg if not isinstance(arg, str) else arg[:60])
+            if not ok:
+                fails.append(f"{n} {kind} {arg}")
+                pg.screenshot(path=str(out / f"fail-{n}.png"))
+        b.close()
+    httpd.shutdown()
+    print(json.dumps({"fails": fails, "errors": errors[:8]}, indent=1))
+    sys.exit(1 if fails or errors else 0)
+
+def run_step(pg, base, out, step):
+            kind, arg = step[0], step[1] if len(step) > 1 else None
+            ok = True
+            if kind == "go":
+                pg.goto(base + arg, wait_until="networkidle"); pg.wait_for_timeout(2500)
+                # the web dev build's warning toast (nested pressables are fine on iOS) would block taps
+                pg.add_style_tag(content="#error-toast{display:none!important}")
             elif kind == "wait": pg.wait_for_timeout(arg)
             elif kind == "scrollto":
                 el = find(pg, arg); ok = el is not None
@@ -67,15 +89,8 @@ def main():
             elif kind == "gone":
                 pg.wait_for_timeout(600); ok = find(pg, arg) is None
             elif kind == "rings":
-                got = pg.evaluate(RINGS); ok = got == arg; arg = f"{arg} (saw {got})"
-            print(("ok  " if ok else "FAIL"), n, kind, arg if not isinstance(arg, str) else arg[:60])
-            if not ok:
-                fails.append(f"{n} {kind} {arg}")
-                pg.screenshot(path=str(out / f"fail-{n}.png"))
-        b.close()
-    httpd.shutdown()
-    print(json.dumps({"fails": fails, "errors": errors[:8]}, indent=1))
-    sys.exit(1 if fails or errors else 0)
+                ok = pg.evaluate(RINGS) == arg
+            return ok
 
 if __name__ == "__main__":
     main()

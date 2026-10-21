@@ -25,7 +25,7 @@ export default function ProfileStep() {
     <Page footer={<Button title="Continue" onPress={save} loading={busy} disabled={!name.trim()} />}>
       <Heading title="What should we call you?" sub="Your roommates will see this. Make it you." />
       <View>
-        <TextField value={name} onChangeText={(t) => { setName(t); setError(null); }} placeholder="Your name" autoFocus autoCapitalize="words" maxLength={30}
+        <TextField value={name} onChangeText={(t) => { setName(t); setError(null); }} placeholder="Your name" autoCapitalize="words" maxLength={30}
           returnKeyType="done" onSubmitEditing={save} accessibilityLabel="Your name" />
         {error && <Txt v="Meta" c={color.text.danger} style={{ marginTop: 8 }}>{error}</Txt>}
       </View>

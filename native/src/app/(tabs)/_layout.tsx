@@ -7,6 +7,7 @@ import { useAppState } from '@/lib/state';
 import { HomeSkeleton } from '@/ui/skeleton';
 import { color } from '@/ui/tokens';
 import { Nav, type TabName } from '@/ui/v2';
+import { ConfettiHost } from '@/ui/confetti-host';
 
 function TabBar({ state, navigation }: { state: { index: number; routes: { name: string }[] }; navigation: { navigate: (n: string) => void } }) {
   const insets = useSafeAreaInsets();
@@ -30,6 +31,7 @@ export default function TabsLayout() {
   // the root gate redirects away from here until there is a household; render nothing meanwhile
   if (!data.household) return null;
   return (
+    <View style={{ flex: 1 }}>
     <Tabs tabBar={(props) => <TabBar {...(props as unknown as Parameters<typeof TabBar>[0])} />} screenOptions={{ headerShown: false, animation: 'fade', sceneStyle: { backgroundColor: color.bg.canvas } }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="chores" />
@@ -37,6 +39,8 @@ export default function TabsLayout() {
       <Tabs.Screen name="profile" />
       <Tabs.Screen name="calendar" options={{ href: null }} />
     </Tabs>
+    <ConfettiHost />
+    </View>
   );
 }
 

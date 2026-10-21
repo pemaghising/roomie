@@ -19,7 +19,7 @@ function HomeName() {
       <Heading title="Home name" size="page" sub="Everyone in the house sees this." />
       <View style={{ gap: 10 }}>
         <Txt v="Body/Label">Home name</Txt>
-        <TextField value={name} onChangeText={setName} maxLength={40} autoCapitalize="words" accessibilityLabel="Home name" error={!!save.error} autoFocus />
+        <TextField value={name} onChangeText={setName} maxLength={40} autoCapitalize="words" accessibilityLabel="Home name" error={!!save.error} />
         {save.error && <Txt v="Meta" c={color.text.danger}>{save.error}</Txt>}
       </View>
     </Page>

@@ -1,6 +1,7 @@
 // P1f · Restock request: from an item's menu (`?item=<id>`) or from the + menu. It goes to the shared pool.
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { Effort } from '@domain/types.ts';
@@ -24,6 +25,7 @@ export default withHousehold(Restock);
 function Restock() {
   const params = useLocalSearchParams<{ item?: string }>();
   const router = useRouter();
+  const back = useBack();
   const qc = useQueryClient();
   const toast = useToast();
   const { state } = useMe();
@@ -41,7 +43,7 @@ function Restock() {
     .sort((a, b) => Number(b.stock !== 'in_stock') - Number(a.stock !== 'in_stock')).slice(0, 3);
   const icon = target ? iconOf(target) : clean ? matchIcons(clean).exact?.name ?? null : 'Shopping cart';
   const sub = target ? (target.stock === 'in_stock' ? 'Shared · in stock' : `Shared · ${STOCK_LABEL[target.stock].toLowerCase()}`) : 'Something the house needs';
-  const close = () => router.back();
+  const close = () => back();
 
   const send = async () => {
     if (!clean || busy) return;

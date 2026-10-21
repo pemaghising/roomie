@@ -1,4 +1,5 @@
 // Chores (frames C1 Mine · C1b Whole house · C1c Shared pool). Home's pool banner opens this with view=pool.
+import { GestureDetector } from 'react-native-gesture-handler';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { CalendarDays, Check as Tick, ChevronRight } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -15,7 +16,7 @@ import type { Assignment } from '@/lib/types';
 import { Celebration } from '@/ui/celebration';
 import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
-import { Avatar, effortKind, IconButton, MeshBackground, PoolRow, SectionHeader, SegmentedControl, Tap, TaskRow, Txt, useTitleBar } from '@/ui/v2';
+import { Avatar, effortKind, IconButton, MeshBackground, PoolRow, SectionHeader, SegmentedControl, Tap, TaskRow, Txt, useSwipeTabs, useTitleBar } from '@/ui/v2';
 
 type View3 = 'me' | 'all' | 'pool';
 const spring = smooth;
@@ -34,6 +35,7 @@ export default function Chores() {
   const [view, setView] = useState<View3>(params.view === 'pool' ? 'pool' : 'me');
   const [showDone, setShowDone] = useState(false);
   useEffect(() => { if (params.view === 'pool') setView('pool'); }, [params.view]);
+  const swipe = useSwipeTabs(['me', 'all', 'pool'] as const, view, (x) => { setView(x); setShowDone(false); });
 
   const chores = choreMap(state);
   const waiting = pool(state, me);
@@ -74,6 +76,7 @@ export default function Chores() {
   return (
     <View style={styles.root}>
       <MeshBackground />
+      <GestureDetector gesture={swipe.gesture}>
       <Animated.ScrollView onScroll={titleBar.onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={color.action.primary} />}>
         <View style={styles.head}>
@@ -81,11 +84,11 @@ export default function Chores() {
           <IconButton icon={CalendarDays} label="Calendar" onPress={() => router.push('/calendar')} />
         </View>
 
-        <SegmentedControl<View3> value={view} onChange={(x) => { setView(x); setShowDone(false); }}
+        <SegmentedControl<View3> value={view} onChange={swipe.select}
           options={[{ value: 'me', label: 'Mine' }, { value: 'all', label: 'Whole house' }, { value: 'pool', label: 'Shared pool', count: waiting.length }]} />
 
         {view === 'pool' ? (
-          <Animated.View key="pool" entering={FadeIn.duration(durations.fade)} style={{ gap: layout.itemGap }}>
+          <Animated.View key="pool" entering={swipe.entering} style={{ gap: layout.itemGap }}>
             {waiting.length === 0
               ? <Txt v="Meta" c={color.text.secondary} style={styles.foot}>Nothing slipped through. The pool is empty.</Txt>
               : waiting.map((a, i) => {
@@ -99,7 +102,7 @@ export default function Chores() {
             {waiting.length > 0 && <Txt v="Meta" c={color.text.secondary} style={styles.foot}>Chores that slipped through. Claim one to help out.</Txt>}
           </Animated.View>
         ) : (
-          <Animated.View key={view} entering={FadeIn.duration(durations.fade)} style={{ gap: 28 }}>
+          <Animated.View key={view} entering={swipe.entering} style={{ gap: 28 }}>
             <View style={{ gap: layout.itemGap }}>
               <SectionHeader title="Today" note={v.todayLeft ? `${v.todayLeft} to do` : 'All done'} />
               {v.today.length === 0
@@ -127,6 +130,7 @@ export default function Chores() {
           </Animated.View>
         )}
       </Animated.ScrollView>
+      </GestureDetector>
       {titleBar.bar}
       <Celebration info={celebration} onClose={closeCelebration} />
     </View>

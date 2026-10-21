@@ -9,6 +9,8 @@ import { DAY_NAMES, weekdayOf } from '@domain/time.ts';
 import { formatCode, useChoreActions } from '@/lib/actions';
 import { avatarUrl } from '@/lib/avatar';
 import { homeView } from '@/lib/home';
+import { usePantryActions } from '@/lib/pantry';
+import { iconFor } from '@domain/pantry.ts';
 import { milestoneState } from '@/lib/plant';
 import { primerSeen, pushStatus } from '@/lib/push';
 import { choreMap, namesOf, unreadCount } from '@/lib/selectors';
@@ -18,7 +20,7 @@ import { Celebration } from '@/ui/celebration';
 import { MilestoneCelebration } from '@/ui/milestone';
 import { enter, useReducedMotion, smooth } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
-import { effortKind, Glass, GreetingHeader, MeshBackground, PoolBanner, SectionHeader, StreakCard, TaskRow, Txt, UpcomingCard, Emoji } from '@/ui/v2';
+import { effortKind, Glass, Tap, GreetingHeader, MeshBackground, PoolBanner, SectionHeader, StreakCard, TaskRow, Txt, UpcomingCard, Emoji } from '@/ui/v2';
 
 function Note({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
   return (
@@ -42,6 +44,9 @@ export default function Home() {
   const { refetch, isRefetching } = useAppState();
   const { toggle, celebration, closeCelebration } = useChoreActions();
   const v = homeView(state, me);
+  const pantry = usePantryActions();
+  // restocks I said I'd get ("I'll get it" in Pantry) wait here until they're bought
+  const pickUp = state.restocks.filter((r) => r.status === 'open' && r.claimed_by === me);
   const chores = choreMap(state);
   const names = namesOf(state);
   const [milestone, setMilestone] = useState<number | null>(null);
@@ -122,6 +127,24 @@ export default function Home() {
           </View>
         )}
 
+        {pickUp.length > 0 && (
+          <Animated.View entering={E()} exiting={FadeOut.duration(150)} layout={smooth} style={{ gap: layout.itemGap }}>
+            <SectionHeader title="To pick up" note={`${pickUp.length} you’re getting`} />
+            {pickUp.map((r) => {
+              const item = r.item_id ? state.pantry.find((i) => i.id === r.item_id) : undefined;
+              const icon = item?.icon ?? (iconFor(r.name) === '🛒' ? null : iconFor(r.name));
+              return (
+                <Animated.View key={r.id} layout={smooth} exiting={FadeOut.duration(150)}>
+                  <TaskRow icon={icon} title={r.name} meta="You said you’d get it" onPress={() => router.navigate('/pantry')}
+                    right={<Tap onPress={() => (item ? pantry.bought(state, item, me) : pantry.complete(r, me))} feel="complete" accessibilityLabel={`I bought ${r.name}`}>
+                      <View style={styles.got}><Txt v="Meta/Medium" c={color.text.onAccent}>I bought it</Txt></View>
+                    </Tap>} />
+                </Animated.View>
+              );
+            })}
+          </Animated.View>
+        )}
+
         {v.alone && (
           <Animated.View entering={E()} exiting={FadeOut}>
             <Note icon={<Users size={20} color={color.icon.default} strokeWidth={1.75} />} title="No roommates here yet"
@@ -150,5 +173,6 @@ const styles = StyleSheet.create({
   page: { paddingHorizontal: layout.margin, gap: 16 },
   note: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
   noteIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(135,107,222,0.1)', alignItems: 'center', justifyContent: 'center' },
+  got: { height: 34, paddingHorizontal: 12, borderRadius: 17, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   quiet: { alignItems: 'center', gap: 6, paddingVertical: 22, paddingHorizontal: 20 },
 });

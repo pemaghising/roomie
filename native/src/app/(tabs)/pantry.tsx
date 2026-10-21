@@ -1,9 +1,10 @@
 // Pantry (frames P1 Shared · P2 My items · P3 Roommates, menus P1e / P2b, W3 "Priya's getting it").
+import { GestureDetector } from 'react-native-gesture-handler';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BASICS, canAsk, iconFor, myAsk, openRestockFor, sameName, sortShelf, type PantryItem, type ShelfTab } from '@domain/pantry.ts';
@@ -15,7 +16,7 @@ import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
 import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color, layout } from '@/ui/tokens';
-import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind, useTitleBar } from '@/ui/v2';
+import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind, useSwipeTabs, useTitleBar } from '@/ui/v2';
 
 const spring = smooth;
 const TABS: { value: ShelfTab; label: string }[] = [{ value: 'shared', label: 'Shared' }, { value: 'mine', label: 'My items' }, { value: 'roommates', label: 'Roommates' }];
@@ -56,6 +57,7 @@ export default function Pantry() {
   const act = usePantryActions();
   const names = namesOf(state);
   const [tab, setTab] = useState<ShelfTab>(params.tab === 'mine' || params.tab === 'roommates' ? params.tab : 'shared');
+  const swipe = useSwipeTabs(['shared', 'mine', 'roommates'] as const, tab, setTab);
   const [adding, setAdding] = useState<string[]>([]);
 
   const shared = sortShelf(state.pantry.filter((i) => i.owner_id === null), 'shared');
@@ -90,20 +92,32 @@ export default function Pantry() {
 
   const lowItem = (i: PantryItem) => {
     const row = lowRow(i, state.restocks, me, names);
-    const requested = Boolean(openRestockFor(state.restocks, i.id));
+    const request = openRestockFor(state.restocks, i.id);
     return (
       <Animated.View key={i.id} layout={spring} entering={E()} exiting={FadeOut.duration(durations.fade)}>
         <Glass fill={0.9} lift={false} r={22}>
           <View style={styles.lowRow}>
             <View style={styles.disc}><EmojiBadge value={iconOf(i)} name={i.name} size={40} round tint={color.bg.surface} /></View>
-            <Txt v="Body/Row" numberOfLines={1} style={{ flexShrink: 1, minWidth: 48 }}>{i.name}</Txt>
-            {row.kind === 'claim' && <View style={{ alignSelf: 'center' }}><Tag kind={i.stock === 'out' ? 'out' : 'low'} /></View>}
+            {row.kind === 'claim' ? (
+              <>
+                <Txt v="Body/Row" numberOfLines={1} style={{ flexShrink: 1, minWidth: 48 }}>{i.name}</Txt>
+                <View style={{ alignSelf: 'center' }}><Tag kind={i.stock === 'out' ? 'out' : 'low'} /></View>
+              </>
+            ) : (
+              // once someone is on it the pill needs the room, so the stock tag moves under the name
+              <View style={{ flexShrink: 1, minWidth: 48, gap: 4 }}>
+                <Txt v="Body/Row" numberOfLines={1}>{i.name}</Txt>
+                <Tag kind={i.stock === 'out' ? 'out' : 'low'} />
+              </View>
+            )}
             <View style={{ flex: 1 }} />
             {row.kind === 'claim' ? <Pill label="I’ll get it" onPress={() => act.getIt(state, i, me)} /> : <Pill label={row.label} tone="green" />}
             <MoreMenu plain label={`More for ${i.name}`} items={[
-              { label: i.stock === 'out' ? 'Change to Low' : 'Change to Out', onPress: () => act.flag(i, i.stock === 'out' ? 'low' : 'out') },
               { label: 'I bought it', onPress: () => act.bought(state, i, me) },
-              ...(requested ? [] : [{ label: 'Ask the house', onPress: () => router.push({ pathname: '/restock', params: { item: i.id } }) }]),
+              // a mistaken "I'll get it" can be taken back; the item goes back to the house
+              ...(request && row.kind === 'mine' ? [{ label: 'I can’t get it after all', onPress: () => act.unclaim(request) }] : []),
+              { label: i.stock === 'out' ? 'Change to Low' : 'Change to Out', onPress: () => act.flag(i, i.stock === 'out' ? 'low' : 'out') },
+              ...(request ? [] : [{ label: 'Ask the house', onPress: () => router.push({ pathname: '/restock', params: { item: i.id } }) }]),
               { label: 'Remove from list', danger: true, icon: Trash2, onPress: () => confirmRemove(i) },
             ]} />
           </View>
@@ -117,13 +131,14 @@ export default function Pantry() {
   return (
     <View style={styles.root}>
       <MeshBackground />
+      <GestureDetector gesture={swipe.gesture}>
       <Animated.ScrollView onScroll={titleBar.onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={color.action.primary} />}>
         <Txt v="Title/Page" accessibilityRole="header">Pantry</Txt>
-        <SegmentedControl value={tab} onChange={setTab} options={TABS} />
+        <SegmentedControl value={tab} onChange={swipe.select} options={TABS} />
 
         {tab === 'shared' && (
-          <Animated.View key="shared" entering={FadeIn.duration(durations.fade)} style={{ gap: 28 }}>
+          <Animated.View key="shared" entering={swipe.entering} style={{ gap: 28 }}>
             {shared.length === 0 ? (
               <Glass fill={0.62} pad={20} style={{ gap: 12 }}>
                 <View style={{ gap: 12 }}>
@@ -168,7 +183,7 @@ export default function Pantry() {
         )}
 
         {tab === 'mine' && (
-          <Animated.View key="mine" entering={FadeIn.duration(durations.fade)} style={{ gap: 20 }}>
+          <Animated.View key="mine" entering={swipe.entering} style={{ gap: 20 }}>
             <Txt v="Body/Default" c={color.text.secondary}>Tags tell roommates what’s okay to use.</Txt>
             {incoming.map((a) => {
               const item = state.pantry.find((i) => i.id === a.item_id);
@@ -206,11 +221,11 @@ export default function Pantry() {
         )}
 
         {tab === 'roommates' && (
-          <Animated.View key="roommates" entering={FadeIn.duration(durations.fade)} style={{ gap: 20 }}>
+          <Animated.View key="roommates" entering={swipe.entering} style={{ gap: 20 }}>
             <Txt v="Body/Default" c={color.text.secondary}>What’s theirs, and how to treat it.</Txt>
             {roommates.length === 0 ? <Txt v="Meta" c={color.text.secondary}>No roommates here yet.</Txt> : (
               <>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingVertical: 2 }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingVertical: 2 }}>
                   {roommates.map((m) => {
                     const on = m.user_id === pick;
                     return (
@@ -224,7 +239,7 @@ export default function Pantry() {
                       </Tap>
                     );
                   })}
-                </ScrollView>
+                </View>
                 {picked && (
                   <Animated.View key={picked.user_id} entering={FadeIn.duration(durations.fade)} style={{ gap: layout.itemGap }}>
                     <Heading title={`${picked.name.split(' ')[0]}’s shelf`} count={theirs.length} />
@@ -248,6 +263,7 @@ export default function Pantry() {
           </Animated.View>
         )}
       </Animated.ScrollView>
+      </GestureDetector>
       {titleBar.bar}
     </View>
   );

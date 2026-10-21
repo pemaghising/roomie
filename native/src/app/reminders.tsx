@@ -1,6 +1,7 @@
 // The reminders primer (no frame; v2 sheet): why we ask, before the phone's own prompt. Also where a denied one gets fixed.
 import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { markPrimerSeen, previewPoolReminder, pushStatus, registerForPush, type PushStatus } from '@/lib/push';
@@ -17,12 +18,13 @@ const REASONS = [
 
 export default function Reminders() {
   const router = useRouter();
+  const back = useBack();
   const toast = useToast();
   const [status, setStatus] = useState<PushStatus | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => { markPrimerSeen(); void pushStatus().then(setStatus); }, []);
   const style = useAppState().data?.profile.nudge_style ?? 'motivate';
-  const close = () => router.back();
+  const close = () => back();
 
   const turnOn = async () => {
     setBusy(true);

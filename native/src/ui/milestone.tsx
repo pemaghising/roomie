@@ -63,7 +63,7 @@ export function MilestoneCelebration({ days, onClose }: { days: number | null; o
           <Txt v="Body/Label" c={color.text.link} style={{ textAlign: 'center' }} accessibilityRole="button"
             onPress={() => Share.share({ message: `Our house just hit ${days} days strong on Roomie 🌱` })}>Share the streak</Txt>
         </Animated.View>
-        {!reduced && <Confetti count={days >= 30 ? 64 : 40} />}
+        {!reduced && <Confetti count={days >= 30 ? 160 : 120} />}
       </View>
     </Modal>
   );

@@ -36,7 +36,7 @@ export default function Join() {
       onPress={() => (error ? (setError(null), setCode('')) : moveIn())} />}>
       <Heading title="Enter your home code" sub="Psst, it’s on your roommate’s Profile." />
       <View style={{ gap: 16 }}>
-        <CodeInput keyboard="default" autoFocus value={code} error={!!error} accessibilityLabel="Home code"
+        <CodeInput keyboard="default" value={code} error={!!error} accessibilityLabel="Home code"
           onChange={(v) => { const c = normalizeCode(v); setCode(c); setError(null); if (c.length === 6) moveIn(c); }} />
         <View style={styles.row}>
           {error && <Txt v="Body/Label" c={color.text.danger} accessibilityRole="alert">{error}</Txt>}

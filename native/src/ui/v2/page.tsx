@@ -2,6 +2,7 @@
 // header, staggered entrances, and the primary action ~40 pt under the content (pinned only when asked).
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { Children, isValidElement, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type ScrollViewProps } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -36,7 +37,8 @@ export function Page({ children, back, step, footer, pinFooter, scroll = true, g
 }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const goBack = typeof back === 'function' ? back : () => router.back();
+  const goHomeOrBack = useBack();
+  const goBack = typeof back === 'function' ? back : goHomeOrBack;
   const header = (back || step !== undefined) && (
     <View style={styles.header}>
       {back ? <BackButton onPress={goBack} /> : <View style={{ width: 40 }} />}

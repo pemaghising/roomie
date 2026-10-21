@@ -1,5 +1,6 @@
 // H2 · Why these chores: one line per chore, and your effort in words. Opens over Home.
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { StyleSheet, View } from 'react-native';
 import { weekStartOf } from '@domain/time.ts';
 import { balanceWords, effortSegments } from '@/lib/balance';
@@ -11,6 +12,7 @@ import { Button, effortKind, ReasonRow, Sheet, Txt } from '@/ui/v2';
 
 export default function Why() {
   const router = useRouter();
+  const back = useBack();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { data: state } = useAppState();
   if (!state?.household) return null;
@@ -25,7 +27,7 @@ export default function Why() {
   const planned = mine.reduce((n, a) => n + a.effort, 0);
   const filled = effortSegments(doneEffort, planned);
   const words = balanceWords(state.balance);
-  const close = () => router.back();
+  const close = () => back();
 
   return (
     <Sheet onClose={close} title="Why these chores" sub="Roomie balances effort, not the number of chores.">

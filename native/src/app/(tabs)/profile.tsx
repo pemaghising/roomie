@@ -13,7 +13,6 @@ import { formatCode } from '@/lib/actions';
 import { signOut, useAuth } from '@/lib/auth';
 import { avatarUrl } from '@/lib/avatar';
 import { messageOf, rpc, STATE_KEY, useMe } from '@/lib/state';
-import { enter, useReducedMotion } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color, layout } from '@/ui/tokens';
 import { Avatar, ConfirmSheet, MeshBackground, SettingsCard, SettingsRow, Tap, Txt, useTitleBar } from '@/ui/v2';
@@ -25,7 +24,6 @@ export default function Profile() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const titleBar = useTitleBar('Profile');
-  const reduced = useReducedMotion();
   const qc = useQueryClient();
   const toast = useToast();
   const { session } = useAuth();
@@ -38,8 +36,6 @@ export default function Profile() {
   const nudge = state.profile.nudge_style === 'facts' ? 'Just the facts' : 'Motivate me';
   const notifyOn = Object.values(state.profile.notify ?? { chores: true }).some(Boolean);
   const chores = state.chores.filter((c) => c.active).length;
-  let i = 0;
-  const E = () => (reduced ? undefined : enter(i++, reduced));
   const go = (path: Parameters<typeof router.push>[0]) => () => router.push(path);
 
   const act = async () => {
@@ -60,8 +56,8 @@ export default function Profile() {
     <View style={styles.root}>
       <MeshBackground />
       <Animated.ScrollView onScroll={titleBar.onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={E()}><Txt v="Title/Page" accessibilityRole="header">Profile</Txt></Animated.View>
-        <Animated.View entering={E()}>
+        <Animated.View><Txt v="Title/Page" accessibilityRole="header">Profile</Txt></Animated.View>
+        <Animated.View>
           <Tap onPress={go('/edit-profile')} accessibilityLabel="Edit profile" style={styles.me}>
             <View>
               <Avatar name={state.profile.name} uri={state.profile.avatar_path ? avatarUrl(state.profile.avatar_path) : null} tint={state.profile.color} size={80} />
@@ -74,7 +70,7 @@ export default function Profile() {
           </Tap>
         </Animated.View>
 
-        <Animated.View entering={E()} style={styles.group}>
+        <Animated.View style={styles.group}>
           <Txt v="Heading/Section" accessibilityRole="header">Your home</Txt>
           <SettingsCard>
             <SettingsRow icon={House} label="Home name" value={home.name} onPress={go('/home-name')} />
@@ -84,7 +80,7 @@ export default function Profile() {
           </SettingsCard>
         </Animated.View>
 
-        <Animated.View entering={E()} style={styles.group}>
+        <Animated.View style={styles.group}>
           <Txt v="Heading/Section" accessibilityRole="header">Preferences</Txt>
           <SettingsCard>
             <SettingsRow icon={CalendarDays} label="My busy days" value={busyDays} onPress={go('/busy-days')} />
@@ -93,7 +89,7 @@ export default function Profile() {
           </SettingsCard>
         </Animated.View>
 
-        <Animated.View entering={E()} style={styles.group}>
+        <Animated.View style={styles.group}>
           <Txt v="Heading/Section" accessibilityRole="header">Account</Txt>
           <SettingsCard>
             <SettingsRow icon={Mail} label="Email" value={session?.user.email ?? ''} onPress={go('/email')} />
@@ -104,7 +100,7 @@ export default function Profile() {
           </SettingsCard>
         </Animated.View>
 
-        <Animated.View entering={E()} style={styles.foot}>
+        <Animated.View style={styles.foot}>
           <Tap onPress={() => setAsk('delete')} accessibilityLabel="Delete account" hitSlop={10}><Txt v="Meta/Medium" c={color.text.secondary}>Delete account</Txt></Tap>
           <Txt v="Meta" c={color.text.secondary}>{` · Roomie ${Constants.expoConfig?.version ?? '1.0'}`}</Txt>
         </Animated.View>

@@ -1,5 +1,6 @@
 // R10 · Email: a code goes to the new address; entering it makes the change.
 import { useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { useAuth } from '@/lib/auth';
@@ -13,6 +14,7 @@ const valid = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
 export default function Email() {
   const router = useRouter();
+  const back = useBack();
   const toast = useToast();
   const { session } = useAuth();
   const [email, setEmail] = useState(session?.user.email ?? '');
@@ -40,7 +42,7 @@ export default function Email() {
     // with double confirm on, the change also waits for the current address to say yes
     if (data.user?.email?.toLowerCase() !== clean) toast.show('Nearly there. Confirm from your current email too, then it switches.', { duration: 6000 });
     else toast.show('Email updated.', { tick: true });
-    router.back();
+    back();
   };
 
   if (sent) return (

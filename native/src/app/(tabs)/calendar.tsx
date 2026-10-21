@@ -1,4 +1,5 @@
 // Calendar (frames C2 Month · C3 Week): my chores by day, busy days shaded, Sunday first. Opened from Chores.
+import { GestureDetector } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -12,7 +13,7 @@ import { useMe } from '@/lib/state';
 import { Celebration } from '@/ui/celebration';
 import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
-import { BackButton, DAY_LETTERS, effortKind, Glass, MeshBackground, SectionHeader, Tap, TaskRow, Txt, ViewSwitch } from '@/ui/v2';
+import { BackButton, DAY_LETTERS, effortKind, Glass, MeshBackground, SectionHeader, Tap, TaskRow, Txt, useSwipeTabs, ViewSwitch } from '@/ui/v2';
 
 const spring = smooth;
 const short = (d: string) => DAY_NAMES[weekdayOf(d)].slice(0, 3);
@@ -43,6 +44,7 @@ export default function Calendar() {
   const { me, state } = useMe();
   const { toggle, celebration, closeCelebration } = useChoreActions();
   const [mode, setMode] = useState<'week' | 'month'>('month');
+  const swipe = useSwipeTabs(['week', 'month'] as const, mode, setMode);
   const [selected, setSelected] = useState(state.today);
   const chores = choreMap(state);
   const busy = new Set(state.members.find((m) => m.user_id === me)?.busy_days ?? []);
@@ -64,16 +66,17 @@ export default function Calendar() {
   return (
     <View style={styles.root}>
       <MeshBackground />
+      <GestureDetector gesture={swipe.gesture}>
       <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 130 }]} showsVerticalScrollIndicator={false}>
         <View style={{ alignSelf: 'flex-start' }}><BackButton onPress={() => router.navigate('/chores')} /></View>
         <Txt v="Title/Page" accessibilityRole="header">Calendar</Txt>
         <View style={styles.monthRow}>
           <Txt v="Heading/Section">{monthName(selected)}</Txt>
-          <ViewSwitch value={mode} onChange={setMode} options={[{ value: 'week', label: 'Week' }, { value: 'month', label: 'Month' }]} />
+          <ViewSwitch value={mode} onChange={swipe.select} options={[{ value: 'week', label: 'Week' }, { value: 'month', label: 'Month' }]} />
         </View>
 
         {mode === 'month' ? (
-          <Animated.View key="month" entering={FadeIn.duration(durations.fade)}>
+          <Animated.View key="month" entering={swipe.entering}>
             <Glass fill={0.62} pad={14}>
               <View style={styles.week}>{DAY_LETTERS.map((l, k) => <View key={k} style={styles.cell}><Txt v="Meta/Medium" c={color.text.secondary}>{l}</Txt></View>)}</View>
               {monthGrid(y, m).map((row, r) => (
@@ -82,7 +85,7 @@ export default function Calendar() {
             </Glass>
           </Animated.View>
         ) : (
-          <Animated.View key="week" entering={FadeIn.duration(durations.fade)} style={styles.week}>
+          <Animated.View key="week" entering={swipe.entering} style={styles.week}>
             {Array.from({ length: 7 }, (_, k) => cell(addDays(ws, k), true))}
           </Animated.View>
         )}
@@ -112,6 +115,7 @@ export default function Calendar() {
           </Animated.View>
         ))}
       </ScrollView>
+      </GestureDetector>
       <Celebration info={celebration} onClose={closeCelebration} />
     </View>
   );

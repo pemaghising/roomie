@@ -1,6 +1,7 @@
 // C4 · New chore: a sheet over Chores. The icon is picked from the name; tap it to choose another.
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { RefreshCw } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
@@ -37,6 +38,7 @@ export default function AddChoreRoute() {
 /** New chore (C4), or Edit chore (R5c) when opened with ?id. */
 function AddChore({ editing }: { editing?: Chore }) {
   const router = useRouter();
+  const back = useBack();
   const qc = useQueryClient();
   const toast = useToast();
   const { data } = useAppState();
@@ -50,7 +52,7 @@ function AddChore({ editing }: { editing?: Chore }) {
   const icon = chosen ?? choreIcon(name);
   const taken = new Set((data?.chores ?? []).map((c) => c.name.toLowerCase()));
   const picks = editing ? [] : PICKS.filter((p) => !taken.has(p.toLowerCase()));
-  const close = () => router.back();
+  const close = () => back();
 
   const save = async () => {
     if (busy || !name.trim()) return;
@@ -59,7 +61,8 @@ function AddChore({ editing }: { editing?: Chore }) {
       if (editing) await rpc('update_chore', { p_id: editing.id, p_name: name.trim(), p_icon: icon, p_effort: effort, p_cadence: cadence });
       else {
         const id = await rpc<string>('add_chore', { p_name: name.trim(), p_icon: icon, p_effort: effort, p_cadence: cadence });
-        await planNow(id).catch(() => {});
+        // planning the new chore into this week can take a few seconds on the server: don't hold the sheet for it
+        void planNow(id).then(() => qc.invalidateQueries({ queryKey: STATE_KEY })).catch(() => {});
       }
       await qc.invalidateQueries({ queryKey: STATE_KEY });
       toast.show(editing ? 'Changes saved. They shape next week’s plan.' : `${name.trim()} is in the rotation.`, { tick: true });

@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, useWindowDimensions, View, type TextInputProps } from 'react-native';
-import Animated, { LinearTransition, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Gesture } from 'react-native-gesture-handler';
+import Animated, { FadeInLeft, FadeInRight, LinearTransition, runOnJS, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Pencil, type LucideIcon } from 'lucide-react-native';
 import { haptic } from '../haptics';
-import { motion, smooth } from '../motion';
+import { ease, motion, smooth } from '../motion';
 import { color, elevation, font, radius, type } from '../tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Glass, gradients, Tap, Txt } from './primitives';
@@ -92,6 +93,30 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
   );
 }
 
+/**
+ * Swipe left / right on a screen to move between its segmented tabs (Chores, Pantry, Calendar).
+ * Wrap the content in `<GestureDetector gesture={gesture}>` and give the tab body `entering={entering}` so it slides in
+ * from the side it came from. `select` is the tap path, so taps and swipes animate the same way.
+ */
+export function useSwipeTabs<T extends string>(values: readonly T[], value: T, onChange: (v: T) => void) {
+  const dir = useRef(1);
+  const select = (v: T) => {
+    if (v === value) return;
+    dir.current = values.indexOf(v) > values.indexOf(value) ? 1 : -1;
+    onChange(v);
+  };
+  const step = (d: number) => {
+    const next = values[values.indexOf(value) + d];
+    if (next) { haptic.select(); select(next); }
+  };
+  const gesture = Gesture.Pan().activeOffsetX([-24, 24]).failOffsetY([-14, 14]).onEnd((e) => {
+    if (e.translationX < -60 || e.velocityX < -650) runOnJS(step)(1);
+    else if (e.translationX > 60 || e.velocityX > 650) runOnJS(step)(-1);
+  });
+  const entering = (dir.current > 0 ? FadeInRight : FadeInLeft).duration(220).easing(ease);
+  return { gesture, entering, select };
+}
+
 /** v2/View switch: the small Week / Month capsule. */
 export function ViewSwitch<T extends string>({ options, value, onChange }: { options: { value: T; label: string }[]; value: T; onChange: (v: T) => void }) {
   return (
@@ -142,7 +167,7 @@ export function IconNameField({ icon, name, onName, sub, onIcon, placeholder, ed
       </Tap>
       <View style={{ flex: 1, gap: 2 }}>
         <TextInput value={name} onChangeText={onName} placeholder={placeholder} placeholderTextColor={color.text.secondary} editable={editable}
-          maxLength={40} autoFocus={editable && !name} accessibilityLabel={placeholder} selectionColor={color.action.primary} style={styles.nameInput} returnKeyType="done" />
+          maxLength={40} accessibilityLabel={placeholder} selectionColor={color.action.primary} style={styles.nameInput} returnKeyType="done" />
         <Txt v="Meta" c={color.text.secondary}>{sub}</Txt>
       </View>
     </View>

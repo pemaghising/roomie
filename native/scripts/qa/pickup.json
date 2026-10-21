@@ -1,0 +1,166 @@
+[
+[
+"go",
+"/pantry"
+],
+[
+"tap",
+"Rice"
+],
+[
+"wait",
+2500
+],
+[
+"scrollto",
+"~^Rice, "
+],
+[
+"tap",
+"~^Rice, "
+],
+[
+"see",
+"~Rice marked as Low"
+],
+[
+"wait",
+1500
+],
+[
+"tap",
+"I’ll get it"
+],
+[
+"see",
+"~yours to pick up"
+],
+[
+"wait",
+800
+],
+[
+"tap",
+"More for Rice"
+],
+[
+"see",
+"I can’t get it after all"
+],
+[
+"tap",
+"I can’t get it after all"
+],
+[
+"see",
+"~back with the house"
+],
+[
+"wait",
+1200
+],
+[
+"see",
+"I’ll get it"
+],
+[
+"tap",
+"I’ll get it"
+],
+[
+"wait",
+1200
+],
+[
+"tap",
+"Home"
+],
+[
+"wait",
+1200
+],
+[
+"see",
+"To pick up"
+],
+[
+"see",
+"You said you’d get it"
+],
+[
+"shot",
+"p1-home-pickup"
+],
+[
+"tap",
+"I bought Rice"
+],
+[
+"see",
+"~[Bb]ack in stock"
+],
+[
+"wait",
+1500
+],
+[
+"gone",
+"To pick up"
+],
+[
+"tap",
+"Pantry"
+],
+[
+"wait",
+1000
+],
+[
+"tap",
+"My items"
+],
+[
+"see",
+"Your items"
+],
+[
+"tap",
+"Roommates"
+],
+[
+"wait",
+600
+],
+[
+"tap",
+"Shared"
+],
+[
+"see",
+"In stock"
+],
+[
+"tap",
+"Chores"
+],
+[
+"wait",
+1000
+],
+[
+"tap",
+"Whole house"
+],
+[
+"tap",
+"~^Shared pool"
+],
+[
+"tap",
+"Mine"
+],
+[
+"see",
+"Today"
+]
+]

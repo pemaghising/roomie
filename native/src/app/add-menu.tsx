@@ -1,5 +1,6 @@
 // H8 · Add menu: what the gradient + opens.
 import { useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { ClipboardList, ShoppingBag, ShoppingCart, UserPlus, type LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { color } from '@/ui/tokens';
@@ -14,9 +15,10 @@ const OPTIONS: { icon: LucideIcon; title: string; sub: string; href: string }[] 
 
 export default function AddMenu() {
   const router = useRouter();
-  const go = (href: string) => { router.back(); setTimeout(() => router.push(href as never), 120); };
+  const back = useBack();
+  const go = (href: string) => { back(); setTimeout(() => router.push(href as never), 120); };
   return (
-    <Sheet onClose={() => router.back()} title="Add to your home" sub="What are we adding today?">
+    <Sheet onClose={() => back()} title="Add to your home" sub="What are we adding today?">
       <View style={styles.grid}>
         {OPTIONS.map((o) => (
           <Tap key={o.title} onPress={() => go(o.href)} style={styles.cell} accessibilityLabel={`${o.title}. ${o.sub}`}>

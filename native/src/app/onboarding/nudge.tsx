@@ -30,7 +30,8 @@ export default function NudgeStep() {
         });
       }
       await rpc('update_profile', { p_nudge: draft.nudge }).catch(() => {});
-      await planNow().catch(() => {}); // the 10-minute tick catches up if this call fails
+      // planning the first week can take a few seconds: run it behind the invite screen, not in front of it
+      void planNow().then(() => qc.invalidateQueries({ queryKey: STATE_KEY })).catch(() => {}); // the 10-minute tick catches up if this fails
       haptic.allDone();
       const joined = draft.mode === 'join';
       // go to invite before the refetch flips the gate to 'ready', which would otherwise send us Home

@@ -51,7 +51,7 @@ export default function EmailEntry() {
       <Page back footer={<View style={{ gap: 20 }}><Button title="Send me a code" onPress={submit} loading={busy} /><Legal /></View>}>
         <Heading title="What’s your email?" sub="We’ll pop a code in your inbox." />
         <View>
-          <TextField icon={Mail} value={email} onChangeText={(t) => { setEmail(t); setError(null); }} placeholder="you@example.com" autoFocus
+          <TextField icon={Mail} value={email} onChangeText={(t) => { setEmail(t); setError(null); }} placeholder="you@example.com"
             keyboardType="email-address" autoComplete="email" textContentType="emailAddress" autoCapitalize="none" autoCorrect={false}
             returnKeyType="send" onSubmitEditing={submit} error={!!error} accessibilityLabel="Your email" />
           {error && <Txt v="Meta" c={color.text.danger} style={{ marginTop: 8 }} accessibilityRole="alert">{error}</Txt>}

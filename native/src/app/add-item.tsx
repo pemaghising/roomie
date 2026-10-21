@@ -1,6 +1,7 @@
 // P2d / P2e · Add to pantry, with P2f / P2g · Pick an icon as a second step inside the same sheet.
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBack } from '@/lib/use-back';
 import { CircleHelp, Lock, Search } from 'lucide-react-native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -39,6 +40,7 @@ export default withHousehold(AddItem);
 
 function AddItem() {
   const router = useRouter();
+  const back = useBack();
   const qc = useQueryClient();
   const toast = useToast();
   const params = useLocalSearchParams<{ kind?: string }>();
@@ -60,7 +62,7 @@ function AddItem() {
   const icon = chosen ?? guess;
   const shelf = state.pantry.filter((i) => (kind === 'shared' ? i.owner_id === null : i.owner_id === me));
   const picks = (kind === 'shared' ? [...BASICS] : PERSONAL_PICKS).filter((p) => !shelf.some((i) => sameName(i.name, p))).slice(0, 3);
-  const close = () => router.back();
+  const close = () => back();
 
   const save = async () => {
     if (!clean || busy) return;

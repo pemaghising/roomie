@@ -1,0 +1,8 @@
+[
+ ["go", "/"], ["tap", "Keep going"], ["wait", 800], ["shot", "t0-home"],
+ ["tap", "Profile"], ["wait", 1200], ["see", "Your home"], ["shot", "t1-profile"],
+ ["tap", "Home"], ["wait", 1200], ["see", "Your tasks today"],
+ ["tap", "Pantry"], ["wait", 1200], ["see", "In stock"],
+ ["tap", "Profile"], ["wait", 1200], ["see", "Preferences"],
+ ["tap", "Chores"], ["wait", 1200], ["see", "Today"]
+]

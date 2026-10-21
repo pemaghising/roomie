@@ -1,6 +1,6 @@
 // Roomie v2 component library: one RN component per Figma component on page "07 · 🧩 Components".
 export { AddButton, BackButton, Button, IconButton } from './buttons';
-export { Chip, ChoiceSwitch, CodeInput, DAY_LETTERS, DayPicker, IconNameField, SegmentedControl, StepBar, TextField, Toggle, ViewSwitch } from './fields';
+export { Chip, ChoiceSwitch, CodeInput, DAY_LETTERS, DayPicker, IconNameField, SegmentedControl, StepBar, TextField, Toggle, useSwipeTabs, ViewSwitch } from './fields';
 export { Avatar, GreetingHeader, Heading, SectionHeader } from './headers';
 export { Nav, type TabName } from './nav';
 export { ConfirmSheet, MoreMenu, Sheet, Snackbar, Toast, type MenuItem } from './overlay';
