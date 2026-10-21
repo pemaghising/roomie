@@ -55,11 +55,11 @@ export function Hero() {
 
       <div className="hero-center wrap">
         <h1>Fair chores. <em className="nb">Zero nagging.</em></h1>
-        <p className="lede">
-          Roomie splits chores by effort, works around busy weeks, and sends the reminders itself, so nobody in the flat has to play the parent.
-        </p>
-        <TryRoomie size="lg" label="Try Roomie now" />
-        <p className="try-note">Runs in your browser.</p>
+        <p className="lede">Chores split by effort, reminders sent for you. Nobody has to play the parent.</p>
+        <div className="hero-cta">
+          <TryRoomie size="lg" label="Try Roomie now" />
+          <p className="try-note">Runs in your browser</p>
+        </div>
       </div>
 
       <div className="hero-stage">

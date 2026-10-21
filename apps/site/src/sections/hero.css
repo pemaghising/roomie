@@ -64,17 +64,18 @@
 }
 .hero-center {
   display: grid; justify-items: center; text-align: center;
-  padding-top: calc(88px + clamp(40px, 9vh, 96px));
+  padding-top: calc(88px + clamp(32px, 7vh, 80px));
 }
 .hero-center h1 { font-size: clamp(44px, 7.2vw, 96px); line-height: 1; }
 .hero-center h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
-.hero-center .lede { margin-top: clamp(20px, 3vh, 28px); max-width: 32em; }
-.hero-center .try { margin-top: clamp(28px, 4vh, 36px); }
-.hero-center .try-note { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
+/* headline → lede 20, lede → action 32: one rhythm, the button and its caption read as one unit */
+.hero-center .lede { margin-top: 20px; max-width: 38em; text-wrap: balance; }
+.hero-cta { margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.hero-cta .try-note { font-size: 14px; color: var(--ink-3); }
 
 .hero-stage {
   position: relative; display: flex; justify-content: center;
-  margin-top: clamp(48px, 8vh, 80px);
+  margin-top: clamp(40px, 7vh, 64px);
   height: calc(var(--pw) * 1.55);
   --pw: clamp(260px, 26vw, 340px);
   overflow: hidden;
