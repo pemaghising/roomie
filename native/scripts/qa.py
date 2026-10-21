@@ -7,7 +7,8 @@ import functools, http.server, json, re, socketserver, sys, threading
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-ROOT = Path(__file__).resolve().parent.parent / "dist"
+import os
+ROOT = Path(__file__).resolve().parent.parent / os.environ.get("QA_DIST", "dist")
 
 class SPA(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -36,7 +37,8 @@ def main():
     session = json.loads(Path(sys.argv[3]).read_text()) if len(sys.argv) > 3 else None
     httpd = socketserver.TCPServer(("127.0.0.1", 0), functools.partial(SPA, directory=str(ROOT)))
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
-    base = f"http://127.0.0.1:{httpd.server_address[1]}"
+    # QA_BASE runs the same flows against a deployed site instead of the local export
+    base = os.environ.get("QA_BASE") or f"http://127.0.0.1:{httpd.server_address[1]}"
     fails, errors = [], []
     with sync_playwright() as p:
         b = p.chromium.launch()
