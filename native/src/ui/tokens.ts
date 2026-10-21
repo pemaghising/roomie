@@ -55,9 +55,8 @@ const shadow = (radius: number, y: number, opacity: number, elevation: number, s
   ({ shadowColor, shadowOpacity: opacity, shadowRadius: WEB ? radius : radius / 2, shadowOffset: { width: 0, height: y }, elevation });
 
 export const elevation = {
-  // Liquid glass lift: Figma's lilac card shadow (y 8, blur 24) pulled in with a negative spread so the corners
-  // stay clean, plus a tight contact shadow for the edge. boxShadow renders the same on iOS, Android and web.
-  glass: { boxShadow: '0px 8px 24px -6px rgba(140,102,217,0.16), 0px 1px 3px 0px rgba(89,71,140,0.06)' },
+  // Figma card shadow (#59478C, y 8, blur 24), a touch stronger so cards hold their edge on the pale canvas
+  glass: shadow(24, 8, 0.1, 3, '#59478C'),
   liftButton: shadow(12, 4, 0.16, 4, '#7A5FD6'),
   liftSmall: shadow(8, 2, 0.14, 2, '#7A5FD6'),
   day: shadow(16, 4, 0.08, 2),

@@ -38,9 +38,6 @@ describe('v2 tokens', () => {
   });
 
   test('elevations are tinted, never black', () => {
-    for (const e of Object.values(elevation)) {
-      if ('boxShadow' in e) expect(e.boxShadow).not.toMatch(/rgba\(0,\s*0,\s*0/);
-      else expect(e.shadowColor).not.toMatch(/^#0{3,6}$/);
-    }
+    for (const e of Object.values(elevation)) expect(e.shadowColor).not.toMatch(/^#0{3,6}$/);
   });
 });
