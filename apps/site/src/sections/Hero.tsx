@@ -10,7 +10,7 @@ import "./hero.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** The promise: the app does the reminding. The Home screen first, fading into the glow, then the headline and the action. */
+/** The promise: the app does the reminding. A fan of three real screens fading into the glow, then the headline and the action. */
 export function Hero() {
   const motionOK = useMotionOK();
   const root = useRef<HTMLElement>(null);
@@ -29,16 +29,17 @@ export function Hero() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
-      // The phone rises into the glow, then the two moments float out beside it.
-      gsap.from(".hero-phone", { opacity: 0, y: 60, duration: 1.3, ease: "expo.out" });
-      gsap.from(".hero-float", { opacity: 0, y: 24, duration: 1, delay: 0.8, stagger: 0.15, ease: "expo.out" });
-      // Parallax in depth: the phone rises slowly, the two moments in front of it faster.
-      // yPercent is its own channel, so it adds to the entrance's y instead of overwriting it.
-      const scroll = { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true };
-      ([[".hero-phone", 60], [".hero-nudge", 120], [".hero-busy", 150]] as const).forEach(([sel, px]) => {
-        const el = root.current?.querySelector<HTMLElement>(sel);
-        if (el) gsap.to(el, { yPercent: () => (-px / el.offsetHeight) * 100, ease: "none", scrollTrigger: scroll });
-      });
+      // The fan opens: Home rises, the side phones slide out from behind it, then the nudge drops in.
+      gsap.from(".hero-phone--main", { opacity: 0, y: 60, duration: 1.3, ease: "expo.out" });
+      gsap.from(".hero-phone--l", { opacity: 0, x: 120, rotate: 0, duration: 1.4, delay: 0.25, ease: "expo.out" });
+      gsap.from(".hero-phone--r", { opacity: 0, x: -120, rotate: 0, duration: 1.4, delay: 0.25, ease: "expo.out" });
+      gsap.from(".hero-nudge", { opacity: 0, y: -28, scale: 0.96, duration: 0.9, delay: 1, ease: "back.out(1.6)" });
+      // On scroll the fan spreads a little and the front layers lift faster than the back ones.
+      const scroll = { trigger: root.current, start: "top top", end: "bottom top", scrub: true };
+      gsap.to(".hero-phone--main", { yPercent: -6, ease: "none", scrollTrigger: scroll });
+      gsap.to(".hero-nudge", { yPercent: -60, ease: "none", scrollTrigger: scroll });
+      gsap.to(".hero-phone--l", { xPercent: -10, rotate: -10, ease: "none", scrollTrigger: scroll });
+      gsap.to(".hero-phone--r", { xPercent: 10, rotate: 10, ease: "none", scrollTrigger: scroll });
     }, root);
     return () => ctx.revert();
   }, [motionOK]);
@@ -61,12 +62,12 @@ export function Hero() {
       </header>
 
       <div className="hero-stage">
-        <Phone className="hero-phone" src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak, the plant in bloom, and today's tasks" priority />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="hero-float hero-nudge" src="/cards/hero-nudge.webp" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={361} height={86} />
-        <div className="hero-float hero-busy" aria-label="Heavy chores never land on days you marked busy">
-          <span className="tag tag--heavy">Heavy</span>
-          <span>chores never land on days you marked busy</span>
+        <div className="hero-fan">
+          <Phone className="hero-phone hero-phone--side hero-phone--l" src="/screens/p1-pantry.webp" alt="Roomie Pantry: milk out, rice low, each with I'll get it" priority />
+          <Phone className="hero-phone hero-phone--side hero-phone--r" src="/screens/c1c-shared-pool.webp" alt="Roomie Chores: the shared pool, chores anyone can claim" priority />
+          <Phone className="hero-phone hero-phone--main" src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak, the plant in bloom, and today's tasks" priority />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="hero-nudge" src="/cards/hero-nudge.webp" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={361} height={86} />
         </div>
       </div>
 
