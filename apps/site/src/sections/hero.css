@@ -65,7 +65,7 @@
 .hero-center {
   position: relative; z-index: 3;
   display: grid; justify-items: center; text-align: center;
-  margin-top: clamp(20px, 4vh, 40px);
+  margin-top: clamp(8px, 2vh, 24px);
   padding-bottom: clamp(72px, 12vh, 128px);
   --pw: clamp(240px, 22vw, 300px);
 }
@@ -78,13 +78,13 @@
 
 .hero-stage {
   position: relative; display: flex; justify-content: center;
-  --pw: clamp(240px, 22vw, 300px);
+  --pw: clamp(180px, min(22vw, (100svh - 540px) / 1.25), 300px);
   /* room for the nav, plus headroom so the parallax lift never slides the phone out of the clipped stage */
   padding-top: calc(88px + clamp(24px, 5vh, 56px));
-  height: calc(var(--pw) * 1.7 + 88px + clamp(24px, 5vh, 56px));
+  height: calc(var(--pw) * 1.25 + 88px + clamp(24px, 5vh, 56px));
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
-          mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
 }
 /* A fan of three real screens: Home in front, Pantry and the shared pool angled behind it */
 .hero-fan { position: relative; width: var(--pw); height: calc(var(--pw) * 2.08); }
@@ -94,20 +94,12 @@
 .hero-phone--l { left: calc(var(--pw) * -.66); rotate: -7deg; transform-origin: 100% 100%; }
 .hero-phone--r { left: calc(var(--pw) * .8); rotate: 7deg; transform-origin: 0% 100%; }
 .hero-phone--side .bezel { filter: saturate(.92) brightness(.985); }
-/* the nudge drops onto Home like an iOS banner, a touch wider than the screen */
-.hero-nudge {
-  position: absolute; z-index: 3; top: calc(var(--pw) * .2); left: 50%; translate: -50% 0;
-  width: calc(var(--pw) * 1.14); height: auto; border-radius: 18px;
-  box-shadow: 0 2px 4px rgba(31, 27, 58, .06), 0 28px 56px -22px rgba(59, 36, 112, .45);
-}
-
 .tag { flex: none; }
 .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
 .tag--heavy { background: var(--heavy-bg); color: var(--heavy-fg); }
 
 @media (max-width: 860px) {
-  .hero-stage, .hero-center { --pw: min(250px, 62vw); }
+  .hero-stage, .hero-center { --pw: clamp(170px, min(58vw, (100svh - 460px) / 1.25), 250px); }
   .hero-phone--l { left: calc(var(--pw) * -.58); }
   .hero-phone--r { left: calc(var(--pw) * .72); }
-  .hero-nudge { width: min(calc(var(--pw) * 1.14), calc(100vw - 32px)); }
 }
