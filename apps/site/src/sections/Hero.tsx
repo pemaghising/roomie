@@ -35,33 +35,34 @@ export function Hero() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
-      // Entrance: the two words slide in from either side, the phone rises tilted back.
-      gsap.from(".film-word--a .w1", { xPercent: -25, opacity: 0, duration: 1.4, ease: "expo.out" });
-      gsap.from(".film-word--a .w2", { xPercent: 25, opacity: 0, duration: 1.4, ease: "expo.out" });
+      // Entrance: each word rolls up out of its mask, the phone rises tilted back.
+      gsap.from(".film-word--a .w1, .film-word--a .w2", { yPercent: 140, duration: 1.3, stagger: 0.1, ease: "expo.out" });
       gsap.from(".film-phone", { yPercent: 40, opacity: 0, duration: 1.6, delay: 0.15, ease: "expo.out" });
+      gsap.set(".film-word--b .w1, .film-word--b .w2", { yPercent: 140 });
 
-      // The film, scrubbed across the pinned stage.
+      // The film, scrubbed across the pinned stage. Words never cross-fade: the old pair rolls up
+      // out of its masks as the new pair rolls up in, so only one phrase is ever readable.
       const tl = gsap.timeline({
         defaults: { ease: "none" },
-        scrollTrigger: { trigger: ".film", start: "top top", end: "bottom bottom", scrub: 0.7 },
+        scrollTrigger: { trigger: ".film", start: "top top", end: "bottom bottom", scrub: 1 },
       });
-      tl.to(".film-phone", { rotationX: 0, scale: 1, duration: 1 }, 0)
+      tl.to(".film-phone", { rotationX: 0, scale: 1, duration: 1, ease: "power2.out" }, 0)
         .to(".film-hint", { opacity: 0, duration: 0.2 }, 0)
         .to(".film-step--0", { opacity: 1, y: 0, duration: 0.4 }, 0.4)
-        .to(".film-word--a .w1", { xPercent: -70, opacity: 0, duration: 1 }, 0.7)
-        .to(".film-word--a .w2", { xPercent: 70, opacity: 0, duration: 1 }, 0.7)
-        .fromTo(".film-word--b .w1", { xPercent: 60, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 1 }, 1.2)
-        .fromTo(".film-word--b .w2", { xPercent: -60, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 1 }, 1.2)
-        .to(".film-screen--1", { opacity: 1, duration: 0.4 }, 1.6)
-        .to(".film-step--0", { opacity: 0, duration: 0.3 }, 1.6)
-        .to(".film-step--1", { opacity: 1, y: 0, duration: 0.4 }, 1.75)
-        .to(".film-screen--2", { opacity: 1, duration: 0.4 }, 2.6)
-        .to(".film-step--1", { opacity: 0, duration: 0.3 }, 2.6)
-        .to(".film-step--2", { opacity: 1, y: 0, duration: 0.4 }, 2.75)
-        .to(".film-step--2", { opacity: 0, duration: 0.3 }, 3.3)
-        .to(".film-phone", { yPercent: -16, scale: 0.84, duration: 1 }, 3.3)
-        .to(".film-word--b", { yPercent: -36, opacity: () => (window.innerWidth < 900 ? 0 : 0.1), duration: 1 }, 3.3)
-        .fromTo(".film-end", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8 }, 3.6);
+        .to(".film-word--a .w1", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 1.0)
+        .to(".film-word--a .w2", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 1.08)
+        .to(".film-word--b .w1", { yPercent: 0, duration: 0.7, ease: "power3.out" }, 1.55)
+        .to(".film-word--b .w2", { yPercent: 0, duration: 0.7, ease: "power3.out" }, 1.63)
+        .to(".film-screen--1", { clipPath: "inset(0% 0 0 0)", duration: 0.5, ease: "power2.inOut" }, 1.6)
+        .to(".film-step--0", { opacity: 0, y: -12, duration: 0.3 }, 1.5)
+        .to(".film-step--1", { opacity: 1, y: 0, duration: 0.4 }, 1.8)
+        .to(".film-screen--2", { clipPath: "inset(0% 0 0 0)", duration: 0.5, ease: "power2.inOut" }, 2.6)
+        .to(".film-step--1", { opacity: 0, y: -12, duration: 0.3 }, 2.5)
+        .to(".film-step--2", { opacity: 1, y: 0, duration: 0.4 }, 2.8)
+        .to(".film-step--2", { opacity: 0, y: -12, duration: 0.3 }, 3.3)
+        .to(".film-word--b .w1, .film-word--b .w2", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 3.3)
+        .to(".film-phone", { yPercent: -16, scale: 0.84, duration: 1, ease: "power2.inOut" }, 3.3)
+        .fromTo(".film-end", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 3.7);
     }, root);
     return () => ctx.revert();
   }, [motionOK]);
@@ -87,8 +88,8 @@ export function Hero() {
       <div className="film">
         <div className="film-stage">
           <h1 className="sr-only">Fair chores. Zero nagging.</h1>
-          <p className="film-word film-word--a" aria-hidden="true"><span className="w1">Fair</span><span className="w2">chores.</span></p>
-          <p className="film-word film-word--b" aria-hidden="true"><em className="w1">Zero</em><em className="w2">nagging.</em></p>
+          <p className="film-word film-word--a" aria-hidden="true"><span className="mask"><span className="w1">Fair</span></span><span className="mask"><span className="w2">chores.</span></span></p>
+          <p className="film-word film-word--b" aria-hidden="true"><span className="mask"><em className="w1">Zero</em></span><span className="mask"><em className="w2">nagging.</em></span></p>
 
           <figure className="phone film-phone">
             <span className="btn-l" aria-hidden="true" />
@@ -112,8 +113,6 @@ export function Hero() {
             <p className="lede">Chores split by effort, reminders sent for you. Nobody has to play the parent.</p>
             <div className="film-cta"><TryRoomie size="lg" label="Try Roomie now" /><StoreButtons variant="light" /></div>
           </div>
-
-          <p className="film-meta film-meta--l">For shared flats, made in Kathmandu</p>
           <p className="film-meta film-meta--r film-hint">Scroll</p>
         </div>
       </div>

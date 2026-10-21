@@ -65,8 +65,10 @@
   font: 600 clamp(72px, 16vw, 320px)/.9 var(--serif); letter-spacing: -.045em; color: var(--ink); white-space: nowrap;
   pointer-events: none; z-index: 0;
 }
-.film-word span, .film-word em { display: inline-block; will-change: transform; }
-.film-word--b em { font-style: italic; color: var(--violet-deep); font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; opacity: 0; }
+/* each word rolls inside its own window; padding keeps ascenders and the g's tail inside it */
+.film-word .mask { display: inline-block; overflow: hidden; padding: .06em .04em .2em; margin-bottom: -.14em; }
+.film-word .w1, .film-word .w2 { display: inline-block; will-change: transform; }
+.film-word--b em { font-style: italic; color: var(--violet-deep); font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
 
 .film-phone {
   --phone-w: clamp(200px, min(22vw, 34svh), 340px);
@@ -76,7 +78,7 @@
 }
 .film-phone .bezel { display: grid; }
 .film-screen { grid-area: 1 / 1; }
-.film-screen--1, .film-screen--2 { opacity: 0; }
+.film-screen--1, .film-screen--2 { clip-path: inset(100% 0 0 0); }   /* each new screen wipes up over the last */
 
 /* one caption per screen, set in the margin beside the phone */
 .film-steps {
@@ -84,7 +86,7 @@
   position: absolute; z-index: 3; top: 72%; left: calc(50% + var(--phone-w) * .5 + clamp(28px, 4vw, 72px));
   margin: 0; padding: 0; list-style: none;
 }
-.film-step { position: absolute; top: 0; width: 14em; opacity: 0; transform: translateY(12px); font: 500 clamp(17px, 1.35vw, 21px)/1.35 var(--sans); color: var(--ink); }
+.film-step { position: absolute; top: 0; width: min(14em, calc(100vw - 50vw - var(--phone-w) * .5 - clamp(28px, 4vw, 72px) - 24px)); opacity: 0; transform: translateY(12px); font: 500 clamp(17px, 1.35vw, 21px)/1.35 var(--sans); color: var(--ink); }
 .film-step b { display: block; margin-bottom: 8px; font: 500 13px/1 var(--sans); color: var(--violet-deep); }
 
 .film-end { position: absolute; z-index: 3; left: 0; right: 0; bottom: clamp(28px, 7svh, 72px); display: grid; justify-items: center; gap: 20px; text-align: center; padding-inline: 20px; opacity: 0; }
@@ -92,7 +94,6 @@
 .film-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; }
 
 .film-meta { position: absolute; z-index: 3; bottom: 24px; margin: 0; font: 500 13px/1 var(--sans); color: var(--ink-3); }
-.film-meta--l { left: max(20px, (100% - 1200px) / 2); }
 .film-meta--r { right: max(20px, (100% - 1200px) / 2); }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -105,14 +106,13 @@
   .film-word { font-size: clamp(60px, 20vw, 150px); flex-direction: column; justify-content: space-between; gap: 0; padding-block: calc(76px + 3svh) 7svh; }
   .film-phone { --phone-w: clamp(150px, min(46vw, 27svh), 260px); }
   .film-steps { display: none; }
-  .film-meta--l { display: none; }
 }
 /* No motion: show the end state, nothing pinned */
 @media (prefers-reduced-motion: reduce) {
   .film { height: auto; }
   .film-stage { position: relative; height: auto; min-height: 100svh; padding-block: 120px 60px; grid-template-rows: 1fr auto; }
   .film-phone { transform: none; }
-  .film-word--a { opacity: .08; }
+  .film-word--b { display: none; }
   .film-steps { display: none; }
   .film-end { position: relative; opacity: 1; bottom: auto; margin-top: 32px; }
 }
