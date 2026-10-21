@@ -47,23 +47,29 @@ const CHIPS = [
   { src: require('../../../assets/art/chip-milk.png'), x: 180 - 24, y: 354 - 24, w: 499 / 3, phase: 1300 },
 ];
 
+const ART_H = 440; // mascot and chips from frame 01 (lowest chip ends at 420) plus a little breathing room above the title
+
 export default function Welcome() {
   const router = useRouter();
   const toast = useToast();
   const insets = useSafeAreaInsets();
   const [login, setLogin] = useState(false);
+  const [artH, setArtH] = useState(ART_H);
   const soon = () => toast.show('Coming soon. Use your email for now.');
 
   return (
     <View style={styles.root}>
       <MeshBackground />
-      <View style={[styles.art, { top: 0 }]} accessible={false}>
-        <Animated.View entering={FadeIn.duration(320)} style={styles.mascot}>
-          <Image source={require('../../../assets/art/welcome-mascot.png')} style={{ width: 260, height: 260 }} contentFit="contain" />
-        </Animated.View>
-        {CHIPS.map((c) => (
-          <Chip key={c.phase} {...c} />
-        ))}
+      {/* the art takes whatever height the text leaves and shrinks to fit, so it never runs into the title on short phones */}
+      <View style={styles.artArea} onLayout={(e) => setArtH(e.nativeEvent.layout.height)} accessible={false}>
+        <View style={[styles.art, { transform: [{ scale: Math.min(1, artH / ART_H) }] }]}>
+          <Animated.View entering={FadeIn.duration(320)} style={styles.mascot}>
+            <Image source={require('../../../assets/art/welcome-mascot.png')} style={{ width: 260, height: 260 }} contentFit="contain" />
+          </Animated.View>
+          {CHIPS.map((c) => (
+            <Chip key={c.phase} {...c} />
+          ))}
+        </View>
       </View>
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 18 }]}>
         <Stagger gap={0} from={2}>
@@ -106,9 +112,10 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.bg.canvas },
-  art: { position: 'absolute', width: 393, alignSelf: 'center', height: 470 },
+  artArea: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
+  art: { width: 393, height: ART_H, transformOrigin: 'bottom' },
   mascot: { position: 'absolute', left: 66, top: 152 },
-  bottom: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: layout.margin },
+  bottom: { justifyContent: 'flex-end', paddingHorizontal: layout.margin },
   provider: { height: 56, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   providerLight: { backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECEAF3' },
 });
