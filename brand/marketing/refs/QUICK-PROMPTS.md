@@ -38,8 +38,13 @@ counter, plants, light wood, morning sun. Candid, mid-conversation, nobody looki
 
 **2.3 Pantry shelf** (attach nothing; 4:5)
 ```
-Close-up of an open shared-flat fridge door and pantry shelf: milk, eggs, rice, sourdough, a protein
-shake. A few small blank paper tags tied to items. Soft daylight, tidy and slightly funny.
+Photo, eye level: the open door and top shelves of an ordinary fridge in a shared Kathmandu flat,
+used by three girls. Slightly crowded and real, not styled. A half-used milk pouch folded over with
+a clip, an egg tray with a few eggs missing, a steel tiffin box of leftover dal bhat, a takeaway
+container, an open pickle jar (achar), a half-eaten loaf of bread in its plastic bag, a protein shake
+bottle, a few mismatched containers. Three items have a strip of blank masking tape stuck on them
+as name labels. Normal home lighting from the fridge plus a little daylight, slightly worn fridge
+door. Nothing perfectly arranged, no fresh-produce display, no glass jars in rows. 4:5.
 ```
 Claude writes "Ask first" and "Do not touch" on the tags afterwards.
 
