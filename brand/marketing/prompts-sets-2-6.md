@@ -156,7 +156,3 @@ A close-up of a cream fridge door with a rounded Roomie magnet board showing the
 
 Keep the scene of `originals/kitchen-counter-home.png` exactly: the mug, plant, towel, light and camera angle. Replace only the phone screen with `H1 · Home` (`912:2195`), mapped flat onto the display with correct perspective. Every row stays aligned: the shared pool card sits fully above "Your tasks today", "Why these?" sits on the same line as "Your tasks today", and each check circle sits in its own row.
 
-### 6.2 Studio angle: screen fix
-**File name:** `studio-angle-pantry-v2.png`.
-
-Keep `originals/studio-angle-pantry.png` exactly, but remap the screen `P1 · Pantry shared` (`842:3873`) so it follows the phone's perspective. Text lines must run parallel to the phone's top edge, not slanted across it.
