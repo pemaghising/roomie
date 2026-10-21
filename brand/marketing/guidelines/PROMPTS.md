@@ -4,6 +4,7 @@ These replace every photo in the Figma page `06 · Brand · Guidelines`. Each br
 
 **Rules behind every brief**
 - **Casting:** Nepali women in their twenties, flatmates in a modern Kathmandu flat. One gender per image.
+- **Faces:** in group shots, describe each woman separately (age, features, hair, skin tone, pose) so they don't come out as the same face. Nobody looks at the camera, and each person is doing something different.
 - **Colour:** natural colours, with one lilac moment at most.
 - **Light:** bright, cool daylight.
 - **No text or logos** unless the brief attaches them.
@@ -34,17 +35,35 @@ No text, no logos, no letters, no watermark. Photoreal, not illustrated, not sto
 ## G2 · Banner master (page 12 Placement, Social master Banner 1950×800)
 **Attach:** nothing. **Shape:** 5:4 landscape (it fills the right half of the banner).
 ```
-Professional brand photograph for a calm flat-sharing app, editorial lifestyle campaign quality.
-Casting: three Nepali women flatmates in their early twenties, sitting close together on a light
-sofa, laughing at something on one phone the middle one holds (screen faces away from camera).
-Wardrobe: real everyday clothes in different natural colours: a cream knit, a denim shirt, an olive
-t-shirt. No matching outfits, no purple clothing.
-Set: bright modern Kathmandu living room, white walls, light oak side table, a big leafy plant, one
-pale lilac throw folded on the sofa arm, sheer white curtains.
-Light: bright cool daylight from a large window behind camera-right, airy and soft.
-Camera: 35mm, f/2.8, slightly below eye level, natural candid moment, mid-laugh.
-Composition: 5:4 landscape, the three women in the right two-thirds, calm white wall on the left.
-No text, no logos, no watermark. Photoreal, genuine friendship, never stock-posed.
+Candid documentary-style photograph, as if a photographer friend was quietly shooting from across
+the room on a 50mm and nobody noticed. Not a stock photo, not a campaign pose.
+
+Three Nepali women flatmates, clearly three DIFFERENT people who do not look alike:
+- Woman 1 (left, about 26): Newar features, round face, wavy shoulder-length hair tucked behind one
+  ear, a few freckles, thick eyebrows. She is sitting sideways with her legs pulled up, half turned
+  away, reaching for a mug on the table and saying something; mouth mid-word, not smiling at all.
+- Woman 2 (middle, about 22): Tamang features, narrower eyes, straight black hair in a messy
+  claw-clip, slim face, no makeup, slightly tired. She holds the phone low in her lap, scrolling,
+  a small private smile, looking down. Back of the phone faces the camera, screen never visible.
+- Woman 3 (right, about 24): Brahmin/Chhetri features, longer oval face, darker skin tone than the
+  others, thick hair in a loose low braid, small nose stud. She is perched on the sofa arm, leaning
+  over to look at the phone, one hand covering her mouth as she laughs, eyes squeezed shut.
+Different heights and body types. Nobody looks at the camera. Faces are not symmetrical or
+retouched: real skin texture, pores, a stray hair, uneven smiles.
+
+Wardrobe: worn-in home clothes in mixed natural colours: a faded grey hoodie, an oversized
+striped cotton shirt, a rust kurta top with track pants. Wrinkled, lived-in. No matching outfits,
+no purple clothing.
+Set: a real modern Kathmandu flat living room, not styled: a light grey sofa with a slightly
+crumpled pale lilac throw, a low wooden table with two mugs of chai, a phone charger cable, a
+half-eaten packet of biscuits, a folded newspaper. A plant, white walls, sheer curtain, a glimpse
+of rooftops through the window.
+Light: bright cool afternoon daylight from the window, natural falloff, some soft shadow.
+Camera: 50mm, f/2.2, eye level, slightly off-centre, a little foreground blur from the table edge.
+A tiny bit of motion blur on the laughing woman's hand. Natural grain, true-to-life colour.
+Composition: 5:4 landscape, the three women in the right two-thirds, a calm white wall on the left
+third left empty.
+No text, no logos, no watermark. Photoreal.
 ```
 
 ## G3 · Post master (page 12 Placement, Social master Post 1080×1080)
