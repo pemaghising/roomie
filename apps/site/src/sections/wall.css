@@ -1,0 +1,36 @@
+.wall {
+  position: relative; overflow: clip;
+  padding-block: clamp(88px, 14vh, 160px) 0;
+  background:
+    radial-gradient(40% 45% at 25% 60%, rgba(164, 137, 237, .26) 0%, transparent 70%),
+    radial-gradient(38% 42% at 78% 55%, rgba(255, 180, 138, .24) 0%, transparent 70%),
+    var(--mist);
+}
+.wall-head { text-align: center; }
+.wall-head h2 { font-size: clamp(40px, 5.4vw, 76px); line-height: 1; }
+.wall-head h2 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
+
+/* Wider than the page so the outer columns run off the edges; the mask fades every edge into the background */
+.wall-grid {
+  --card: clamp(150px, 17vw, 250px);
+  display: flex; justify-content: center; gap: clamp(14px, 1.8vw, 28px);
+  margin-top: clamp(48px, 8vh, 88px);
+  height: calc(var(--card) * 2.168 * 2.1);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+          mask-composite: intersect;
+}
+.wall-col { flex: none; width: var(--card); display: grid; gap: clamp(14px, 1.8vw, 28px); align-content: start; will-change: transform; }
+.wall-col:nth-child(even) { margin-top: calc(var(--card) * .9); }
+.wall-col:nth-child(3) { margin-top: calc(var(--card) * .35); }
+.wall-col img {
+  width: 100%; height: auto; border-radius: calc(var(--card) * .125);
+  border: 1px solid rgba(233, 228, 246, .9);
+  box-shadow: 0 2px 4px rgba(31, 27, 58, .04), 0 30px 60px -36px rgba(91, 67, 184, .45);
+}
+
+@media (max-width: 760px) {
+  .wall-grid { --card: 44vw; }
+  .wall-col:nth-child(1), .wall-col:nth-child(5) { display: none; }
+}

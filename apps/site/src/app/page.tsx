@@ -1,6 +1,7 @@
 import { Hero } from "@/sections/Hero";
 import { Problem } from "@/sections/Problem";
 import { Effort } from "@/sections/Effort";
+import { Wall } from "@/sections/Wall";
 import { Week } from "@/sections/Week";
 import { Features } from "@/sections/Features";
 import { RealLife } from "@/sections/RealLife";
@@ -17,6 +18,7 @@ export default function Home() {
       <Problem />
       <Effort />
       <Features />
+      <Wall />
       <Week />
       <RealLife />
       <Shelf />

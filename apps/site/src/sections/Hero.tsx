@@ -32,6 +32,13 @@ export function Hero() {
       // The phone rises into the glow, then the two moments float out beside it.
       gsap.from(".hero-phone", { opacity: 0, y: 60, duration: 1.3, ease: "expo.out" });
       gsap.from(".hero-float", { opacity: 0, y: 24, duration: 1, delay: 0.8, stagger: 0.15, ease: "expo.out" });
+      // Parallax in depth: the phone rises slowly, the two moments in front of it faster.
+      // yPercent is its own channel, so it adds to the entrance's y instead of overwriting it.
+      const scroll = { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true };
+      ([[".hero-phone", 60], [".hero-nudge", 120], [".hero-busy", 150]] as const).forEach(([sel, px]) => {
+        const el = root.current?.querySelector<HTMLElement>(sel);
+        if (el) gsap.to(el, { yPercent: () => (-px / el.offsetHeight) * 100, ease: "none", scrollTrigger: scroll });
+      });
     }, root);
     return () => ctx.revert();
   }, [motionOK]);
