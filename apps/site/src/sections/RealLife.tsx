@@ -15,6 +15,15 @@ const PHOTOS = [
   { src: "/life/pantry-hand.webp", w: 1600, h: 900, alt: "The Roomie pantry in hand: milk out, rice low, each with I’ll get it" },
 ];
 
+function Photo({ p, cls }: { p: (typeof PHOTOS)[number]; cls: string }) {
+  return (
+    <figure className={`life-photo ${cls}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" />
+    </figure>
+  );
+}
+
 export function RealLife() {
   const motionOK = useMotionOK();
   const root = useRef<HTMLElement>(null);
@@ -23,8 +32,8 @@ export function RealLife() {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>(".life-photo img").forEach((img) => {
-        gsap.fromTo(img, { scale: 1.1, yPercent: -3 }, {
-          scale: 1.02, yPercent: 3, ease: "none",
+        gsap.fromTo(img, { scale: 1.06 }, {
+          scale: 1, ease: "none",
           scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true },
         });
       });
@@ -40,12 +49,11 @@ export function RealLife() {
           <h2>Built for the <em>small moments.</em></h2>
         </div>
         <div className="life-grid">
-          {PHOTOS.map((p) => (
-            <figure key={p.src} className="life-photo">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" />
-            </figure>
-          ))}
+          <Photo p={PHOTOS[0]} cls="life-photo--tall" />
+          <div className="life-col">
+            <Photo p={PHOTOS[1]} cls="life-photo--a" />
+            <Photo p={PHOTOS[2]} cls="life-photo--b" />
+          </div>
         </div>
       </div>
     </section>
