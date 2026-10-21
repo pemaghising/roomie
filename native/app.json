@@ -74,6 +74,10 @@
         "projectId": "e154203c-23cd-4717-9ca1-2f884fffbdd5"
       }
     },
-    "owner": "pemaghising"
+    "owner": "pemaghising",
+    "updates": {
+      "url": "https://u.expo.dev/e154203c-23cd-4717-9ca1-2f884fffbdd5"
+    },
+    "runtimeVersion": "exposdk:57.0.0"
   }
 }
