@@ -45,7 +45,30 @@ It is a UX case study and product design project by **Pema Ghising**, taken all 
 
 <img src=".github/assets/case-study-rules.webp" alt="Case study: how chores get split, as a weekly planning flowchart" width="100%">
 
-## Screens
+## In real life
+
+<img src=".github/assets/photo-two-phones.webp" alt="Two hands holding phones over a kitchen table, one on the Roomie pantry, one on the Home screen" width="100%">
+
+<table>
+  <tr>
+    <td width="50%"><img src=".github/assets/photo-home-table.webp" alt="The Roomie Home screen on a phone beside a mug of tea: a 23-day house streak and today's chores"></td>
+    <td width="50%"><img src=".github/assets/photo-pantry-hand.webp" alt="The Roomie pantry in hand: milk out, rice low, each with I'll get it"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Home: the house streak, the shared pool and only your chores</sub></td>
+    <td align="center"><sub>Pantry: flag it low, tap I'll get it, and the house knows</sub></td>
+  </tr>
+  <tr>
+    <td><img src=".github/assets/photo-lock-nudge.webp" alt="A phone on a bedside table, its lock screen showing: Priya is getting the milk. No action needed."></td>
+    <td><img src=".github/assets/photo-app-icon.webp" alt="The Roomie app icon on an iPhone home screen"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Reminders that never nag</sub></td>
+    <td align="center"><sub>The app icon: Roomie on a soft lilac-to-peach wash</sub></td>
+  </tr>
+</table>
+
+## The sites
 
 <table>
   <tr>

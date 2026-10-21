@@ -13,6 +13,8 @@ const TOUR = "(min-width: 821px) and (prefers-reduced-motion: no-preference)";
 
 type Feature = {
   key: string; title: string; body: string;
+  /** 3D emoji from the app, shown in a soft tile above the title. */
+  icon: string;
   screen?: string; card?: string; alt: string;
   /** The one moment that lifts out of the phone when this feature arrives; top is a % of the phone height. */
   pop?: ReactNode; popTop?: string;
@@ -26,7 +28,7 @@ const img = (src: string, alt: string) => (
 /** Everything in the app, one feature at a time. Every screen is a real v2 screen. */
 const FEATURES: Feature[] = [
   {
-    key: "effort", title: "Effort, not headcount",
+    key: "effort", icon: "flexed_biceps", title: "Effort, not headcount",
     body: "Every chore is Light, Medium or Heavy. Roomie rotates them so nobody’s stuck with the bathroom.",
     screen: "/screens/f-pick-chores.webp", alt: "Pick your chores: wash dishes Light, vacuum Medium, mop bathroom Heavy",
     pop: (
@@ -41,35 +43,35 @@ const FEATURES: Feature[] = [
     ), popTop: "46%",
   },
   {
-    key: "busy", title: "Built around your week",
+    key: "busy", icon: "calendar", title: "Built around your week",
     body: "Mark your busy days once. Heavy chores land on the days you’re actually free.",
     screen: "/screens/f-calendar.webp", alt: "Calendar week with busy days shaded and light chores on them",
     pop: img("/cards/w-mon-card.webp", "Tue, Wed and Fri. Heavy chores stay off these days."), popTop: "74%",
   },
   {
-    key: "pool", title: "A shared pool, no blame",
+    key: "pool", icon: "raising_hands", title: "A shared pool, no blame",
     body: "Missed chores slip into a pool with no names attached. Claim one and your next week gets lighter.",
     screen: "/screens/c1c-shared-pool.webp", alt: "Shared pool: Mop bathroom floor and Take out recycling, each with a Claim button",
     pop: img("/cards/w-thu-toast.webp", "Mop bathroom floor is yours. You’ll get a lighter week."), popTop: "48%",
   },
   {
-    key: "nudge", title: "Nudges in your tone",
+    key: "nudge", icon: "bell", title: "Nudges in your tone",
     body: "Motivate me, or just the facts. Roomie does the reminding, so nobody in the flat has to.",
     screen: "/screens/f-nudge-style.webp", alt: "Nudge style: Motivate me or Just the facts",
   },
   {
-    key: "restock", title: "Restock in one tap",
+    key: "restock", icon: "shopping_cart", title: "Restock in one tap",
     body: "Out of milk? Ask the house, pick how soon, and it becomes a chore anyone can claim.",
     screen: "/screens/f-restock.webp", alt: "Restock request for milk: how soon, effort, and Request restock",
     pop: img("/cards/w-sat-card.webp", "Roomie · now: Priya is getting the milk. No action needed."), popTop: "14%",
   },
   {
-    key: "streak", title: "A streak the whole house grows",
+    key: "streak", icon: "potted_plant", title: "A streak the whole house grows",
     body: "Every day the house gets its chores done, the streak goes up. Slip, and the plant droops until someone catches up. It’s a shared streak, never a scoreboard.",
     card: "/cards/w-sun-streak.webp", alt: "House streak: 24 days strong, Sunday done and a new week started",
   },
   {
-    key: "invite", title: "Move in with a code",
+    key: "invite", icon: "house", title: "Move in with a code",
     body: "Scan the QR or share a six-character code, and everyone’s in the same home.",
     screen: "/screens/f-invite.webp", alt: "Invite your roommates: a QR code and the code A3F-92K",
     pop: <span className="code-chip" aria-hidden="true"><small>Home code</small><b>A3F-92K</b></span>, popTop: "50%",
@@ -182,6 +184,8 @@ export function Features() {
             <article key={f.key} className={`fslide fslide--${f.key} ${!tourOn || active === i ? "is-in" : ""}`}>
               <div className="fslide-inner wrap">
                 <div className="fslide-copy">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <span className="ficon" aria-hidden="true"><img src={`/emoji/${f.icon}.webp`} alt="" width={96} height={96} /></span>
                   <h3>{f.title}</h3>
                   <p>{f.body}</p>
                 </div>

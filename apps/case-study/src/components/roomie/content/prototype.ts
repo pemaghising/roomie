@@ -90,9 +90,9 @@ export const prototypeHtml = `
       </div>
     </div>
     <div class="photos">
-      <figure><img src="/assets/brand/photo-home.jpg" alt="A hand holding a phone showing the Roomie home screen in a bright kitchen" loading="lazy"></figure>
-      <figure><img src="/assets/brand/photo-nudge.jpg" alt="A phone on a sunlit table showing a gentle Roomie nudge on the lock screen" loading="lazy"></figure>
-      <figure><img src="/assets/brand/photo-pantry.jpg" alt="A flatmate checking the Roomie pantry on his phone at the open fridge" loading="lazy"></figure>
+      <figure><img src="/assets/brand/photo-nudge.webp" alt="A phone on a bedside table, its lock screen showing: Priya is getting the milk. No action needed." loading="lazy"></figure>
+      <figure><img src="/assets/brand/photo-home.webp" alt="A phone on a wooden table beside a mug of tea, showing the Roomie home screen with a 23-day house streak" loading="lazy"></figure>
+      <figure><img src="/assets/brand/photo-pantry.webp" alt="Hands holding a phone showing the Roomie pantry: milk out, rice low" loading="lazy"></figure>
     </div>
     <p class="muted narrow" style="font-size:14px;margin-top:-8px">Photography direction from the brand book: bright rooms, real people, and the real app on a current phone.</p>
     <div class="voice grid-3" style="display:grid">
@@ -104,8 +104,8 @@ export const prototypeHtml = `
 
   <div class="block">
     <h3>Exploring the streak card</h3>
-    <p class="muted narrow">Four ways to show a 3-day streak in the same lavender language. The final card keeps the big number, counts days (light chores like dishes happen every day), shows this week as day pills, and swaps the sprout for a house plant that grows at milestones and droops while a chore waits. The streak should feel like a shared plant, not a scoreboard.</p>
-    <div class="card crop-card" tabindex="0" role="region" aria-label="Wireframe detail"><div class="crop"><img src="/assets/streak-variations.png" alt="Four streak card variations: ring progress, weekday pills, milestone path, big number with trend" loading="lazy"></div></div>
+    <p class="muted narrow">From the first sketches to the shipped card. The final card keeps the big number, counts days (light chores like dishes happen every day), shows this week as day pills, and swaps the sprout for a house plant that grows at milestones and droops while a chore waits. The streak should feel like a shared plant, not a scoreboard.</p>
+    <div class="card crop-card streak-explore" tabindex="0" role="region" aria-label="Streak card explorations"><div><img src="/assets/streak-explorations.webp" alt="Five streak cards, left to right: a ring, a milestone path, a purple plant-pot card, a weekly count and the final card with 23 days, day pills and a house plant" loading="lazy"></div></div>
   </div>
 
   <div class="block">

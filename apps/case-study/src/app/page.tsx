@@ -5,6 +5,7 @@ import { Agenda } from "@/components/roomie/agenda";
 import { RawSection } from "@/components/roomie/raw-section";
 import { ScrollFx } from "@/components/roomie/scroll-fx";
 import { PanZoom } from "@/components/roomie/pan-zoom";
+import { GalleryRail } from "@/components/roomie/gallery-rail";
 import { Footer } from "@/components/roomie/footer";
 import { parseChapter } from "@/components/roomie/chapter";
 import { empathizeHtml } from "@/components/roomie/content/empathize";
@@ -32,6 +33,7 @@ export default function Home() {
       <Footer />
       <ScrollFx />
       <PanZoom />
+      <GalleryRail />
     </>
   );
 }

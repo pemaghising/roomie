@@ -210,7 +210,6 @@ body{font-variant-numeric:lining-nums}
 /* hero */
 .hero{min-height:min(880px,calc(100svh - 68px));padding-block:48px 44px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:56px;row-gap:44px;align-items:center;align-content:center}
 .kicker{display:flex;align-items:center;gap:12px;font:600 12.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--lav-ink);margin-bottom:32px}
-.kicker::before{content:"";width:32px;height:2px;border-radius:2px;background:currentColor}
 .hero h1{font-size:clamp(60px,8.8vw,128px);line-height:.9;letter-spacing:-.03em}
 .hero h1 em{display:block;font-style:italic;font-weight:700;color:var(--lav-ink);letter-spacing:-.025em;padding-bottom:.06em}
 .hero .lede{margin-top:34px;max-width:29em;font-size:clamp(18px,1.55vw,21px);line-height:1.7;color:var(--ink-2);text-wrap:pretty}
@@ -456,11 +455,13 @@ tbody tr:last-child td{border-bottom:0}
 .plants img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:16px;background:#F4F0FF;mix-blend-mode:multiply}
 .plants .droop img{background:#F3F4F6}
 .plants .droop figcaption{color:#B23E1E}
-.photos{display:grid;grid-template-columns:3fr 4fr 3fr;gap:12px}
-.photos figure{margin:0;border-radius:20px;overflow:hidden;aspect-ratio:3/4}
-.photos figure:nth-child(2){aspect-ratio:auto}
+.photos{display:grid;grid-template-columns:4fr 5fr;grid-template-rows:1fr 1fr;gap:12px}
+.photos figure{margin:0;border-radius:20px;overflow:hidden;min-height:0}
+.photos figure:first-child{grid-row:1/3;aspect-ratio:4/5}
+.photos figure:not(:first-child){position:relative}
+.photos figure:not(:first-child) img{position:absolute;inset:0}
 .photos img{width:100%;height:100%;object-fit:cover;display:block}
-@media (max-width:720px){.plants{grid-template-columns:repeat(3,minmax(0,1fr))}.photos{grid-template-columns:1fr 1fr}.photos figure:nth-child(2){grid-column:1/-1;order:-1;aspect-ratio:4/3}.swatches.swatches-final{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:720px){.plants{grid-template-columns:repeat(3,minmax(0,1fr))}.photos{grid-template-columns:1fr;grid-template-rows:none}.photos figure:first-child{grid-row:auto}.photos figure:not(:first-child){aspect-ratio:3/2}.swatches.swatches-final{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .voice{display:grid;gap:12px}
 .voice div{border-radius:16px;padding:16px 18px}
 .voice b{display:block;font:600 12px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--lav-ink);margin-bottom:6px}
@@ -1013,8 +1014,8 @@ h1,h2,h3,h4{font-weight:600}
 .tree-add .plus{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7A5FD6 10%,#C277C0 55%,#F49A7C);box-shadow:0 6px 14px -6px rgba(122,95,214,.6)}
 .tree-add .plus svg{width:18px;height:18px;fill:none;stroke:#FCFBFF;stroke-width:2.4;stroke-linecap:round}
 /* user flow · getting in: vertical chart beside its notes */
-.ufv{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:56px;align-items:center;margin-bottom:28px}
-.ufv .flowtext{display:grid;gap:14px;align-content:center}
+.ufv{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:56px;align-items:start;margin-bottom:28px}
+.ufv .flowtext{display:grid;gap:14px;align-content:start;position:sticky;top:96px}
 .ufv .flowtext h4{margin:0;font-size:22px}
 .ufv .flowtext p,.ufv .flowtext ul{margin:0}
 @media (max-width:860px){.ufv{grid-template-columns:1fr;gap:32px}.ufv .flowtext{order:-1}}
@@ -1170,3 +1171,32 @@ p,li,td,dd,figcaption,.rows span,.pill,.st-note{text-wrap:pretty}
 @media (max-width:980px){.tokens,.ds .dsfacts,.elev{grid-template-columns:1fr 1fr}.ds-two{grid-template-columns:1fr}}
 @media (max-width:620px){.tokens,.ds .dsfacts,.elev{grid-template-columns:1fr}.typescale li{grid-template-columns:1fr;gap:6px}}
 .ds-two > div:not(.ds-shot){display:grid;gap:16px;align-content:start}
+
+/* streak explorations: one wide strip, scrolls sideways on phones */
+.streak-explore img{display:block;width:100%;height:auto}
+@media (max-width:720px){.streak-explore{overflow-x:auto}.streak-explore img{width:1100px;max-width:none}}
+
+/* screen rails: arrows by the title, captions, edge fades, slim progress line */
+.rail h4{justify-content:flex-start}
+.rail-ui{margin-left:auto;display:flex;gap:8px}
+.rail-ui button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line,#E9E4F6);background:#FCFBFF;color:var(--ink);cursor:pointer;box-shadow:0 1px 2px rgba(31,27,58,.05),0 8px 18px -10px rgba(91,67,184,.35);transition:transform .2s,opacity .2s,background .2s}
+.rail-ui button:hover:not(:disabled){transform:translateY(-1px);background:#F3EFFC}
+.rail-ui button:disabled{opacity:.35;cursor:default;box-shadow:none}
+.rail-ui button:focus-visible{outline:3px solid var(--lav-3);outline-offset:2px}
+.rail-ui svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rail .strip{gap:20px;padding:6px 4px 18px;scrollbar-width:none;scroll-snap-type:x proximity;cursor:grab;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,48px)),transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,48px)),transparent 100%)}
+.rail .strip::-webkit-scrollbar{display:none}
+.rail:not(.at-start) .strip{--fl:32px}
+.rail.at-end .strip{--fr:0px}
+.rail .strip.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none}
+.rail .strip.dragging .phone img{pointer-events:none}
+.rail-item{flex:0 0 190px;scroll-snap-align:start;display:grid;gap:12px;align-content:start}
+.rail-item .phone{width:100%;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.rail-item:hover .phone{transform:translateY(-4px)}
+.rail-cap{font-size:13.5px;line-height:1.35;color:var(--ink-2);padding:0 4px}
+.rail-bar{height:3px;border-radius:3px;background:var(--line,#E9E4F6);overflow:hidden;margin:4px 4px 0}
+.rail-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#A489ED,#FFB48A);transition:transform .12s linear}
+.rail.no-scroll .rail-ui,.rail.no-scroll .rail-bar{display:none}
+@media (max-width:620px){.rail-ui button{width:36px;height:36px}.rail-item{flex-basis:168px}}
