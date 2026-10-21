@@ -44,7 +44,7 @@ export const type = {
   'Meta/Medium': t(font.medium, 13, 18),
   Tag: t(font.semibold, 12, 16),
   'Tag/Medium': t(font.medium, 12, 16),
-  Nav: t(font.medium, 10, 12),
+  Nav: t(font.medium, 11, 14),
   'Numeral/Streak': t(font.light, 81, 92, -3.24),
 } as const satisfies Record<string, TextStyle>;
 

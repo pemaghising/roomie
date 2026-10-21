@@ -58,7 +58,7 @@ export function AddButton({ onPress, label = 'Add' }: { onPress: () => void; lab
   return (
     <Tap onPress={onPress} accessibilityLabel={label} feel="select">
       <LinearGradient colors={gradients.add} start={{ x: 0.15, y: 0.1 }} end={{ x: 0.9, y: 0.95 }} style={[styles.add, elevation.liftButton]}>
-        <SvgXml xml={NAV_ICONS.plus.replaceAll('{c}', color.text.onAccent)} width={24} height={24} />
+        <SvgXml xml={NAV_ICONS.plus.replaceAll('{c}', color.text.onAccent).replace('stroke-width="2.25"', 'stroke-width="2.08"')} width={26} height={26} />
       </LinearGradient>
     </Tap>
   );
@@ -72,5 +72,5 @@ const styles = StyleSheet.create({
   center40: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
   iconButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: color.bg.surface, borderWidth: 1, borderColor: '#ECE8F6', alignItems: 'center', justifyContent: 'center' },
   dot: { position: 'absolute', top: 10, right: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: color.action.primary, borderWidth: 2, borderColor: '#F4F4F6' },
-  add: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(252,251,255,0.6)' },
+  add: { width: 62, height: 62, borderRadius: 31, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(252,251,255,0.6)' },
 });
