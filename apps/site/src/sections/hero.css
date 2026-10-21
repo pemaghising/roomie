@@ -70,7 +70,6 @@
 .hero-center h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
 .hero-center .lede { margin-top: clamp(20px, 3vh, 28px); max-width: 32em; }
 .hero-center .try { margin-top: clamp(28px, 4vh, 36px); }
-.hero-center .try-note { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
 
 .hero-stage {
   position: relative; display: flex; justify-content: center;

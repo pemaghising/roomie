@@ -59,7 +59,6 @@ export function Hero() {
           Roomie splits chores by effort, works around busy weeks, and sends the reminders itself, so nobody in the flat has to play the parent.
         </p>
         <TryRoomie size="lg" label="Try Roomie now" />
-        <p className="try-note">Runs in your browser. The iPhone and Android apps are coming soon.</p>
       </div>
 
       <div className="hero-stage">

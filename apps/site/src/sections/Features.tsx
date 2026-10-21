@@ -94,7 +94,9 @@ export function Features() {
         x: () => -(tr.scrollWidth - window.innerWidth),
         ease: "none",
         scrollTrigger: {
-          trigger: el, pin: true, scrub: true, start: "top top",
+          trigger: el, pin: true, scrub: 0.3, start: "top top",
+          // settles on the nearest feature once you stop scrolling, so a slide never rests half off screen
+          snap: { snapTo: 1 / (n - 1), inertia: false, duration: { min: 0.25, max: 0.6 }, delay: 0.08, ease: "power2.inOut" },
           end: () => "+=" + window.innerWidth * (n - 1) * 0.8,
           invalidateOnRefresh: true,
           onUpdate: (st) => {
