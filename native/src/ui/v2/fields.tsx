@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, TextInput, useWindowDimensions, View, type TextI
 import Animated, { LinearTransition, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Pencil, type LucideIcon } from 'lucide-react-native';
 import { haptic } from '../haptics';
-import { motion } from '../motion';
+import { motion, smooth } from '../motion';
 import { color, elevation, font, radius, type } from '../tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Glass, gradients, Tap, Txt } from './primitives';
@@ -23,11 +23,13 @@ export function TextField({ error, icon: Icon, ...props }: TextInputProps & { er
     />
   );
   const row = Icon ? <View style={styles.iconRow}><Icon size={18} color={color.text.primary} strokeWidth={1.75} />{input}</View> : input;
-  if (error) return <View style={[styles.field, styles.error]}>{row}</View>;
+  // One tree for every state: swapping wrappers on focus remounts the input, which loses focus and never blurs.
   return (
-    <Glass r={radius.field} fill={0.62} outline={focused} strokeWidth={2} lift={false} style={{ height: 52 }}>
-      <View style={{ height: focused ? 48 : 50, justifyContent: 'center' }}>{row}</View>
-    </Glass>
+    <View style={styles.fieldWrap}>
+      <LinearGradient colors={gradients.outline} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} pointerEvents="none"
+        style={[StyleSheet.absoluteFill, { borderRadius: radius.field, opacity: focused && !error ? 1 : 0 }]} />
+      <View style={[styles.fieldInner, focused && !error && styles.fieldFocused, error && styles.error]}>{row}</View>
+    </View>
   );
 }
 
@@ -78,7 +80,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
           const on = o.value === value;
           return (
             <Tap key={o.value} onPress={() => onChange(o.value)} feel="select" style={{ flexGrow: 1 }} accessibilityState={{ selected: on }}>
-              <Animated.View layout={LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness)} style={[styles.seg, on && styles.segOn]}>
+              <Animated.View layout={smooth} style={[styles.seg, on && styles.segOn]}>
                 <Txt v={narrow ? 'Meta/Medium' : 'Body/Label'} c={on ? color.text.link : color.text.secondary} numberOfLines={1}>{o.label}</Txt>
                 {o.count ? <View style={styles.count}><Txt v="Tag" c={color.text.link}>{o.count}</Txt></View> : null}
               </Animated.View>
@@ -115,7 +117,7 @@ export function ChoiceSwitch<T extends string | number>({ label, options, value,
         const on = o.value === value;
         return (
           <Tap key={o.label} onPress={() => onChange(o.value)} feel="select" style={{ flex: 1 }} accessibilityRole="radio" accessibilityState={{ selected: on }}>
-            <Animated.View layout={LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness)} style={[styles.choice, on && { backgroundColor: o.bg }, on && o.bg === color.bg.surface && styles.choiceLift]}>
+            <Animated.View layout={smooth} style={[styles.choice, on && { backgroundColor: o.bg }, on && o.bg === color.bg.surface && styles.choiceLift]}>
               {o.icon && <o.icon size={14} color={on ? o.fg : color.text.secondary} strokeWidth={2} />}
               <Txt v="Body/Label" c={on ? o.fg : color.text.secondary}>{o.label}</Txt>
             </Animated.View>
@@ -209,10 +211,13 @@ const styles = StyleSheet.create({
   choiceRow: { flexDirection: 'row', padding: 4, borderRadius: 22, backgroundColor: 'rgba(135,107,222,0.1)' },
   choice: { height: 40, borderRadius: 18, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center' },
   choiceLift: { shadowColor: '#7A5FD6', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
-  input: { paddingHorizontal: 22, height: 48, flex: 1 },
-  iconRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 22 },
+  input: { paddingHorizontal: 20, height: 46, flex: 1 },
+  iconRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 20 },
   field: { height: 52, borderRadius: radius.field, backgroundColor: 'rgba(252,251,255,0.62)', justifyContent: 'center' },
   error: { borderWidth: 1.5, borderColor: color.border.error },
+  fieldWrap: { height: 52, borderRadius: radius.field },
+  fieldInner: { flex: 1, margin: 2, borderRadius: radius.field - 2, justifyContent: 'center', backgroundColor: 'rgba(252,251,255,0.62)', borderWidth: 1, borderColor: color.border.hairline },
+  fieldFocused: { backgroundColor: color.bg.surface, borderColor: 'transparent' },
   codeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'stretch', justifyContent: 'space-between' },
   box: { flex: 1, maxWidth: 50, height: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   boxRest: { backgroundColor: 'rgba(252,251,255,0.8)', borderWidth: 1, borderColor: color.border.hairline, ...elevation.day },

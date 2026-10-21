@@ -1,0 +1,8 @@
+[
+ ["go", "/auth"], ["shot", "01-welcome"],
+ ["tap", "Create my account"], ["see", "Let’s get you settled"],
+ ["type", "What should we call you?", "Pema"], ["rings", 1],
+ ["type", "Your email", "pema@"], ["rings", 1], ["shot", "02-two-fields"],
+ ["tap", "Send my code"], ["see", "That email doesn’t look right."], ["shot", "03-error"],
+ ["type", "Your email", "pema@example.com"], ["gone", "That email doesn’t look right."], ["rings", 1]
+]

@@ -1,0 +1,387 @@
+[
+[
+"go",
+"/"
+],
+[
+"wait",
+1500
+],
+[
+"shot",
+"d01-home"
+],
+[
+"tap",
+"~^Mark .* done$"
+],
+[
+"see",
+"~is done"
+],
+[
+"shot",
+"d02-done"
+],
+[
+"tap",
+"Undo"
+],
+[
+"wait",
+800
+],
+[
+"go",
+"/chores"
+],
+[
+"see",
+"Today"
+],
+[
+"tap",
+"Whole house"
+],
+[
+"shot",
+"d03-house"
+],
+[
+"tap",
+"~^Shared pool"
+],
+[
+"see",
+"~Nothing slipped through|slipped through"
+],
+[
+"tap",
+"Calendar"
+],
+[
+"see",
+"Calendar"
+],
+[
+"tap",
+"Week"
+],
+[
+"shot",
+"d04-week"
+],
+[
+"tap",
+"Back"
+],
+[
+"go",
+"/add-chore"
+],
+[
+"type",
+"Name the chore",
+"Clean the fridge"
+],
+[
+"tap",
+"Heavy"
+],
+[
+"tap",
+"Add chore"
+],
+[
+"see",
+"~Clean the fridge is in the rotation"
+],
+[
+"go",
+"/pantry"
+],
+[
+"shot",
+"d05-pantry-empty"
+],
+[
+"tap",
+"Milk"
+],
+[
+"wait",
+2500
+],
+[
+"tap",
+"Add a shared item"
+],
+[
+"type",
+"Name the item",
+"Oat milk"
+],
+[
+"tap",
+"Add item"
+],
+[
+"see",
+"~on the shared shelf"
+],
+[
+"wait",
+1500
+],
+[
+"scrollto",
+"~^Milk, "
+],
+[
+"tap",
+"~^Milk, "
+],
+[
+"see",
+"~Milk marked as Low"
+],
+[
+"shot",
+"d06-flagged"
+],
+[
+"tap",
+"Undo"
+],
+[
+"wait",
+1500
+],
+[
+"scrollto",
+"~^Oat milk, "
+],
+[
+"tap",
+"~^Oat milk, "
+],
+[
+"wait",
+1200
+],
+[
+"tap",
+"I’ll get it"
+],
+[
+"see",
+"~yours to pick up"
+],
+[
+"shot",
+"d07-getting"
+],
+[
+"tap",
+"More for Oat milk"
+],
+[
+"see",
+"I bought it"
+],
+[
+"tap",
+"I bought it"
+],
+[
+"see",
+"~[Bb]ack in stock"
+],
+[
+"go",
+"/pantry?tab=mine"
+],
+[
+"tap",
+"Add a personal item"
+],
+[
+"type",
+"Name the item",
+"Protein shake"
+],
+[
+"tap",
+"Do not touch"
+],
+[
+"tap",
+"Add item"
+],
+[
+"see",
+"~on your shelf"
+],
+[
+"tap",
+"More for Protein shake"
+],
+[
+"tap",
+"Move to Ask first"
+],
+[
+"wait",
+800
+],
+[
+"see",
+"Ask first"
+],
+[
+"go",
+"/profile"
+],
+[
+"see",
+"Your home"
+],
+[
+"shot",
+"d08-profile"
+],
+[
+"tap",
+"~^Home name"
+],
+[
+"type",
+"Home name",
+"QA Flat Two"
+],
+[
+"tap",
+"Save"
+],
+[
+"see",
+"Saved."
+],
+[
+"tap",
+"~^Nudge style"
+],
+[
+"tap",
+"Motivate me"
+],
+[
+"tap",
+"Save"
+],
+[
+"see",
+"Nudges updated."
+],
+[
+"tap",
+"~^Notifications"
+],
+[
+"tap",
+"Weekly recap"
+],
+[
+"wait",
+800
+],
+[
+"shot",
+"d09-notify"
+],
+[
+"tap",
+"Back"
+],
+[
+"tap",
+"~^House chores"
+],
+[
+"see",
+"Clean the fridge"
+],
+[
+"tap",
+"More for Clean the fridge"
+],
+[
+"tap",
+"Edit chore"
+],
+[
+"type",
+"Name the chore",
+"Clean the fridge well"
+],
+[
+"tap",
+"Save changes"
+],
+[
+"wait",
+1200
+],
+[
+"see",
+"Clean the fridge well"
+],
+[
+"go",
+"/profile"
+],
+[
+"tap",
+"Leave home"
+],
+[
+"see",
+"~^Leave "
+],
+[
+"shot",
+"d10-leave"
+],
+[
+"tap",
+"Cancel"
+],
+[
+"gone",
+"Leave home?"
+],
+[
+"go",
+"/activity"
+],
+[
+"see",
+"Activity"
+],
+[
+"shot",
+"d11-activity"
+],
+[
+"go",
+"/recap"
+],
+[
+"see",
+"Your week"
+],
+[
+"shot",
+"d12-recap"
+]
+]

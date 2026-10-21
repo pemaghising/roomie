@@ -12,8 +12,17 @@ const admin = createClient(env.SUPABASE_TEST_URL, env.SUPABASE_TEST_SERVICE_KEY,
 if (fresh) {
   const { data } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
   const old = data.users.find((u) => u.email === email);
-  if (old) await admin.auth.admin.deleteUser(old.id);
-  await admin.auth.admin.createUser({ email, email_confirm: true });
+  if (old) {
+    // leave the home and drop the data the way the app does, so the auth user can then be removed
+    const l = await admin.auth.admin.generateLink({ type: 'magiclink', email });
+    const c = createClient(env.SUPABASE_TEST_URL, env.SUPABASE_TEST_ANON_KEY, { auth: { persistSession: false } });
+    const v = l.data ? await c.auth.verifyOtp({ type: 'magiclink', token_hash: l.data.properties.hashed_token }) : null;
+    if (v?.data.session) { const r = await c.rpc('delete_account'); if (r.error) console.warn('delete_account:', r.error.message); }
+    const d = await admin.auth.admin.deleteUser(old.id);
+    if (d.error && !/not.?found/i.test(d.error.message)) console.warn('deleteUser:', d.error.message);
+  }
+  const created = await admin.auth.admin.createUser({ email, email_confirm: true });
+  if (created.error) throw created.error;
 }
 const link = await admin.auth.admin.generateLink({ type: 'magiclink', email });
 if (link.error) throw link.error;

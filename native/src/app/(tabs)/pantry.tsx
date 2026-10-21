@@ -12,12 +12,12 @@ import { usePantryActions } from '@/lib/pantry';
 import { lowRow, shelfMeta } from '@/lib/pantry-view';
 import { namesOf } from '@/lib/selectors';
 import { messageOf, rpc, STATE_KEY, useAppState, useMe } from '@/lib/state';
-import { durations, enter, motion, useReducedMotion } from '@/ui/motion';
+import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { useToast } from '@/ui/toast';
 import { color, layout } from '@/ui/tokens';
 import { AddRow, Avatar, Button, Chip, EmojiBadge, Glass, ItemCard, MeshBackground, MoreMenu, SegmentedControl, ShelfTile, Tag, Tap, Txt, type TagKind, useTitleBar } from '@/ui/v2';
 
-const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
+const spring = smooth;
 const TABS: { value: ShelfTab; label: string }[] = [{ value: 'shared', label: 'Shared' }, { value: 'mine', label: 'My items' }, { value: 'roommates', label: 'Roommates' }];
 /** The stored icon, else one guessed from the name; null lets the tile show a letter. */
 const iconOf = (i: PantryItem) => i.icon ?? (iconFor(i.name) === '🛒' ? null : iconFor(i.name));

@@ -1,0 +1,11 @@
+[
+ ["go", "/onboarding/start"], ["see", "Start or join a home"], ["shot", "o1-start"],
+ ["tap", "~^Start a home"], ["see", "Name your home"],
+ ["type", "Home name", "QA Flat"], ["rings", 1], ["tap", "Continue"],
+ ["see", "Pick your chores"], ["shot", "o2-chores"], ["tap", "~^Continue"],
+ ["see", "Your busy days"], ["tap", "Continue"],
+ ["see", "Pick your nudges"], ["tap", "Just the facts"], ["tap", "Continue"],
+ ["see", "Invite your roommates"], ["shot", "o3-invite"], ["tap", "Maybe later"],
+ ["see", "Take me home"], ["shot", "o4-ready"], ["tap", "Take me home"],
+ ["wait", 2500], ["shot", "o5-home"], ["gone", "Couldn’t reach Roomie"]
+]

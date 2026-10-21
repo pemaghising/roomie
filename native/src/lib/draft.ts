@@ -17,7 +17,7 @@ export const SUGGESTED: DraftChore[] = [
   { key: 'dishes', name: 'Wash dishes', icon: '🧽', effort: 1, cadence: 'daily', selected: true },
   { key: 'vacuum', name: 'Vacuum living room', icon: '🧹', effort: 2, cadence: 'weekly', selected: true },
   { key: 'bathroom', name: 'Mop bathroom', icon: '🪣', effort: 3, cadence: 'weekly', selected: true },
-  { key: 'trash', name: 'Take out trash', icon: '♻️', effort: 1, cadence: 'daily', selected: true },
+  { key: 'trash', name: 'Take out trash', icon: '🗑️', effort: 1, cadence: 'daily', selected: true },
 ];
 
 const fresh = (): Draft => ({ name: '', email: '', mode: 'create', homeName: '', code: '', busyDays: [], chores: SUGGESTED.map((c) => ({ ...c })), nudge: 'motivate', preview: null, welcomeBack: false });

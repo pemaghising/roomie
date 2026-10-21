@@ -16,7 +16,7 @@ import { useAppState, useMe } from '@/lib/state';
 import { getMilestoneSeen, setMilestoneSeen } from '@/lib/streak-goal';
 import { Celebration } from '@/ui/celebration';
 import { MilestoneCelebration } from '@/ui/milestone';
-import { enter, useReducedMotion } from '@/ui/motion';
+import { enter, useReducedMotion, smooth } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
 import { effortKind, Glass, GreetingHeader, MeshBackground, PoolBanner, SectionHeader, StreakCard, TaskRow, Txt, UpcomingCard, Emoji } from '@/ui/v2';
 
@@ -82,7 +82,7 @@ export default function Home() {
           </Animated.View>
         )}
 
-        <Animated.View entering={E()} layout={LinearTransition.springify().damping(26).stiffness(480)}>
+        <Animated.View entering={E()} layout={smooth}>
           <StreakCard days={v.streakDays} week={v.week} drooped={v.drooped} />
         </Animated.View>
 
@@ -112,7 +112,7 @@ export default function Home() {
               const c = chores.get(a.chore_id);
               const covering = a.claimed_by === me && a.user_id !== me;
               return (
-                <Animated.View key={a.id} entering={E()} layout={LinearTransition.springify().damping(26).stiffness(480)}>
+                <Animated.View key={a.id} entering={E()} layout={smooth}>
                   <TaskRow icon={c?.icon} title={c?.name ?? 'A chore'} tag={effortKind(a.effort)} state={a.status === 'done' ? 'done' : 'todo'}
                     meta={covering ? `Covering for ${(names[a.user_id] ?? 'a roommate').split(' ')[0]}` : undefined}
                     onToggle={() => toggle(a)} onPress={() => router.push({ pathname: '/why', params: { id: a.id } })} />

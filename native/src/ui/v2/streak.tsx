@@ -1,12 +1,11 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { plantFor, type PlantStage } from '@/lib/plant';
-import { motion, useCountUp, useReducedMotion } from '../motion';
-import { color, type } from '../tokens';
+import { durations, useCountUp, useReducedMotion } from '../motion';
+import { color } from '../tokens';
 import { DAY_LETTERS } from './fields';
-import { Glass, gradients, Txt } from './primitives';
+import { Glass, Txt } from './primitives';
 
 export type DayState = 'done' | 'today' | 'missed' | 'future' | 'none';
 
@@ -20,59 +19,60 @@ export const PLANT_ART: Record<PlantStage, number> = {
 };
 
 function Pill({ state, letter }: { state: DayState; letter: string }) {
-  if (state === 'today') {
-    return (
-      <LinearGradient colors={gradients.outline} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.pill, { padding: 1.5 }]}>
-        <View style={[styles.pillInner, { backgroundColor: color.bg.surface }]}><Txt v="Tag" c={color.text.link}>{letter}</Txt></View>
-      </LinearGradient>
-    );
-  }
-  const bg = state === 'done' ? color.action.primary : state === 'missed' ? color.effort.mediumBg : color.bg.track;
-  const fg = state === 'done' ? color.text.onAccent : state === 'missed' ? color.effort.mediumFg : color.text.secondary;
+  const today = state === 'today';
+  const bg = state === 'done' ? color.action.primary : state === 'missed' ? color.effort.mediumBg : today ? 'rgba(252,251,255,0.7)' : color.bg.track;
+  const fg = state === 'done' ? color.text.onAccent : state === 'missed' ? color.effort.mediumFg : today ? color.text.link : color.text.secondary;
   return (
-    <View style={[styles.pill, styles.pillInner, { backgroundColor: bg }, state === 'missed' && styles.missed]}>
+    <View style={[styles.pill, { backgroundColor: bg }, today && styles.today, state === 'missed' && styles.missed]}>
       <Txt v="Tag" c={fg}>{letter}</Txt>
     </View>
   );
 }
 
-/** v2/Streak card: the house's day count, this week as Sunday-first pills, and the plant at its milestone stage. */
+/** v2/Streak card (Final app v2 · 1014:19917): the house's day count, this week as Sunday-first pills, and the plant. */
 export function StreakCard({ days, week, drooped = false }: { days: number; week: DayState[]; drooped?: boolean }) {
   const reduced = useReducedMotion();
   const stage = plantFor(days, drooped);
   const words = days === 1 ? ['day', 'together'] : ['days', 'strong'];
   const shown = useCountUp(days);
+  const fade = reduced ? undefined : FadeIn.duration(durations.enter);
   return (
     <Glass>
       <View style={styles.card} accessible accessibilityLabel={`House streak: ${days} ${words.join(' ')}${drooped ? '. A chore is waiting.' : ''}`}>
         <View style={styles.left}>
-          <Txt v="Meta/Medium" c={color.text.numeral}>House streak</Txt>
-          <View style={styles.count}>
-            <Txt v="Numeral/Streak" c={color.text.numeral} style={{ fontVariant: ['tabular-nums'] }}>{shown}</Txt>
-            <Txt v="Body/Row" c={color.text.numeral} style={{ marginBottom: 12 }}>{`${words[0]}\n${words[1]}`}</Txt>
+          <View style={{ gap: 6 }}>
+            <Txt v="Tag" c={color.text.numeral}>House streak</Txt>
+            <View style={styles.numeral}>
+              <Txt v="Numeral/Streak" c={color.text.numeral} style={{ fontVariant: ['tabular-nums'] }}>{shown}</Txt>
+              <Txt v="Body/Button" c={color.text.numeral}>{`${words[0]}
+${words[1]}`}</Txt>
+            </View>
           </View>
           <View style={styles.week}>{DAY_LETTERS.map((l, i) => (
-            <Animated.View key={`${i}-${week[i]}`} entering={reduced || week[i] !== 'done' ? undefined : ZoomIn.springify().damping(motion.pop.damping).stiffness(motion.pop.stiffness)}>
+            <Animated.View key={`${i}-${week[i]}`} entering={week[i] === 'done' ? fade : undefined}>
               <Pill letter={l} state={week[i] ?? 'none'} />
             </Animated.View>
           ))}</View>
         </View>
-        <Animated.View key={stage} entering={reduced ? FadeIn.duration(150) : ZoomIn.springify().damping(motion.pop.damping).stiffness(motion.pop.stiffness).mass(motion.pop.mass)} style={styles.art}>
-          <Image source={PLANT_ART[stage]} style={styles.plant} contentFit="contain" accessibilityIgnoresInvertColors />
-        </Animated.View>
+        <View style={styles.art}>
+          <Animated.View key={stage} entering={fade} style={styles.artImage}>
+            <Image source={PLANT_ART[stage]} style={{ width: '100%', height: '100%' }} contentFit="contain" accessibilityIgnoresInvertColors />
+          </Animated.View>
+        </View>
       </View>
     </Glass>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { flexDirection: 'row', padding: 20, gap: 8, minHeight: 204 },
-  left: { flex: 1, gap: 12, justifyContent: 'space-between' },
-  count: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, height: type['Numeral/Streak'].lineHeight },
-  week: { flexDirection: 'row', gap: 4 },
-  pill: { width: 20, height: 30, borderRadius: 10 },
-  pillInner: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
+  card: { flexDirection: 'row', alignItems: 'center', padding: 20, gap: 8 },
+  left: { flex: 1, gap: 16, minWidth: 0 },
+  numeral: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  week: { flexDirection: 'row', justifyContent: 'space-between' },
+  pill: { width: 19, height: 30, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  today: { borderWidth: 1.75, borderColor: '#A489ED' },
   missed: { borderWidth: 1, borderColor: '#F1C27D' },
-  art: { width: 132, alignItems: 'center', justifyContent: 'center' },
-  plant: { width: 150, height: 162 },
+  // the plant overflows its 132 × 162 slot the way the Figma image does (inset −9 % / −39 % / −15 % / −14 %)
+  art: { width: 132, height: 162 },
+  artImage: { position: 'absolute', top: -15, right: -52, bottom: -25, left: -18 },
 });

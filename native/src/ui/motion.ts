@@ -1,5 +1,5 @@
 // Reanimated side of the motion system. Values come from motion-config.ts.
-import { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import { Easing, LinearTransition, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
 import { durations, enterConfig, motion } from './motion-config';
 
@@ -7,6 +7,9 @@ export { durations, motion, stagger } from './motion-config';
 
 /** The house ease: quick start, long soft landing (matches the marketing site). */
 export const ease = Easing.bezier(0.2, 0.9, 0.25, 1);
+
+/** Rows moving when the list changes: eased, no spring, no overshoot (Pema: no bounce on tick). */
+export const smooth = LinearTransition.duration(220).easing(ease);
 
 /** Entering animation for item i of a list: fade + 12 px rise, staggered; a plain fade with Reduce Motion. */
 export function enter(i: number, reduced: boolean) {

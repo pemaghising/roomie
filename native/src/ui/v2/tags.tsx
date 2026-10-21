@@ -1,9 +1,9 @@
 import { Image } from 'expo-image';
 import { Check as CheckIcon, CircleHelp, Lock } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, { ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { EMOJI_BY_CHAR, EMOJI_BY_NAME } from '../emoji-assets';
-import { motion, useReducedMotion } from '../motion';
+import { durations, useReducedMotion } from '../motion';
 import { color, font, radius } from '../tokens';
 import { GradientRing, Txt } from './primitives';
 import { letterTile, tagStyle, type TagKind } from './tag-style';
@@ -53,7 +53,7 @@ export function Check({ done, size = 28, plain = false }: { done: boolean; size?
   const reduced = useReducedMotion();
   if (!done) return plain ? <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color.bg.surface, borderWidth: 1.75, borderColor: '#8C86C0' }} /> : <GradientRing size={size} />;
   return (
-    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(motion.pop.damping).stiffness(motion.pop.stiffness).mass(motion.pop.mass)}>
+    <Animated.View entering={reduced ? undefined : FadeIn.duration(durations.fade)}>
       <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' }}>
         <CheckIcon size={size * 0.57} color={color.text.onAccent} strokeWidth={2.75} />
       </View>

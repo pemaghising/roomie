@@ -13,12 +13,12 @@ import { choreMap, pool } from '@/lib/selectors';
 import { useAppState, useMe } from '@/lib/state';
 import type { Assignment } from '@/lib/types';
 import { Celebration } from '@/ui/celebration';
-import { durations, enter, motion, useReducedMotion } from '@/ui/motion';
+import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
 import { Avatar, effortKind, IconButton, MeshBackground, PoolRow, SectionHeader, SegmentedControl, Tap, TaskRow, Txt, useTitleBar } from '@/ui/v2';
 
 type View3 = 'me' | 'all' | 'pool';
-const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
+const spring = smooth;
 const short = (d: string) => DAY_NAMES[weekdayOf(d)].slice(0, 3);
 const clock = (iso: string) => new Date(iso).toLocaleTimeString('en', { hour: 'numeric', minute: '2-digit' }).replace(':00', '').toLowerCase();
 

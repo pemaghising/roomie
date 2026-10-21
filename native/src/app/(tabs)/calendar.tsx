@@ -10,11 +10,11 @@ import { monthGrid } from '@/lib/month-grid';
 import { choreMap, myTasksOn } from '@/lib/selectors';
 import { useMe } from '@/lib/state';
 import { Celebration } from '@/ui/celebration';
-import { durations, enter, motion, useReducedMotion } from '@/ui/motion';
+import { durations, enter, motion, useReducedMotion, smooth } from '@/ui/motion';
 import { color, layout } from '@/ui/tokens';
 import { BackButton, DAY_LETTERS, effortKind, Glass, MeshBackground, SectionHeader, Tap, TaskRow, Txt, ViewSwitch } from '@/ui/v2';
 
-const spring = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
+const spring = smooth;
 const short = (d: string) => DAY_NAMES[weekdayOf(d)].slice(0, 3);
 const monthName = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleString('en', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 

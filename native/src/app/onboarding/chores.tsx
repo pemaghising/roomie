@@ -1,3 +1,4 @@
+import { smooth } from '@/ui/motion';
 // 09 · Pick chores.
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -31,7 +32,7 @@ export default function ChoresStep() {
       <View style={{ gap: 10 }}>
         <Txt v="Body/Label" c={color.text.secondary}>Most homes start with these</Txt>
         {chores.map((c) => (
-          <Animated.View key={c.key} layout={LinearTransition.springify().damping(26).stiffness(480)} entering={FadeIn.duration(160)}>
+          <Animated.View key={c.key} layout={smooth} entering={FadeIn.duration(160)}>
             <ChoreOption icon={c.icon} title={c.name} tag={effortKind(c.effort)} meta={CADENCE[c.cadence]} selected={c.selected} onPress={() => toggle(c.key)} />
           </Animated.View>
         ))}

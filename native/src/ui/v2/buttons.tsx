@@ -1,5 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronLeft, Plus, type LucideIcon } from 'lucide-react-native';
+import { ChevronLeft, type LucideIcon } from 'lucide-react-native';
+import { SvgXml } from 'react-native-svg';
+import { NAV_ICONS } from './nav-icons';
 import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { color, elevation, radius } from '../tokens';
 import { Glass, gradients, Tap, Txt } from './primitives';
@@ -56,7 +58,7 @@ export function AddButton({ onPress, label = 'Add' }: { onPress: () => void; lab
   return (
     <Tap onPress={onPress} accessibilityLabel={label} feel="select">
       <LinearGradient colors={gradients.add} start={{ x: 0.15, y: 0.1 }} end={{ x: 0.9, y: 0.95 }} style={[styles.add, elevation.liftButton]}>
-        <Plus size={24} color={color.text.onAccent} strokeWidth={2.25} />
+        <SvgXml xml={NAV_ICONS.plus.replaceAll('{c}', color.text.onAccent)} width={24} height={24} />
       </LinearGradient>
     </Tap>
   );

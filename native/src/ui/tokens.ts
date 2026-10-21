@@ -45,7 +45,7 @@ export const type = {
   Tag: t(font.semibold, 12, 16),
   'Tag/Medium': t(font.medium, 12, 16),
   Nav: t(font.medium, 10, 12),
-  'Numeral/Streak': t(font.light, 96, 92, -3),
+  'Numeral/Streak': t(font.light, 81, 92, -3.24),
 } as const satisfies Record<string, TextStyle>;
 
 type Shadow = { shadowColor: string; shadowOpacity: number; shadowRadius: number; shadowOffset: { width: number; height: number }; elevation: number };

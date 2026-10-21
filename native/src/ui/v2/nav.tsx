@@ -1,20 +1,24 @@
 import { BlurView } from 'expo-blur';
-import { ClipboardList, House, ShoppingBag, UserRound, type LucideIcon } from 'lucide-react-native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { haptic } from '../haptics';
 import { motion, useReducedMotion } from '../motion';
-import { color, elevation } from '../tokens';
+import { color, elevation, font } from '../tokens';
+import { NAV_ICONS } from './nav-icons';
 import { AddButton } from './buttons';
 import { Tap, Txt } from './primitives';
 
 export type TabName = 'index' | 'chores' | 'pantry' | 'profile';
-const TABS: { name: TabName; label: string; icon: LucideIcon }[] = [
-  { name: 'index', label: 'Home', icon: House },
-  { name: 'chores', label: 'Chores', icon: ClipboardList },
-  { name: 'pantry', label: 'Pantry', icon: ShoppingBag },
-  { name: 'profile', label: 'Profile', icon: UserRound },
+const TABS: { name: TabName; label: string; icon: keyof typeof NAV_ICONS }[] = [
+  { name: 'index', label: 'Home', icon: 'house' },
+  { name: 'chores', label: 'Chores', icon: 'clipboard' },
+  { name: 'pantry', label: 'Pantry', icon: 'bag' },
+  { name: 'profile', label: 'Profile', icon: 'user' },
 ];
+// from the Figma nav: active violet SemiBold, the rest #4B4566 Medium; one 1.75 stroke for both
+const ON = color.text.link;
+const OFF = '#4B4566';
 const TAB_W = 68;
 // capsule padding 10 + gaps 6 + border 2, then the 8 gap and the 56 add button, and 16 a side
 const tabWidth = (screen: number) => Math.min(TAB_W, Math.floor((screen - 32 - 18 - 64) / 4));
@@ -36,14 +40,14 @@ export function Nav({ active, onTab, onAdd }: { active: TabName; onTab: (t: TabN
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(252,251,255,0.72)' }]} />
           <Animated.View style={[styles.pill, { width: w }, pill]} />
           <View style={styles.tabs} accessibilityRole="tablist">
-            {TABS.map(({ name, label, icon: Icon }) => {
+            {TABS.map(({ name, label, icon }) => {
               const on = name === active;
               return (
                 <Tap key={name} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label}
                   onPress={() => { if (!on) { haptic.select(); onTab(name); } }}>
                   <View style={[styles.tab, { width: w }]}>
-                    <Icon size={20} color={on ? color.text.link : color.text.primary} strokeWidth={on ? 2 : 1.6} />
-                    <Txt v="Nav" c={on ? color.text.link : color.text.primary}>{label}</Txt>
+                    <SvgXml xml={NAV_ICONS[icon].replaceAll('{c}', on ? ON : OFF)} width={22} height={22} />
+                    <Txt v="Nav" c={on ? ON : OFF} style={on && { fontFamily: font.semibold }}>{label}</Txt>
                   </View>
                 </Tap>
               );

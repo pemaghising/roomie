@@ -3,13 +3,13 @@ import { ChevronRight, MoreHorizontal, Plus, Users, type LucideIcon } from 'luci
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { LinearTransition, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { durations, motion } from '../motion';
+import { durations, motion, smooth } from '../motion';
 import { color, elevation, radius } from '../tokens';
 import { Glass, Tap, Txt } from './primitives';
 import { Check, EmojiBadge, Tag } from './tags';
 import type { TagKind } from './tag-style';
 
-const layout = LinearTransition.springify().damping(motion.tab.damping).stiffness(motion.tab.stiffness).mass(motion.tab.mass);
+const layout = smooth;
 
 /** v2/Task row: glass card, emoji badge, title, tag + meta, check. Done fades to 55 %; "mine" gets the gradient outline. */
 export function TaskRow({ icon, title, tag, meta, state = 'todo', onToggle, onPress, right, tint, plainCheck }: {
