@@ -100,6 +100,20 @@
   transition: opacity .2s ease var(--delay), transform .9s cubic-bezier(.2, 1.25, .35, 1) calc(var(--delay) + .12s), box-shadow .9s ease calc(var(--delay) + .12s);
 }
 
+/* Where the card was: an empty dashed slot, like the pantry's My items screen */
+.pop-slot {
+  position: absolute; z-index: 2; display: block;
+  left: calc(var(--phone-w) * (.01845 + var(--x) * .9631));
+  top: calc(var(--phone-w) * (.04 + var(--y) * 2.0879));
+  width: calc(var(--phone-w) * var(--w) * .9631);
+  border-radius: calc(var(--phone-w) * var(--r) * .9631);
+  background: #F1EEFB;
+  outline: 1.5px dashed #C7BCEF; outline-offset: -1.5px;
+}
+.pop-slot img { visibility: hidden; width: 100%; height: auto; }
+.stage-device .pop-slot, .reveal .pop-slot { opacity: 0; transition: opacity .2s ease; }
+.stage-device .pop-slot.on, .reveal.on .pop-slot { opacity: 1; transition: opacity .3s ease calc(var(--delay) + .12s); }
+
 .tap {
   position: absolute; z-index: 2; pointer-events: none;
   width: calc(var(--phone-w) * .085); aspect-ratio: 1; border-radius: 50%;

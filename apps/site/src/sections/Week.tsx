@@ -30,6 +30,16 @@ function OwnerChip({ owner, className = "" }: { owner: Owner; className?: string
   );
 }
 
+/** The dashed gap a card leaves in the screen when it lifts out. The hidden copy of the card sets the slot's height. */
+function Slot({ d, className = "" }: { d: WeekDay; className?: string }) {
+  return (
+    <span className={`pop-slot ${className}`} style={popVars(d.pop, popDelay(d))} aria-hidden="true">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={d.pop.src} alt="" loading="lazy" />
+    </span>
+  );
+}
+
 /** Mobile and reduced motion: one still scene per day. */
 function InlineScene({ d }: { d: WeekDay }) {
   return (
@@ -43,6 +53,7 @@ function InlineScene({ d }: { d: WeekDay }) {
       )}
       <Phone src={d.screen} alt={`${d.day}: ${d.title}`} />
       {d.tap && <span className="tap" style={tapVars(d.tap)} aria-hidden="true" />}
+      <Slot d={d} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="pop" src={d.pop.src} alt={d.pop.alt} style={popVars(d.pop, 0)} />
       <OwnerChip owner={d.owner} className={d.second ? "beside" : ""} />
@@ -139,6 +150,7 @@ export function Week() {
                   </span>
                 </figure>
                 {WEEK.map((d, i) => d.tap && <span key={d.day} className={`tap ${on(i)}`} style={tapVars(d.tap)} />)}
+                {WEEK.map((d, i) => <Slot key={d.day} d={d} className={on(i)} />)}
                 {WEEK.map((d, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img key={d.pop.src} className={`pop ${on(i)}`} src={d.pop.src} alt="" style={popVars(d.pop, popDelay(d))} loading="lazy" />

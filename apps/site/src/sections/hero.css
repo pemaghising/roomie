@@ -14,7 +14,7 @@
 .topbar-inner {
   pointer-events: auto;
   width: 100%;
-  display: flex; align-items: center; gap: 8px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px;
   padding: 20px max(20px, (100% - 1200px) / 2);
   border-radius: 0;
   background: rgba(252, 251, 255, 0);
@@ -33,10 +33,10 @@
   border-color: rgba(233, 228, 246, .95);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset, 0 14px 34px -20px rgba(59, 36, 112, .4);
 }
-.brand { display: flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
+.brand { justify-self: start; display: flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
 .brand .lockup { height: 40px; width: auto; transition: height .5s var(--ease); }
 .topbar.is-scrolled .brand .lockup { height: 32px; }
-.topnav { margin-left: auto; display: flex; gap: 2px; }
+.topnav { display: flex; gap: 2px; justify-self: center; }
 .topnav a {
   display: inline-flex; align-items: center; min-height: 44px;
   padding: 0 14px; border-radius: 999px;
@@ -45,7 +45,7 @@
 }
 .topnav a:hover { background: var(--lilac); color: var(--violet-deep); }
 .topbar-cta {
-  margin-left: 6px; min-height: 44px; padding: 0 18px; border-radius: 999px;
+  justify-self: end; min-height: 44px; padding: 0 18px; border-radius: 999px;
   background: var(--ink); color: var(--offwhite);
   display: inline-flex; align-items: center; gap: 9px;
   font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap;
@@ -58,40 +58,59 @@
 }
 .topnav a:focus-visible, .topbar-cta:focus-visible, .brand:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
 @media (max-width: 720px) {
+  .topbar-inner { grid-template-columns: 1fr auto; }
   .topnav { display: none; }
-  .topbar-cta { margin-left: auto; }
 }
 
-/* Copy on the left; on the right a real moment, the app layered over it in depth */
-.hero-grid {
-  display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
-  align-items: center; gap: clamp(32px, 5vw, 80px);
-  min-height: 100svh;
-  padding-top: calc(88px + clamp(16px, 4vh, 48px)); padding-bottom: clamp(56px, 9vh, 104px);
+/* Centred promise over a soft lilac-peach glow; the Home screen rises below and fades into the page */
+.hero {
+  background:
+    radial-gradient(42% 36% at 22% 62%, rgba(164, 137, 237, .34) 0%, transparent 70%),
+    radial-gradient(38% 34% at 78% 58%, rgba(255, 180, 138, .30) 0%, transparent 70%),
+    radial-gradient(50% 40% at 50% 8%, rgba(239, 233, 253, .9) 0%, transparent 75%),
+    var(--mist);
 }
-.hero-copy { display: grid; justify-items: start; min-width: 0; container-type: inline-size; }
-/* Sized from the column itself, so "Zero nagging." always fits: no wrap, no spill under the phone */
-.hero-copy h1 { font-size: clamp(42px, 16.4cqw, 104px); line-height: 1; }
-.hero-copy h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
-.hero-copy .lede { margin-top: clamp(22px, 3.2vh, 32px); max-width: 30em; }
-.hero-copy .stores { margin-top: clamp(28px, 4vh, 40px); }
+.hero-center {
+  display: grid; justify-items: center; text-align: center;
+  padding-top: calc(88px + clamp(40px, 9vh, 96px));
+}
+.hero-center h1 { font-size: clamp(44px, 7.2vw, 96px); line-height: 1; }
+.hero-center h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
+.hero-center .lede { margin-top: clamp(20px, 3vh, 28px); max-width: 32em; }
+.hero-center .stores { margin-top: clamp(28px, 4vh, 36px); justify-content: center; }
 
-.hero-scene { position: relative; }
-.hero-photo {
-  margin: 0; aspect-ratio: 4 / 5; max-height: min(78vh, 760px); width: 100%;
-  border-radius: 32px; overflow: hidden;
-  box-shadow: 0 40px 80px -48px rgba(59, 36, 112, .45);
+.hero-stage {
+  position: relative; display: flex; justify-content: center;
+  margin-top: clamp(48px, 8vh, 80px);
+  height: calc(var(--pw) * 1.55);
+  --pw: clamp(260px, 26vw, 340px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
 }
-.hero-photo img { width: 100%; height: 110%; margin-top: -5%; object-fit: cover; object-position: 50% 30%; }
-.hero-nudge {
-  position: absolute; left: -56px; bottom: 9%;
-  width: min(360px, 72%); height: auto; border-radius: 16px;
+.hero-phone { --phone-w: var(--pw); flex: none; align-self: flex-start; }
+.hero-float {
+  position: absolute; z-index: 2;
   box-shadow: 0 2px 4px rgba(31, 27, 58, .06), 0 24px 48px -20px rgba(59, 36, 112, .4);
 }
+.hero-nudge {
+  top: 30%; right: calc(50% + var(--pw) * .42);
+  width: min(320px, 30vw); height: auto; border-radius: 16px;
+}
+.hero-busy {
+  top: 52%; left: calc(50% + var(--pw) * .36);
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px 12px 12px; border-radius: 999px;
+  background: rgba(252, 251, 255, .82);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid var(--line);
+  font-size: 15px; font-weight: 500; color: var(--ink); white-space: nowrap;
+}
+.tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.tag--heavy { background: var(--heavy-bg); color: var(--heavy-fg); }
 
-@media (max-width: 960px) {
-  .hero-grid { grid-template-columns: 1fr; min-height: 0; gap: 48px; }
-  .hero-photo { aspect-ratio: 4 / 4.4; max-height: none; }
-  .hero-nudge { left: 16px; bottom: -28px; width: min(340px, calc(100% - 32px)); }
-  .hero-scene { margin-bottom: 28px; }
+@media (max-width: 860px) {
+  .hero-stage { --pw: min(280px, 72vw); }
+  .hero-nudge { top: 50%; left: 16px; right: 16px; margin-inline: auto; width: min(320px, calc(100% - 32px)); }
+  .hero-busy { display: none; }
 }

@@ -5,6 +5,7 @@ import { Week } from "@/sections/Week";
 import { Features } from "@/sections/Features";
 import { RealLife } from "@/sections/RealLife";
 import { Shelf } from "@/sections/Shelf";
+import { Faq } from "@/sections/Faq";
 import { Close } from "@/sections/Close";
 import { Footer } from "@/sections/Footer";
 
@@ -19,6 +20,7 @@ export default function Home() {
       <Week />
       <RealLife />
       <Shelf />
+      <Faq />
       <Close />
     </main>
     <Footer />

@@ -4,12 +4,13 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { StoreButtons } from "@/ui/StoreButtons";
+import { Phone } from "@/ui/Phone";
 import { useMotionOK } from "@/ui/useMotionOK";
 import "./hero.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** The promise: the app does the reminding. Only Roomie's own UI appears here. */
+/** The promise: the app does the reminding. Centred headline over a lilac-peach glow, the Home screen rising below. */
 export function Hero() {
   const motionOK = useMotionOK();
   const root = useRef<HTMLElement>(null);
@@ -28,10 +29,10 @@ export function Hero() {
   useEffect(() => {
     if (!motionOK || !root.current) return;
     const ctx = gsap.context(() => {
-      // One quiet moment: the photo settles, then the nudge arrives on its corner.
-      gsap.from(".hero-photo", { opacity: 0, scale: 0.97, duration: 1.2, ease: "expo.out" });
-      gsap.from(".hero-nudge", { opacity: 0, y: 24, duration: 1, delay: 0.9, ease: "expo.out" });
-      gsap.to(".hero-photo img", { yPercent: 8, ease: "none",
+      // The phone rises into the glow, then the two moments float out beside it.
+      gsap.from(".hero-phone", { opacity: 0, y: 60, duration: 1.3, ease: "expo.out" });
+      gsap.from(".hero-float", { opacity: 0, y: 24, duration: 1, delay: 0.8, stagger: 0.15, ease: "expo.out" });
+      gsap.to(".hero-phone", { y: -40, ease: "none",
         scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: 0.6 } });
     }, root);
     return () => ctx.revert();
@@ -54,22 +55,21 @@ export function Hero() {
         </div>
       </header>
 
-      <div className="hero-grid wrap">
-        <div className="hero-copy">
-          <h1>Fair chores. <em className="nb">Zero nagging.</em></h1>
-          <p className="lede">
-            Roomie splits chores by effort, works around busy weeks, and sends the reminders itself, so nobody in the flat has to play the parent.
-          </p>
-          <StoreButtons />
-        </div>
+      <div className="hero-center wrap">
+        <h1>Fair chores. <em className="nb">Zero nagging.</em></h1>
+        <p className="lede">
+          Roomie splits chores by effort, works around busy weeks, and sends the reminders itself, so nobody in the flat has to play the parent.
+        </p>
+        <StoreButtons />
+      </div>
 
-        <div className="hero-scene">
-          <figure className="hero-photo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/photos/hero-laundry.webp" alt="A flatmate laughing as he carries a full laundry basket down the hallway" width={1400} height={1400} fetchPriority="high" />
-          </figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="hero-nudge" src="/cards/hero-nudge.webp" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={361} height={86} />
+      <div className="hero-stage">
+        <Phone className="hero-phone" src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak, the plant in bloom, and today's tasks" priority />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="hero-float hero-nudge" src="/cards/hero-nudge.webp" alt="Roomie · now: Dishes are yours tonight. Keep the streak going!" width={361} height={86} />
+        <div className="hero-float hero-busy" aria-label="Heavy jobs stay off your busy days">
+          <span className="tag tag--heavy">Heavy</span>
+          <span>Kept off your busy Wednesday</span>
         </div>
       </div>
     </section>

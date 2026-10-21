@@ -1,0 +1,50 @@
+.faq { padding-block: clamp(88px, 14vh, 160px); }
+.faq-grid {
+  display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(40px, 8vw, 120px); align-items: start;
+}
+.faq-head { position: sticky; top: 120px; display: grid; justify-items: start; gap: 20px; }
+.faq-head h2 { font-size: clamp(44px, 5.6vw, 80px); line-height: 1; }
+.faq-head h2 em { display: block; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
+.faq-link {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 8px;
+  font-weight: 500; color: var(--violet-deep); text-decoration: none;
+  border-radius: 8px;
+}
+.faq-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.faq-list { border-top: 1px solid var(--line); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 26px 4px; min-height: 44px;
+  font-size: clamp(17px, 1.4vw, 20px); font-weight: 500; color: var(--ink);
+  border-radius: 12px;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary span { text-wrap: balance; }
+@media (hover: hover) { .faq summary:hover span { color: var(--violet-deep); } }
+.faq-link:focus-visible, .faq summary:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+/* Plus that turns into a minus */
+.faq summary i { position: relative; flex: none; width: 16px; height: 16px; }
+.faq summary i::before, .faq summary i::after {
+  content: ""; position: absolute; left: 0; top: 7.25px; width: 16px; height: 1.5px; border-radius: 1px;
+  background: var(--ink-2); transition: transform .3s ease;
+}
+.faq summary i::after { transform: rotate(90deg); }
+.faq details[open] summary i::after { transform: rotate(0deg); }
+
+.faq-a { display: grid; gap: 12px; padding: 0 48px 28px 4px; max-width: 40em; color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq details::details-content { transition: height .35s ease, content-visibility .35s allow-discrete; height: 0; overflow: clip; }
+  .faq details[open]::details-content { height: auto; }
+  .faq { interpolate-size: allow-keywords; }
+}
+@media (max-width: 860px) {
+  .faq-grid { grid-template-columns: 1fr; }
+  .faq-head { position: static; }
+  .faq-a { padding-right: 4px; }
+}
