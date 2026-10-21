@@ -27,7 +27,7 @@ describe('v2 tokens', () => {
     expect(type['Title/Accent'].fontFamily).toMatch(/Italic/);
     expect(type['Body/Row']).toMatchObject({ fontSize: 16, lineHeight: 21 });
     expect(type['Body/Row'].fontFamily).toMatch(/Geist/);
-    expect(type['Numeral/Streak']).toMatchObject({ fontSize: 96, lineHeight: 92 });
+    expect(type['Numeral/Streak']).toMatchObject({ fontSize: 81, lineHeight: 92 });
     expect(type.Tag.fontSize).toBe(12);
     expect(Object.keys(type)).toHaveLength(16);
   });
