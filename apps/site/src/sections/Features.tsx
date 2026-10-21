@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BellRing, CalendarDays, HandHelping, KeyRound, type LucideIcon, Scale, ShoppingBasket, Sprout } from "lucide-react";
+import { BellRing, CalendarDays, KeyRound, type LucideIcon, Scale, ShoppingBasket, Sprout, Users } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { lenis } from "@/ui/SmoothScroll";
@@ -50,7 +50,7 @@ const FEATURES: Feature[] = [
     pop: img("/cards/w-mon-card.webp", "Tue, Wed and Fri. Heavy chores stay off these days."), popTop: "74%",
   },
   {
-    key: "pool", icon: HandHelping, label: "Shared pool", title: "A shared pool, no blame",
+    key: "pool", icon: Users, label: "Shared pool", title: "A shared pool, no blame",
     body: "Missed chores slip into a pool with no names attached. Claim one and your next week gets lighter.",
     screen: "/screens/c1c-shared-pool.webp", alt: "Shared pool: Mop bathroom floor and Take out recycling, each with a Claim button",
     pop: img("/cards/w-thu-toast.webp", "Mop bathroom floor is yours. You’ll get a lighter week."), popTop: "48%",
@@ -185,7 +185,7 @@ export function Features() {
             <article key={f.key} className={`fslide fslide--${f.key} ${!tourOn || active === i ? "is-in" : ""}`}>
               <div className="fslide-inner wrap">
                 <div className="fslide-copy">
-                  <p className="fkicker"><span className="ficon" aria-hidden="true"><f.icon strokeWidth={1.6} absoluteStrokeWidth /></span>{f.label}</p>
+                  <p className="fkicker"><span className="ficon" aria-hidden="true"><f.icon strokeWidth={1.75} /></span>{f.label}</p>
                   <h3>{f.title}</h3>
                   <p>{f.body}</p>
                 </div>
