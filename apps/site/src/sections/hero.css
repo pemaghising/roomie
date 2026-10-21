@@ -65,12 +65,11 @@
 .hero-center {
   position: relative; z-index: 3;
   display: grid; justify-items: center; text-align: center;
-  /* the headline rides up over the phone's faded lower half */
-  margin-top: calc(var(--pw) * -.16);
+  margin-top: clamp(20px, 4vh, 40px);
   padding-bottom: clamp(72px, 12vh, 128px);
   --pw: clamp(240px, 22vw, 300px);
 }
-.hero-center h1 { font-size: clamp(48px, 7.4vw, 104px); line-height: .98; }
+.hero-center h1 { font-size: clamp(42px, 5.6vw, 80px); line-height: 1; }
 .hero-center h1 em { display: block; }   /* two lines: the promise, then the payoff */
 .hero-center h1 em { font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--violet-deep); }
 .hero-center .lede { margin-top: 24px; max-width: 38em; text-wrap: balance; }
@@ -82,10 +81,10 @@
   --pw: clamp(240px, 22vw, 300px);
   /* room for the nav, plus headroom so the parallax lift never slides the phone out of the clipped stage */
   padding-top: calc(88px + clamp(24px, 5vh, 56px));
-  height: calc(var(--pw) * 1.22 + 88px + clamp(24px, 5vh, 56px));
+  height: calc(var(--pw) * 1.7 + 88px + clamp(24px, 5vh, 56px));
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent 90%);
-          mask-image: linear-gradient(180deg, #000 50%, transparent 90%);
+  -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
 }
 .hero-phone { --phone-w: var(--pw); flex: none; align-self: flex-start; }
 .hero-float {
@@ -93,11 +92,11 @@
   box-shadow: 0 2px 4px rgba(31, 27, 58, .06), 0 24px 48px -20px rgba(59, 36, 112, .4);
 }
 .hero-nudge {
-  top: 38%; right: calc(50% + var(--pw) * .42);
+  top: 36%; right: calc(50% + var(--pw) * .42);
   width: min(320px, 30vw); height: auto; border-radius: 16px;
 }
 .hero-busy {
-  top: 58%; left: calc(50% + var(--pw) * .36);
+  top: 56%; left: calc(50% + var(--pw) * .36);
   display: flex; align-items: center; gap: 10px;
   padding: 12px 18px 12px 12px; border-radius: 28px;
   background: rgba(252, 251, 255, .82);
