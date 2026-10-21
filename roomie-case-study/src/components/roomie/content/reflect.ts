@@ -41,7 +41,7 @@ export const reflectHtml = `
   </div>
   <div class="block">
     <h3 style="font-size:26px">What’s next</h3>
-    <div class="next"><span class="pill">1 · Run the usability test</span><span class="pill">2 · Prototype the Sunday plan &amp; celebrations in motion</span><span class="pill">3 · Test the house-plant streak framing</span><span class="pill">4 · Phase 2: the Rolling Tab, explained line by line</span></div>
+    <div class="next"><span class="pill">1 · Run the usability test</span><span class="pill">2 · Prototype the celebrations in motion</span><span class="pill">3 · Test the house-plant streak framing</span><span class="pill">4 · Phase 2: the Rolling Tab, explained line by line</span></div>
   </div>
   </div>
 </section>
