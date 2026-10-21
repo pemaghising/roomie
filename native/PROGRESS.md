@@ -18,8 +18,8 @@ Branch: `feat/native-v2`. Detailed ledger: `../.superpowers/sdd/2026-10-21-roomi
 | 9 | Pantry + icons · phase review | done |
 | 10 | Profile, settings, frameless screens · phase review | done |
 | 11 | Motion + scroll pass · phase review | done |
-| 12 | QA sweep · phase review | next |
-| 13 | Packages (APK now, IPA later) | todo |
+| 12 | QA sweep · phase review | done |
+| 13 | Packages (APK now, IPA later) | APK done · IPA waits for Pema's Apple Developer account |
 
 ## Motion values (snappy, per Pema 2026-10-22)
 
@@ -35,6 +35,14 @@ Timing only; layout always comes from Final app v2. All in `src/ui/motion-config
 | Done row | fades to 55 % over 200 ms |
 | Streak number | counts up over 320 ms, ease-out cubic |
 | Title bar | fades in between 24 and 64 pt of scroll |
+
+## Where things stand (2026-10-22 morning)
+
+- Android APK (preview): https://expo.dev/artifacts/eas/7iqB4QPGm9v_opcK2md0k-AVq9K_HIEB9LVs4QVlqhM.apk
+- iPhone: Expo Go on the same Wi-Fi as the dev PC, `exp://192.168.1.90:8081` (tunnel is blocked by the office network).
+- Waiting on Pema: a new SUPABASE_ACCESS_TOKEN in .env.local to redeploy `tick` (the live build is still Monday-first;
+  migrations 26–27 keep it from doubling chores), the Vault SQL for tick_url / cron_secret, an Apple Developer account for the IPA,
+  and the Expo Go device pass (four usability scenarios, Reduce Motion on and off).
 
 ## Notes
 - App id `com.pemaghising.roomie`. Icon and splash from the brand mascot (`assets/brand/`).
