@@ -2,7 +2,7 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useId, type ReactNode } from 'react';
-import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Rect, Stop } from 'react-native-svg';
 import { Pressable, StyleSheet, Text, View, type PressableProps, type StyleProp, type TextProps, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { haptic } from '../haptics';
@@ -63,6 +63,22 @@ export function GradientCircle({ size, width, colors = gradients.outline, fill =
         </SvgGradient>
       </Defs>
       <Circle cx={size / 2} cy={size / 2} r={(size - width) / 2} stroke={`url(#${id})`} strokeWidth={width} fill={fill} />
+    </Svg>
+  );
+}
+
+/** A pill (rounded rectangle) outlined with the lilac→peach gradient, e.g. today in the streak week. */
+export function GradientPill({ width, height, stroke = 1.75, fill = 'none' }: { width: number; height: number; stroke?: number; fill?: string }) {
+  const id = `pill${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  const r = Math.min(width, height) / 2;
+  return (
+    <Svg width={width} height={height} style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <SvgGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          {gradients.outline.map((c, i) => <Stop key={i} offset={i / (gradients.outline.length - 1)} stopColor={c} />)}
+        </SvgGradient>
+      </Defs>
+      <Rect x={stroke / 2} y={stroke / 2} width={width - stroke} height={height - stroke} rx={r - stroke / 2} stroke={`url(#${id})`} strokeWidth={stroke} fill={fill} />
     </Svg>
   );
 }

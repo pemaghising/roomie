@@ -5,7 +5,7 @@ import { plantFor, type PlantStage } from '@/lib/plant';
 import { durations, useCountUp, useReducedMotion } from '../motion';
 import { color } from '../tokens';
 import { DAY_LETTERS } from './fields';
-import { Glass, Txt } from './primitives';
+import { Glass, GradientPill, Txt } from './primitives';
 
 export type DayState = 'done' | 'today' | 'missed' | 'future' | 'none';
 
@@ -23,7 +23,9 @@ function Pill({ state, letter }: { state: DayState; letter: string }) {
   const bg = state === 'done' ? color.action.primary : state === 'missed' ? color.effort.mediumBg : today ? 'rgba(252,251,255,0.7)' : color.bg.track;
   const fg = state === 'done' ? color.text.onAccent : state === 'missed' ? color.effort.mediumFg : today ? color.text.link : color.text.secondary;
   return (
-    <View style={[styles.pill, { backgroundColor: bg }, today && styles.today, state === 'missed' && styles.missed]}>
+    <View style={[styles.pill, { backgroundColor: bg }, state === 'missed' && styles.missed]}>
+      {/* Figma: today is outlined with the lilac→peach gradient, 1.75 */}
+      {today && <GradientPill width={19} height={30} />}
       <Txt v="Tag" c={fg}>{letter}</Txt>
     </View>
   );
@@ -71,7 +73,6 @@ const styles = StyleSheet.create({
   numeral: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   week: { flexDirection: 'row', justifyContent: 'space-between' },
   pill: { width: 19, height: 30, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  today: { borderWidth: 1.75, borderColor: '#A489ED' },
   missed: { borderWidth: 1, borderColor: '#F1C27D' },
   // our plant PNGs carry less transparent margin than the Figma image, so the box is sized to put the plant where
   // Figma has it: 16 pt in from the card's right edge, 20 pt from the top, 22 pt from the bottom (191 pt square)
