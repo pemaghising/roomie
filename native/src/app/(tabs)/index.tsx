@@ -1,4 +1,6 @@
 // Home (frames H0–H8). Pool chores never appear here; the banner opens Chores → Shared pool.
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { House, Users } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -162,6 +164,12 @@ export default function Home() {
           </Animated.View>
         )}
       </ScrollView>
+      {/* frosted strip under the status bar so scrolled cards don't run into the clock and the island */}
+      <View pointerEvents="none" style={[styles.statusVeil, { height: insets.top }]}>
+        <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(248,246,252,0.6)' }]} />
+      </View>
+      <LinearGradient pointerEvents="none" colors={['rgba(248,246,252,0.6)', 'rgba(248,246,252,0)']} style={[styles.statusFade, { top: insets.top }]} />
       <Celebration info={celebration} onClose={closeCelebration} />
       <MilestoneCelebration days={milestone} onClose={() => { if (milestone) setMilestoneSeen(milestone); setMilestone(null); }} />
     </View>
@@ -170,6 +178,8 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.bg.canvas },
+  statusVeil: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
+  statusFade: { position: 'absolute', left: 0, right: 0, height: 14 },
   page: { paddingHorizontal: layout.margin, gap: 16 },
   // Figma "Note card": 12 / 16 / 12 / 12 padding, 20 radius, 36 icon tile at 14 % lilac
   note: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingLeft: 12, paddingRight: 16 },

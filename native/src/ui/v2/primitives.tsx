@@ -1,7 +1,8 @@
 // Building materials every v2 component uses: text, glass, gradient strokes and the press behaviour.
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { Pressable, StyleSheet, Text, View, type PressableProps, type StyleProp, type TextProps, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { haptic } from '../haptics';
@@ -48,12 +49,31 @@ export function Glass({ children, style, r = radius.card, fill = 0.55, outline =
   );
 }
 
-/** A circle or pill with the lilac→peach stroke and a flat fill inside (unchecked check, focused field). */
+/**
+ * A circle with a gradient stroke (lilac→peach by default), drawn in SVG so the ring is the same width all round;
+ * a gradient square with fractional padding came out lopsided on web.
+ */
+export function GradientCircle({ size, width, colors = gradients.outline, fill = 'none' }: { size: number; width: number; colors?: readonly string[]; fill?: string }) {
+  const id = `ring${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  return (
+    <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <SvgGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          {colors.map((c, i) => <Stop key={i} offset={i / (colors.length - 1)} stopColor={c} />)}
+        </SvgGradient>
+      </Defs>
+      <Circle cx={size / 2} cy={size / 2} r={(size - width) / 2} stroke={`url(#${id})`} strokeWidth={width} fill={fill} />
+    </Svg>
+  );
+}
+
+/** The unchecked check: a circle with the lilac→peach stroke and a flat fill inside. */
 export function GradientRing({ size, width = 1.75, fill = color.bg.surface, children }: { size: number; width?: number; fill?: string; children?: ReactNode }) {
   return (
-    <LinearGradient colors={gradients.outline} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: size, height: size, borderRadius: size / 2, padding: width }}>
-      <View style={{ flex: 1, borderRadius: size / 2, backgroundColor: fill, alignItems: 'center', justifyContent: 'center' }}>{children}</View>
-    </LinearGradient>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <GradientCircle size={size} width={width} fill={fill} />
+      {children}
+    </View>
   );
 }
 

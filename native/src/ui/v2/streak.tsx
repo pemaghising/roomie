@@ -72,7 +72,8 @@ const styles = StyleSheet.create({
   pill: { width: 19, height: 30, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   today: { borderWidth: 1.75, borderColor: '#A489ED' },
   missed: { borderWidth: 1, borderColor: '#F1C27D' },
-  // the plant overflows its 132 × 162 slot the way the Figma image does (inset −9 % / −39 % / −15 % / −14 %)
+  // our plant PNGs carry less transparent margin than the Figma image, so the box is sized to put the plant where
+  // Figma has it: 16 pt in from the card's right edge, 20 pt from the top, 22 pt from the bottom (191 pt square)
   art: { width: 132, height: 162 },
-  artImage: { position: 'absolute', top: -15, right: -52, bottom: -25, left: -18 },
+  artImage: { position: 'absolute', top: -11, right: -36, bottom: -18, left: -23 },
 });

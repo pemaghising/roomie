@@ -1,10 +1,9 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Bell } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { color, font, layout } from '../tokens';
 import { IconButton } from './buttons';
-import { gradients, Tap, Txt } from './primitives';
+import { GradientCircle, gradients, Tap, Txt } from './primitives';
 import { letterTile } from './tag-style';
 
 /** Section title ("Your tasks today") with an optional link on the right ("Why these?", "See all"). */
@@ -35,7 +34,7 @@ export function Heading({ title, accent, sub, size = 'onboarding' }: { title: st
 
 /** v2/Avatar: photo or initial inside the violet → orchid → peach ring, with an optional sun badge. */
 export function Avatar({ name, uri, tint = '#F3F0FF', size = 52, sun, plain }: { name: string; uri?: string | null; tint?: string; size?: number; sun?: boolean; plain?: boolean }) {
-  const ring = Math.max(2, size * 0.048);
+  const ring = Math.round(Math.max(2, size * 0.048) * 2) / 2; // whole or half points so it renders evenly
   if (plain) {
     // small avatar inside chips (Figma P3 roommate chips): no ring, a Geist letter on a pastel
     const t = letterTile(name);
@@ -48,12 +47,11 @@ export function Avatar({ name, uri, tint = '#F3F0FF', size = 52, sun, plain }: {
   }
   return (
     <View style={{ width: size, height: size }} accessibilityLabel={name}>
-      <LinearGradient colors={gradients.add} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: size, height: size, borderRadius: size / 2, padding: ring }}>
-        <View style={[styles.avatarInner, { borderRadius: size / 2, backgroundColor: tint }]}>
-          {uri ? <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
-            : <Text style={{ fontFamily: font.title, fontSize: size * 0.42, color: color.text.numeral }}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>}
-        </View>
-      </LinearGradient>
+      <GradientCircle size={size} width={ring} colors={gradients.add} />
+      <View style={[styles.avatarInner, { position: 'absolute', top: ring, left: ring, width: size - ring * 2, height: size - ring * 2, borderRadius: size / 2, backgroundColor: tint }]}>
+        {uri ? <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
+          : <Text style={{ fontFamily: font.title, fontSize: size * 0.42, color: color.text.numeral }}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>}
+      </View>
       {sun && (
         <View style={[styles.sun, { width: size * 0.46, height: size * 0.46, borderRadius: size * 0.23, right: -size * 0.06, bottom: -size * 0.06 }]}>
           <Image source={require('../../../assets/emoji/sun.png')} style={{ width: size * 0.34, height: size * 0.34 }} />

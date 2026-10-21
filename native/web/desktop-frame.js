@@ -41,7 +41,8 @@
     '<div id="stage"><div id="device"><div id="screen"><iframe title="Roomie" src="' + location.pathname + location.search + '" allow="camera; clipboard-write"></iframe>' +
     '<div id="status" aria-hidden="true"><span id="clock"></span><span class="r">' +
     '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>' +
-    '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.3c2.3 0 4.4.9 6 2.4l1.2-1.2A10.2 10.2 0 0 0 8 .6 10.2 10.2 0 0 0 .8 3.5L2 4.7a8.5 8.5 0 0 1 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2c1-.9 2.2-1.4 3.6-1.4Zm0 3.4c.5 0 1 .2 1.3.5L8 11.4 6.7 9.6c.3-.3.8-.5 1.3-.5Z"/></svg>' +
+    // iOS Wi-Fi glyph: three stacked arcs over a wedge, each a filled sector of the same circle
+    '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 11.6 5.7 9.2a3.3 3.3 0 0 1 4.6 0Z"/><path d="M3.9 7.4a5.9 5.9 0 0 1 8.2 0l1.25-1.3a7.7 7.7 0 0 0-10.7 0Z"/><path d="M1.2 4.6a9.7 9.7 0 0 1 13.6 0L16 3.3a11.5 11.5 0 0 0-16 0Z"/></svg>' +
     '<svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.8" stroke="currentColor" opacity=".35"/><rect x="2" y="2" width="20" height="9" rx="2.5" fill="currentColor"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".4"/></svg>' +
     '</span></div><div id="island"></div><div id="homebar"></div></div></div></div>' +
     '<div id="side"><img class="icon" src="/app-icon.png" alt="">' +
