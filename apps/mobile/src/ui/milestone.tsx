@@ -14,7 +14,7 @@ import { Button, MeshBackground, PLANT_ART, Txt } from './v2';
 const COPY: Record<number, { title: string; body: string }> = {
   3: { title: 'A habit is starting.', body: 'Three days in a row. The plant has sprouted.' },
   7: { title: 'A full week, together.', body: 'Your plant is leafing out. Keep it growing.' },
-  14: { title: 'Two weeks strong.', body: 'This is becoming how your home runs.' },
+  14: { title: 'Two weeks in bud.', body: 'This is becoming how your home runs.' },
   30: { title: 'A month in bloom.', body: 'Thirty days. Your plant is in full flower.' },
   50: { title: 'Fifty days.', body: 'Calm, shared, and still growing.' },
   100: { title: 'One hundred days.', body: 'A house that looks after itself.' },
@@ -51,7 +51,7 @@ export function MilestoneCelebration({ days, onClose }: { days: number | null; o
           </Animated.View>
           <Animated.View entering={enter(1, reduced)} style={styles.count}>
             <CountUp to={days} reduced={reduced} />
-            <Txt v="Body/Row" c={color.text.numeral} style={{ marginBottom: 14 }}>{'days\nstrong'}</Txt>
+            <Txt v="Body/Row" c={color.text.numeral}>{'days\nstrong'}</Txt>
           </Animated.View>
           <Animated.View entering={enter(2, reduced)} style={{ gap: 8, alignItems: 'center' }}>
             <Txt v="Title/Onboarding" style={{ textAlign: 'center' }} accessibilityRole="header">{c.title}</Txt>
@@ -73,5 +73,5 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.bg.canvas, justifyContent: 'space-between' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, paddingHorizontal: layout.margin },
   plant: { width: 220, height: 240 },
-  count: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
+  count: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 });
