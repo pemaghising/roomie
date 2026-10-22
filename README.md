@@ -13,7 +13,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-1F1B3A?style=flat-square&logo=nextdotjs&logoColor=white)
 ![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-1F1B3A?style=flat-square&logo=vercel&logoColor=white)
 
-<img src=".github/assets/roomie-cover.webp" alt="Roomie: Fair chores. Zero nagging. The Home screen with a 23-day house streak" width="100%">
+<img src=".github/assets/roomie-cover-hands.webp" alt="Roomie: Fair chores. Zero nagging. Hands holding a phone with the Roomie Home screen" width="100%">
 
 </div>
 
