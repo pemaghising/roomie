@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TryRoomie } from "@/ui/TryRoomie";
 import { useMotionOK } from "@/ui/useMotionOK";
+import { Phone3D, type PhonePose } from "@/ui/Phone3D";
 import "@/ui/ui.css";
 import "./hero.css";
 
@@ -47,6 +48,7 @@ export function Hero() {
   const motionOK = useMotionOK();
   const root = useRef<HTMLElement>(null);
   const bar = useRef<HTMLElement>(null);
+  const pose = useRef<PhonePose>({ tilt: 0, yaw: 0, pitch: 0 });
 
   // Full-width bar at the top of the page; it tucks into a floating pill once you scroll.
   useEffect(() => {
@@ -78,7 +80,8 @@ export function Hero() {
       const scene = el.querySelector<HTMLElement>(".hero-scene")!;
       const pin = el.querySelector<HTMLElement>(".hero-pin")!;
       const stickTop = () => parseFloat(getComputedStyle(pin).top);
-      const pinAt = () => scene.offsetTop - stickTop();
+      // the phone stands up over at least most of a screen of scroll, even when it pins almost at once
+      const pinAt = () => Math.max(scene.offsetTop - stickTop(), window.innerHeight * 0.7);
       const unpinAt = () => scene.offsetTop + scene.offsetHeight - stickTop() - pin.offsetHeight;
 
       const intro = gsap.timeline({ defaults: { ease: "expo.out" } });
@@ -88,10 +91,11 @@ export function Hero() {
 
       // the phone stands up as it reaches the pin; the wash lifts off the screen and the shadow tucks in
       gsap.timeline({ scrollTrigger: { start: 0, end: pinAt, scrub: 1.1, invalidateOnRefresh: true } })
-        .fromTo(".hero-tilt", { rotationX: 36, scale: 0.93 }, { rotationX: 0, scale: 1, ease: "power2.out" }, 0)
-        .fromTo(".hero-wash", { opacity: 0.28 }, { opacity: 0, ease: "power1.out" }, 0)
-        .fromTo(".hero-shadow--cast", { x: "48%", y: "18%", skewX: -22, opacity: 0.6 }, { x: "34%", y: "10%", skewX: -14, opacity: 1, ease: "power2.out" }, 0)
-        .fromTo(".hero-shadow--contact", { opacity: 0.4, y: "6%" }, { opacity: 1, y: "3%", ease: "power2.out" }, 0);
+        .fromTo(pose.current, { tilt: 0.62 }, { tilt: 0, ease: "power2.out" }, 0)
+        .fromTo(".hero-tilt", { scale: 0.94 }, { scale: 1, ease: "power2.out" }, 0)
+        // the shadows shorten with the lean, so they never show above the receding top
+        .fromTo(".hero-shadow--cast", { x: "48%", y: "18%", skewX: -22, scaleY: 0.62, opacity: 0.6, transformOrigin: "50% 100%" }, { x: "34%", y: "10%", skewX: -14, scaleY: 1.02, opacity: 1, ease: "power2.out" }, 0)
+        .fromTo(".hero-shadow--contact", { opacity: 0.4, y: "6%", scaleY: 0.62, transformOrigin: "50% 100%" }, { opacity: 1, y: "3%", scaleY: 0.97, ease: "power2.out" }, 0);
 
       // the foot of the phone dissolves as the promise arrives
       const fade = () => ({ start: () => unpinAt() - window.innerHeight * 0.5, end: unpinAt, scrub: 1, invalidateOnRefresh: true });
@@ -116,13 +120,13 @@ export function Hero() {
       const cards = (q(".hero-bit .hero-card") as HTMLElement[]).map((c, i) => ({
         x: gsap.quickTo(c, "x", { duration: 1.2, ease: "power3" }), y: gsap.quickTo(c, "y", { duration: 1.2, ease: "power3" }), d: 10 + (i % 4) * 7,
       }));
-      const ry = gsap.quickTo(".hero-ptilt", "rotationY", { duration: 1.4, ease: "power3" });
-      const rx = gsap.quickTo(".hero-ptilt", "rotationX", { duration: 1.4, ease: "power3" });
+      const ry = gsap.quickTo(pose.current, "yaw", { duration: 1.4, ease: "power3" });
+      const rx = gsap.quickTo(pose.current, "pitch", { duration: 1.4, ease: "power3" });
       intro.eventCallback("onComplete", () => {
         onMove = (e) => {
           const mx = e.clientX / window.innerWidth - 0.5, my = e.clientY / window.innerHeight - 0.5;
           cards.forEach((c) => { c.x(mx * c.d * 2); c.y(my * c.d * 1.4); });
-          ry(mx * 8); rx(-my * 4);
+          ry(mx * 0.3); rx(my * 0.1);
         };
         window.addEventListener("pointermove", onMove);
       });
@@ -161,16 +165,17 @@ export function Hero() {
             <div className="hero-ptilt"><div className="hero-tilt">
               <div className="hero-shadow hero-shadow--cast" aria-hidden="true" />
               <div className="hero-shadow hero-shadow--contact" aria-hidden="true" />
-              <figure className="phone hero-phone">
-                <span className="btn-l" aria-hidden="true" />
-                <span className="btn-r" aria-hidden="true" />
-                <span className="bezel">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak with the plant in bud, and today's tasks" width={393} height={852} loading="eager" />
-                  <span className="glare" aria-hidden="true" />
-                  <span className="hero-wash" aria-hidden="true" />
-                </span>
-              </figure>
+              <Phone3D src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak with the plant in bud, and today's tasks" pose={pose} className="hero-phone3d">
+                <figure className="phone hero-phone">
+                  <span className="btn-l" aria-hidden="true" />
+                  <span className="btn-r" aria-hidden="true" />
+                  <span className="bezel">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/screens/h1-home.webp" alt="" width={393} height={852} loading="eager" />
+                    <span className="glare" aria-hidden="true" />
+                  </span>
+                </figure>
+              </Phone3D>
             </div></div>
           </div>
         </div>

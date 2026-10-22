@@ -57,9 +57,9 @@
 /* ── Hero: the phone lies back, stands up and pins while the app's pieces scroll past;
    as it dissolves, the promise rises underneath. ── */
 .hero { --pw: min(21vw, 330px, calc(74svh * 393 / 852)); background: var(--mist); }
-.hero-top { height: clamp(120px, 22svh, 220px); }
+.hero-top { height: clamp(64px, 10svh, 104px); }
 
-.hero-scene { position: relative; height: 290svh; margin-top: clamp(28px, 6vh, 64px); }
+.hero-scene { position: relative; height: 290svh; }
 .hero-pin { position: sticky; top: calc(50svh - var(--pw) * 2.0745 / 2 - 10px); z-index: 3; display: grid; justify-items: center; perspective: 1100px; perspective-origin: 50% 0%; }
 .hero-stage { position: relative; width: var(--pw); --fade: 0%; }
 .hero-ptilt { transform-style: preserve-3d; will-change: transform; }
@@ -72,11 +72,15 @@
 .hero-haze { position: absolute; z-index: -2; left: 50%; top: 4%; width: calc(var(--pw) * 3.6); height: calc(var(--pw) * 2.8); translate: -38% 0; pointer-events: none;
   background: radial-gradient(closest-side, rgba(164, 137, 237, .24), rgba(164, 137, 237, .07) 55%, transparent); }
 
-/* the fade sits on the phone alone, so it never crops the shadow into a box */
-.hero-phone.phone { --phone-w: var(--pw); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .6);
-  -webkit-mask-image: linear-gradient(#000 calc(100% - var(--fade)), transparent calc(100% - var(--fade) + 26%));
-          mask-image: linear-gradient(#000 calc(100% - var(--fade)), transparent calc(100% - var(--fade) + 26%)); }
-.hero-wash { position: absolute; inset: calc(var(--pw) * .028); z-index: 2; border-radius: calc(var(--pw) * .125); background: var(--offwhite); opacity: 0; pointer-events: none; }
+/* the 3D phone: the canvas is larger than the body so the lean and the turn never crop.
+   The fade lives on the canvas alone (body spans 13%–87% of its height), so it never boxes the shadow. */
+.phone3d { position: relative; width: var(--pw); aspect-ratio: 1 / 2.0745; }
+.phone3d-fallback { transition: opacity .5s ease; }
+.phone3d.is-ready .phone3d-fallback { opacity: 0; }
+.phone3d-canvas { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: calc(var(--pw) * 1.8); height: calc(var(--pw) * 2.0745 * 1.35); pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 calc(87% - var(--fade) * .74), transparent calc(106% - var(--fade) * .74));
+          mask-image: linear-gradient(#000 calc(87% - var(--fade) * .74), transparent calc(106% - var(--fade) * .74)); }
+.hero-phone.phone { --phone-w: var(--pw); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .6); }
 
 /* the app's own pieces, laid down the scene; each scrolls at its own speed */
 .hero-bit { position: absolute; z-index: 5; will-change: transform; }
@@ -125,7 +129,7 @@
 /* first four sit around the tilted phone, the rest arrive from below */
 .hero-b1 { left: 8%;  top: 4svh; }
 .hero-b2 { left: 3%;  top: 32svh; }
-.hero-b3 { right: 11%; top: 1svh; }
+.hero-b3 { right: 11%; top: 3svh; }
 .hero-b4 { right: 3%;  top: 28svh; }
 .hero-b5 { left: 13%; top: 52svh; }
 .hero-b6 { right: 10%; top: 56svh; }
