@@ -72,7 +72,6 @@ export default function VerifyCode() {
             : error
               ? <Txt v="Body/Label" c={color.text.danger} accessibilityRole="alert" style={{ textAlign: 'center' }}>{error}</Txt>
               : <Txt v="Body/Default" c={color.text.secondary}>{wait > 0 ? `New code in ${m}:${s}` : 'Didn’t get it?'}</Txt>}
-          {!busy && <Txt v="Body/Default" c={color.text.tertiary}>·</Txt>}
           {!busy && (error || wait === 0
             ? <Txt v="Body/Label" c={color.text.link} onPress={resend} accessibilityRole="button">Send a new one</Txt>
             : <Txt v="Body/Label" c={color.text.link} onPress={() => { updateDraft({ email: '' }); router.back(); }} accessibilityRole="button">Wrong inbox?</Txt>)}
@@ -84,7 +83,8 @@ export default function VerifyCode() {
 
 const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 14 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  // status on the left, the action on the right, both lined up with the edges of the code boxes
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   // small enough that the code boxes stay clear of the keyboard
   art: { width: 132, height: 132 },
 });
