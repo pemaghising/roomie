@@ -21,13 +21,14 @@ export function SectionHeader({ title, link, onLink, note }: { title: string; li
  * Screen heading. Onboarding titles are Fraunces 28; page titles 34. `accent` is the one italic word
  * on a line of its own ("Make your place feel like / home.").
  */
-export function Heading({ title, accent, sub, size = 'onboarding' }: { title: string; accent?: string; sub?: string; size?: 'onboarding' | 'page' }) {
+export function Heading({ title, accent, sub, size = 'onboarding', center }: { title: string; accent?: string; sub?: string; size?: 'onboarding' | 'page'; center?: boolean }) {
+  const align = center ? { textAlign: 'center' as const } : undefined;
   return (
     <View style={{ gap: 8, paddingBottom: 8 }}>
-      <Txt v={size === 'page' ? 'Title/Page' : 'Title/Onboarding'} accessibilityRole="header">
+      <Txt v={size === 'page' ? 'Title/Page' : 'Title/Onboarding'} accessibilityRole="header" style={align}>
         {title}{accent ? '\n' : ''}{accent ? <Text style={{ fontFamily: font.titleItalic }}>{accent}</Text> : null}
       </Txt>
-      {sub && <Txt v="Body/Default" c={color.text.secondary}>{sub}</Txt>}
+      {sub && <Txt v="Body/Default" c={color.text.secondary} style={align}>{sub}</Txt>}
     </View>
   );
 }

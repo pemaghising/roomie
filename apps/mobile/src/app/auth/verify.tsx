@@ -1,5 +1,6 @@
 // 05 · Enter code / 05b · Wrong code.
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { Redirect, useRouter } from 'expo-router';
 import { Mail } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -52,10 +53,13 @@ export default function VerifyCode() {
 
   const m = Math.floor(wait / 60), s = String(wait % 60).padStart(2, '0');
   return (
-    <Page back footer={<Button title={error ? 'Give it another go' : 'Let me in'} onPress={() => (error ? (setError(null), setCode('')) : verify())} loading={busy} disabled={!error && code.length !== 6} />}>
-      <View style={{ gap: 14 }}>
-        <Heading title="You’ve got mail" sub="Peek at your inbox for your code." />
-        <Glass r={999} fill={0.8} style={{ alignSelf: 'flex-start' }}>
+    // The code checks itself on the sixth digit, so there is no submit button: it would sit under the keyboard.
+    // A button only appears after a wrong code, to clear the boxes and try again.
+    <Page back footer={error ? <Button title="Give it another go" onPress={() => { setError(null); setCode(''); }} /> : undefined}>
+      <View style={{ gap: 14, alignItems: 'center' }}>
+        <Image source={require('../../../assets/art/email-code.png')} style={styles.art} contentFit="contain" accessibilityIgnoresInvertColors />
+        <Heading center title="You’ve got mail" sub="Peek at your inbox for your code." />
+        <Glass r={999} fill={0.8}>
           <View style={styles.chip}><Mail size={18} color={color.icon.default} strokeWidth={1.75} /><Txt v="Body/Label">{email}</Txt></View>
         </Glass>
       </View>
@@ -63,12 +67,15 @@ export default function VerifyCode() {
         <CodeInput autoFocus value={code} error={!!error} accessibilityLabel="Six-digit code"
           onChange={(v) => { setCode(v); setError(null); if (v.length === 6) verify(v); }} />
         <View style={styles.row}>
-          {error
-            ? <Txt v="Body/Label" c={color.text.danger} accessibilityRole="alert">{error}</Txt>
-            : <Txt v="Body/Default" c={color.text.secondary}>{wait > 0 ? `New code in ${m}:${s}` : 'Didn’t get it?'}</Txt>}
-          {error || wait === 0
+          {busy
+            ? <Txt v="Body/Default" c={color.text.secondary}>Checking your code…</Txt>
+            : error
+              ? <Txt v="Body/Label" c={color.text.danger} accessibilityRole="alert" style={{ textAlign: 'center' }}>{error}</Txt>
+              : <Txt v="Body/Default" c={color.text.secondary}>{wait > 0 ? `New code in ${m}:${s}` : 'Didn’t get it?'}</Txt>}
+          {!busy && <Txt v="Body/Default" c={color.text.tertiary}>·</Txt>}
+          {!busy && (error || wait === 0
             ? <Txt v="Body/Label" c={color.text.link} onPress={resend} accessibilityRole="button">Send a new one</Txt>
-            : <Txt v="Body/Label" c={color.text.link} onPress={() => { updateDraft({ email: '' }); router.back(); }} accessibilityRole="button">Wrong inbox?</Txt>}
+            : <Txt v="Body/Label" c={color.text.link} onPress={() => { updateDraft({ email: '' }); router.back(); }} accessibilityRole="button">Wrong inbox?</Txt>)}
         </View>
       </View>
     </Page>
@@ -77,5 +84,7 @@ export default function VerifyCode() {
 
 const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 14 },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  // small enough that the code boxes stay clear of the keyboard
+  art: { width: 132, height: 132 },
 });
