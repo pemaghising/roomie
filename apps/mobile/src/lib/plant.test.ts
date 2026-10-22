@@ -29,8 +29,8 @@ describe('streakWords', () => {
   it('says strong while the plant is healthy', () => {
     expect(streakWords(23, false)).toEqual(['days', 'strong']);
   });
-  it('says on hold while a chore is waiting, never strong', () => {
-    expect(streakWords(23, true)).toEqual(['days', 'on hold']);
+  it('says water me while a chore is waiting, never strong', () => {
+    expect(streakWords(23, true)).toEqual(['days', 'water me']);
   });
   it('keeps the day-one and seed wording', () => {
     expect(streakWords(0, false)).toEqual(['day', 'let’s grow']);

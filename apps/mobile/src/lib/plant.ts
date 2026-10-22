@@ -18,9 +18,9 @@ export function milestoneState(streak: number, seen: number): { celebrate: numbe
   return { celebrate: reached, seen: base };
 }
 
-/** The two words beside the streak number. A drooping plant never says "strong": the run is on hold until someone catches up. */
+/** The two words beside the streak number. A drooping plant never says "strong": the plant asks for help until someone catches the chore up. */
 export function streakWords(days: number, drooped: boolean): [string, string] {
   if (days === 0) return ['day', 'let’s grow'];
   if (days === 1) return ['day', 'together'];
-  return drooped ? ['days', 'on hold'] : ['days', 'strong'];
+  return drooped ? ['days', 'water me'] : ['days', 'strong'];
 }

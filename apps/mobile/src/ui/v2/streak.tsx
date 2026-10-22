@@ -56,8 +56,8 @@ ${words[1]}`}</Txt>
             </Animated.View>
           ))}</View>
         </View>
-        <View style={styles.art}>
-          <Animated.View key={stage} entering={fade} style={[styles.artImage, drooped && styles.artDroop]}>
+        <View style={[styles.art, drooped && styles.artDroop]}>
+          <Animated.View key={stage} entering={fade} style={styles.artImage}>
             <Image source={PLANT_ART[stage]} style={{ width: '100%', height: '100%' }} contentFit="contain" accessibilityIgnoresInvertColors />
           </Animated.View>
         </View>
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
   // Figma has it: 16 pt in from the card's right edge, 20 pt from the top, 22 pt from the bottom (191 pt square)
   art: { width: 132, height: 162 },
   artImage: { position: 'absolute', top: -11, right: -36, bottom: -18, left: -23 },
-  // the droop art carries a water drop on its right, so it sits further in to keep the drop off the card edge
-  artDroop: { right: -6, left: -17, top: -2, bottom: -12 },
+  // drooped: the plant stays the same size as every other stage; its box is a little narrower so the
+  // longer "water me" fits, which also pulls the water drop in off the card edge
+  artDroop: { width: 114 },
 });
