@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { plantFor, type PlantStage } from '@/lib/plant';
+import { plantFor, streakWords, type PlantStage } from '@/lib/plant';
 import { durations, useCountUp, useReducedMotion } from '../motion';
 import { color } from '../tokens';
 import { DAY_LETTERS } from './fields';
@@ -35,8 +35,7 @@ function Pill({ state, letter }: { state: DayState; letter: string }) {
 export function StreakCard({ days, week, drooped = false }: { days: number; week: DayState[]; drooped?: boolean }) {
   const reduced = useReducedMotion();
   const stage = plantFor(days, drooped);
-  // zero is a seed just planted (day one, or after a reset), so it invites instead of bragging
-  const words = days === 0 ? ['day', 'let’s grow'] : days === 1 ? ['day', 'together'] : ['days', 'strong'];
+  const words = streakWords(days, drooped);
   const shown = useCountUp(days);
   const fade = reduced ? undefined : FadeIn.duration(durations.enter);
   return (
@@ -58,7 +57,7 @@ ${words[1]}`}</Txt>
           ))}</View>
         </View>
         <View style={styles.art}>
-          <Animated.View key={stage} entering={fade} style={styles.artImage}>
+          <Animated.View key={stage} entering={fade} style={[styles.artImage, drooped && styles.artDroop]}>
             <Image source={PLANT_ART[stage]} style={{ width: '100%', height: '100%' }} contentFit="contain" accessibilityIgnoresInvertColors />
           </Animated.View>
         </View>
@@ -78,4 +77,6 @@ const styles = StyleSheet.create({
   // Figma has it: 16 pt in from the card's right edge, 20 pt from the top, 22 pt from the bottom (191 pt square)
   art: { width: 132, height: 162 },
   artImage: { position: 'absolute', top: -11, right: -36, bottom: -18, left: -23 },
+  // the droop art carries a water drop on its right, so it sits further in to keep the drop off the card edge
+  artDroop: { right: -6, left: -17, top: -2, bottom: -12 },
 });

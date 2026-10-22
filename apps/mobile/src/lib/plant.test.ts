@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
-import { milestoneState, plantFor } from './plant';
+import { describe, expect, it, test } from 'vitest';
+import { milestoneState, plantFor, streakWords } from './plant';
 
 test('the plant only changes at the 3, 7, 14 and 30 day milestones', () => {
   expect([0, 2, 3, 6, 7, 13, 14, 29, 30, 120].map((d) => plantFor(d, false)))
@@ -23,4 +23,17 @@ test('a milestone is celebrated once, at the highest one reached', () => {
 test('a broken streak starts a fresh run, so earlier milestones can be earned again', () => {
   expect(milestoneState(3, 7)).toEqual({ celebrate: 3, seen: 0 });
   expect(milestoneState(1, 7)).toEqual({ celebrate: null, seen: 0 });
+});
+
+describe('streakWords', () => {
+  it('says strong while the plant is healthy', () => {
+    expect(streakWords(23, false)).toEqual(['days', 'strong']);
+  });
+  it('says on hold while a chore is waiting, never strong', () => {
+    expect(streakWords(23, true)).toEqual(['days', 'on hold']);
+  });
+  it('keeps the day-one and seed wording', () => {
+    expect(streakWords(0, false)).toEqual(['day', 'let’s grow']);
+    expect(streakWords(1, false)).toEqual(['day', 'together']);
+  });
 });

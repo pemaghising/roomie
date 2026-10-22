@@ -9,7 +9,7 @@ import "./wall.css";
 gsap.registerPlugin(ScrollTrigger);
 
 const COLS: [string, string][][] = [
-  [["01-welcome", "Welcome: make your place feel like home"], ["c2-calendar", "Calendar month with busy days"], ["r1-profile", "Profile and preferences"]],
+  [["01-welcome", "Welcome: make your place feel like home"], ["c2-calendar", "Calendar month with busy days"], ["j4-youre-in", "You’re in: joined the home"]],
   [["h8-add-menu", "Add to your home: a chore, a pantry item, a restock or an invite"], ["h5-chore-done", "A chore ticked off"], ["p3-roommates", "Roommates' shelves"]],
   [["h1-home", "Home: the house streak and today's tasks"], ["p1-pantry", "Pantry: running low and in stock"], ["13-all-set", "Welcome home"]],
   [["11-nudge-style", "Pick your nudges"], ["c3-week", "This week's calendar"], ["h6-all-done", "All done for today"]],

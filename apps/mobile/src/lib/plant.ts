@@ -17,3 +17,10 @@ export function milestoneState(streak: number, seen: number): { celebrate: numbe
   const reached = [...MILESTONES].filter((m) => m <= streak && m > base).pop() ?? null;
   return { celebrate: reached, seen: base };
 }
+
+/** The two words beside the streak number. A drooping plant never says "strong": the run is on hold until someone catches up. */
+export function streakWords(days: number, drooped: boolean): [string, string] {
+  if (days === 0) return ['day', 'let’s grow'];
+  if (days === 1) return ['day', 'together'];
+  return drooped ? ['days', 'on hold'] : ['days', 'strong'];
+}
