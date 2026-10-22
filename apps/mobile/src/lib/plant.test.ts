@@ -1,5 +1,5 @@
 import { describe, expect, it, test } from 'vitest';
-import { milestoneState, plantFor, streakWords } from './plant';
+import { grewInto, milestoneState, plantFor, streakWords } from './plant';
 
 test('the plant only changes at the 3, 7, 14 and 30 day milestones', () => {
   expect([0, 2, 3, 6, 7, 13, 14, 29, 30, 120].map((d) => plantFor(d, false)))
@@ -35,5 +35,18 @@ describe('streakWords', () => {
   it('keeps the day-one and seed wording', () => {
     expect(streakWords(0, false)).toEqual(['day', 'let’s grow']);
     expect(streakWords(1, false)).toEqual(['day', 'together']);
+  });
+});
+
+describe('grewInto', () => {
+  it('is true when the plant moves up a stage', () => {
+    expect(grewInto('seed', 'sprout')).toBe(true);
+    expect(grewInto('bud', 'bloom')).toBe(true);
+  });
+  it('is false for the same stage, a droop, recovering from a droop, or a reset', () => {
+    expect(grewInto('leafy', 'leafy')).toBe(false);
+    expect(grewInto('leafy', 'droop')).toBe(false);
+    expect(grewInto('droop', 'leafy')).toBe(false);
+    expect(grewInto('bloom', 'seed')).toBe(false);
   });
 });

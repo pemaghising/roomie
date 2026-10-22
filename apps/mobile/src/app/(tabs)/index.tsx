@@ -57,7 +57,10 @@ export default function Home() {
     const seen = getMilestoneSeen();
     const m = milestoneState(v.streakDays, seen);
     if (m.seen !== seen) setMilestoneSeen(m.seen);
-    setMilestone(m.celebrate);
+    if (!m.celebrate) { setMilestone(null); return; }
+    // let the plant grow on the card first, then the full milestone moment takes over
+    const t = setTimeout(() => setMilestone(m.celebrate), 1600);
+    return () => clearTimeout(t);
   }, [v.streakDays]);
   // the first time someone lands on Home, explain reminders before the system asks
   useEffect(() => {

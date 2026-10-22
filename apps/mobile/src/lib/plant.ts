@@ -24,3 +24,10 @@ export function streakWords(days: number, drooped: boolean): [string, string] {
   if (days === 1) return ['day', 'together'];
   return drooped ? ['days', 'water me'] : ['days', 'strong'];
 }
+
+const ORDER: PlantStage[] = ['seed', 'sprout', 'leafy', 'bud', 'bloom'];
+/** True only when the plant climbs a growth stage; droops, recoveries and resets just swap quietly. */
+export function grewInto(from: PlantStage, to: PlantStage): boolean {
+  const a = ORDER.indexOf(from), b = ORDER.indexOf(to);
+  return a >= 0 && b > a;
+}
