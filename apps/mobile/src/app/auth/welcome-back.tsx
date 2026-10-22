@@ -18,7 +18,7 @@ export default function WelcomeBack() {
   return (
     <Page scroll={false} gap={20}>
       <View style={{ alignItems: 'center', marginTop: 40 }}>
-        <Image source={require('../../../assets/art/welcome-back.png')} style={{ width: 200, height: 200 }} contentFit="contain" />
+        <Image source={require('../../../assets/art/welcome-back.png')} style={{ width: 132, height: 154 }} contentFit="contain" />
       </View>
       <View style={{ gap: 10, alignItems: 'center' }}>
         <Txt v="Title/Onboarding" style={{ textAlign: 'center' }} accessibilityRole="header">{`Welcome back,\n${name}.`}</Txt>
