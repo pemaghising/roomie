@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TryRoomie } from "@/ui/TryRoomie";
-import { StoreButtons } from "@/ui/StoreButtons";
 import { useMotionOK } from "@/ui/useMotionOK";
 import "@/ui/ui.css";
 import "./hero.css";
@@ -209,7 +208,7 @@ export function Hero() {
           <em><span className="w"><span>Zero</span></span> <span className="w"><span>nagging.</span></span></em>
         </h1>
         <p className="lede">Chores split by effort, reminders sent for you. Nobody has to play the parent.</p>
-        <div className="hero-cta"><TryRoomie size="lg" label="Try Roomie now" /><StoreButtons variant="light" /></div>
+        <div className="hero-cta"><TryRoomie size="lg" label="Try Roomie now" /></div>
       </div>
     </section>
   );
