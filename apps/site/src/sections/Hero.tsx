@@ -38,6 +38,12 @@ export function Hero() {
       // Entrance: each word rolls up out of its mask, the phone rises tilted back.
       gsap.from(".film-word--a .w1, .film-word--a .w2", { yPercent: 140, duration: 1.3, stagger: 0.1, ease: "expo.out" });
       gsap.from(".film-phone", { yPercent: 40, opacity: 0, duration: 1.6, delay: 0.15, ease: "expo.out" });
+      // The phrase is centred as a whole, so the phone sits in its gap: half the difference
+      // between the two words, measured live so it holds at every width.
+      const gapOffset = (sel: string) => () => {
+        const m = root.current?.querySelectorAll<HTMLElement>(`${sel} .mask`);
+        return m && m.length === 2 && window.innerWidth > 900 ? (m[0].offsetWidth - m[1].offsetWidth) / 2 : 0;
+      };
       gsap.set(".film-word--b .w1, .film-word--b .w2", { yPercent: 140 });
       gsap.set(".film-screen", { filter: "brightness(1)" });
 
@@ -45,13 +51,15 @@ export function Hero() {
       // out of its masks as the new pair rolls up in, so only one phrase is ever readable.
       const tl = gsap.timeline({
         defaults: { ease: "none" },
-        scrollTrigger: { trigger: ".film", start: "top top", end: "bottom bottom", scrub: 1 },
+        scrollTrigger: { trigger: ".film", start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true },
       });
-      tl.to(".film-phone", { rotationX: 0, scale: 1, duration: 1, ease: "power2.out" }, 0)
+      tl.fromTo(".film-phone", { x: gapOffset(".film-word--a") }, { x: gapOffset(".film-word--a"), duration: 0.01 }, 0)
+        .to(".film-phone", { rotationX: 0, scale: 1, duration: 1, ease: "power2.out" }, 0)
         .to(".film-hint", { opacity: 0, duration: 0.2 }, 0)
         .to(".film-step--0", { opacity: 1, y: 0, duration: 0.4 }, 0.4)
         .to(".film-word--a .w1", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 1.0)
         .to(".film-word--a .w2", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 1.08)
+        .to(".film-phone", { x: gapOffset(".film-word--b"), duration: 0.8, ease: "power2.inOut" }, 1.3)
         .to(".film-word--b .w1", { yPercent: 0, duration: 0.7, ease: "power3.out" }, 1.55)
         .to(".film-word--b .w2", { yPercent: 0, duration: 0.7, ease: "power3.out" }, 1.63)
         .to(".film-screen--1", { clipPath: "circle(150% at 33% 93%)", duration: 0.7, ease: "power2.inOut" }, 1.6)
@@ -64,9 +72,11 @@ export function Hero() {
         .to(".film-step--2", { opacity: 1, y: 0, duration: 0.4 }, 2.8)
         .to(".film-step--2", { opacity: 0, y: -12, duration: 0.3 }, 3.3)
         .to(".film-word--b .w1, .film-word--b .w2", { yPercent: -140, duration: 0.6, ease: "power3.in" }, 3.3)
-        .to(".film-phone", { yPercent: -16, scale: 0.84, duration: 1, ease: "power2.inOut" }, 3.3)
+        .to(".film-phone", { x: 0, yPercent: -16, scale: 0.84, duration: 1, ease: "power2.inOut" }, 3.3)
         .fromTo(".film-end", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 3.7);
     }, root);
+    // Word widths depend on the serif, so re-measure once it has loaded.
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
     return () => ctx.revert();
   }, [motionOK]);
 

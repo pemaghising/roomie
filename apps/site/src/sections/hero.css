@@ -64,7 +64,7 @@
 /* the words part around the phone: the gap is the device's width, so no letter ever hides behind it */
 .film-word {
   position: absolute; inset: 0; margin: 0; display: grid; align-content: center; align-items: center;
-  grid-template-columns: minmax(0, 1fr) var(--pw) minmax(0, 1fr); column-gap: calc(var(--pw) * -.13);   /* the edge letters tuck behind the phone */
+  grid-template-columns: auto var(--pw) auto; justify-content: center;   /* the whole phrase is centred, so both margins match */ column-gap: calc(var(--pw) * -.22);   /* the edge letters tuck behind the phone */
   font: 600 clamp(56px, min(10.6vw, 25svh), 230px)/.9 var(--serif); letter-spacing: -.045em; color: var(--ink); white-space: nowrap;
   pointer-events: none; z-index: 0;
 }
