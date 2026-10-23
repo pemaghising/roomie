@@ -38,7 +38,9 @@
 .effort-note { font-size: 14px; color: var(--muted); }
 
 @media (max-width: 860px) {
-  .effort-grid { grid-template-columns: 1fr; }
+  .effort-grid { grid-template-columns: minmax(0, 1fr); }
+  /* "45-minute bathroom." never breaks, so the heading shrinks to keep it on screen (it is ~8.6 em wide) */
+  .effort-copy h2 { font-size: min(36px, calc((100vw - 40px) / 9)); }
   .chore { grid-template-columns: 1fr auto; }
   .chore .mins { grid-row: 2; }
 }

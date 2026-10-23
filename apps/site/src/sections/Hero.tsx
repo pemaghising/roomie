@@ -14,7 +14,6 @@ gsap.registerPlugin(ScrollTrigger);
 const Tick = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
 );
-const icon = { fill: "none", stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
 function Notif({ when, lead, rest }: { when: string; lead: string; rest: string }) {
   return (
@@ -29,10 +28,11 @@ function Notif({ when, lead, rest }: { when: string; lead: string; rest: string 
   );
 }
 
-function Task({ title, effort, done = false, children }: { title: string; effort: "Light" | "Medium"; done?: boolean; children: React.ReactNode }) {
+function Task({ title, effort, emoji, done = false }: { title: string; effort: "Light" | "Medium"; emoji: string; done?: boolean }) {
   return (
     <div className={`hero-card hero-task${done ? " is-done" : ""}`}>
-      <span className="ico"><svg width="20" height="20" viewBox="0 0 24 24" {...icon}>{children}</svg></span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <span className="ico"><img src={`/emoji/${emoji}.webp`} alt="" width={26} height={26} /></span>
       <span className="txt"><span className="title">{title}</span><span className={`hero-tag hero-tag--${effort.toLowerCase()}`}>{effort}</span></span>
       <button type="button" className="hero-check" aria-label={`Mark ${title} done`}
         onClick={(e) => e.currentTarget.closest(".hero-task")?.classList.toggle("is-done")}><Tick /></button>
@@ -100,7 +100,9 @@ export function Hero() {
       // the foot of the phone dissolves as the promise arrives
       const fade = () => ({ start: () => unpinAt() - window.innerHeight * 0.5, end: unpinAt, scrub: 1, invalidateOnRefresh: true });
       gsap.to(".hero-stage", { "--fade": "54%", ease: "none", scrollTrigger: fade() });
-      gsap.to([".hero-shadow", ".hero-haze"], { autoAlpha: 0, ease: "none", scrollTrigger: fade() });
+      // the shadows melt over a longer stretch than the phone. The fade runs on their wrapper: the stand-up above
+      // owns each shadow's own opacity, and two tweens on one property made it snap back to its start value
+      gsap.to([".hero-shadows", ".hero-haze"], { autoAlpha: 0, ease: "power2.inOut", scrollTrigger: { start: () => unpinAt() - window.innerHeight, end: () => unpinAt() + window.innerHeight * 0.15, scrub: 1.5, invalidateOnRefresh: true } });
 
       // each piece travels at its own speed, with a little turn
       (q(".hero-bit") as HTMLElement[]).forEach((b, i) => {
@@ -111,10 +113,10 @@ export function Hero() {
         });
       });
 
-      gsap.timeline({ scrollTrigger: { trigger: ".hero-end", start: "top 82%" }, defaults: { ease: "expo.out" } })
-        .from(".hero-end .w > span", { yPercent: 120, duration: 1.5, stagger: 0.08 })
-        .from(".hero-end .lede", { autoAlpha: 0, y: 20, duration: 1.2 }, 0.35)
-        .from(".hero-cta > *", { autoAlpha: 0, y: 24, duration: 1.2, stagger: 0.08 }, 0.5);
+      gsap.timeline({ scrollTrigger: { trigger: ".hero-end", start: "top 94%" }, defaults: { ease: "expo.out" } })
+        .from(".hero-end .w > span", { yPercent: 120, duration: 1, stagger: 0.06 })
+        .from(".hero-end .lede", { autoAlpha: 0, y: 16, duration: 0.9 }, 0.2)
+        .from(".hero-cta > *", { autoAlpha: 0, y: 18, duration: 0.9, stagger: 0.06 }, 0.3);
 
       // pointer: cards drift by depth, the phone turns a few degrees towards the cursor
       const cards = (q(".hero-bit .hero-card") as HTMLElement[]).map((c, i) => ({
@@ -163,8 +165,10 @@ export function Hero() {
           <div className="hero-stage">
             <div className="hero-haze" aria-hidden="true" />
             <div className="hero-ptilt"><div className="hero-tilt">
-              <div className="hero-shadow hero-shadow--cast" aria-hidden="true" />
-              <div className="hero-shadow hero-shadow--contact" aria-hidden="true" />
+              <div className="hero-shadows" aria-hidden="true">
+                <div className="hero-shadow hero-shadow--cast" />
+                <div className="hero-shadow hero-shadow--contact" />
+              </div>
               <Phone3D src="/screens/h1-home.webp" alt="Roomie Home: a 23 day house streak with the plant in bud, and today's tasks" pose={pose} className="hero-phone3d">
                 <figure className="phone hero-phone">
                   <span className="btn-l" aria-hidden="true" />
@@ -182,27 +186,36 @@ export function Hero() {
 
         <div className="hero-bit hero-b1" data-s=".18"><Notif when="now" lead="Bins go out tonight." rest="It’s your turn, Ramesh. No rush, just a heads-up." /></div>
         <div className="hero-bit hero-b2" data-s=".32">
-          <Task title="Sweep living room" effort="Light"><path d="M19 3 9.5 12.5" /><path d="M11.5 14.5 7 19H3v-4l4.5-4.5" /><path d="m8.5 10.5 5 5" /></Task>
+          <Task title="Sweep living room" effort="Light" emoji="broom" />
         </div>
         <div className="hero-bit hero-b3" data-s=".12">
-          <div className="hero-card hero-streak">
+          <div className="hero-card hero-streak" role="img" aria-label="House streak: 23 days strong">
+            <div className="left">
+              <span className="lbl">House streak</span>
+              <span className="num"><span className="n">23</span><span className="u">days<br />strong</span></span>
+              <span className="days">
+                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <i key={i} className={i < 6 ? "done" : "today"}>{d}</i>)}
+              </span>
+            </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/plant-bud.webp" alt="" width={52} height={52} />
-            <span className="n">23</span><span className="u">days<br />strong</span>
+            <img src="/brand/plant-bud.webp" alt="" width={120} height={120} />
           </div>
         </div>
         <div className="hero-bit hero-b4" data-s=".28">
-          <Task title="Take out trash" effort="Light" done><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></Task>
+          <Task title="Take out trash" effort="Light" emoji="wastebasket" done />
         </div>
         <div className="hero-bit hero-b5" data-s=".05"><Notif when="2m ago" lead="Priya’s getting the milk." rest="You’re off the hook." /></div>
         <div className="hero-bit hero-b6" data-s=".1">
           <div className="hero-card hero-pantry">
-            <span className="dot" aria-hidden="true" /><span>Olive oil running low</span>
-            <button type="button" onClick={(e) => { const b = e.currentTarget; const on = b.classList.toggle("is-got"); b.textContent = on ? "On it" : "I’ll get it"; }}>I’ll get it</button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <span className="ico"><img src="/emoji/olive.webp" alt="" width={24} height={24} /></span>
+            <span className="name">Olive oil</span>
+            <span className="hero-tag hero-tag--medium">Low</span>
+            <button type="button" onClick={(e) => { const b = e.currentTarget; const on = b.classList.toggle("is-got"); b.textContent = on ? "You’re getting it" : "I’ll get it"; }}>I’ll get it</button>
           </div>
         </div>
         <div className="hero-bit hero-b7" data-s="-.04">
-          <Task title="Water the plants" effort="Medium"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" /><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97" /></Task>
+          <Task title="Water the plants" effort="Medium" emoji="potted_plant" />
         </div>
         <div className="hero-bit hero-b8" data-s=".02"><Notif when="Sunday" lead="All done for the week." rest="Everyone did their share. 24 days strong." /></div>
       </div>
@@ -212,7 +225,7 @@ export function Hero() {
           <span className="w"><span>Fair</span></span> <span className="w"><span>chores.</span></span>{" "}
           <em><span className="w"><span>Zero</span></span> <span className="w"><span>nagging.</span></span></em>
         </h1>
-        <p className="lede">Chores split by effort, reminders sent for you. Nobody has to play the parent.</p>
+        <p className="lede">Chores split by effort, reminders sent for you. <span className="l2">Nobody has to play the parent.</span></p>
         <div className="hero-cta"><TryRoomie size="lg" label="Try Roomie now" /></div>
       </div>
     </section>

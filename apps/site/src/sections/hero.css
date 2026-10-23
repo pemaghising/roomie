@@ -14,7 +14,7 @@
 .topbar-inner {
   pointer-events: auto;
   width: 100%;
-  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px;
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px;
   padding: 20px max(20px, (100% - 1200px) / 2);
   border-radius: 0;
   background: rgba(252, 251, 255, 0);
@@ -36,7 +36,7 @@
 .brand { justify-self: start; display: flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
 .brand .lockup { height: 40px; width: auto; transition: height .5s var(--ease); }
 .topbar.is-scrolled .brand .lockup { height: 32px; }
-.topnav { display: flex; gap: 2px; justify-self: center; }
+.topnav { display: flex; gap: 2px; justify-self: end; margin-right: 8px; }
 .topnav a {
   display: inline-flex; align-items: center; min-height: 44px;
   padding: 0 14px; border-radius: 999px;
@@ -59,13 +59,15 @@
 .hero { --pw: min(21vw, 330px, calc(74svh * 393 / 852)); background: var(--mist); }
 .hero-top { height: clamp(64px, 10svh, 104px); }
 
-.hero-scene { position: relative; height: 290svh; }
+.hero-scene { position: relative; height: 240svh; }
 .hero-pin { position: sticky; top: calc(50svh - var(--pw) * 2.0745 / 2 - 10px); z-index: 3; display: grid; justify-items: center; perspective: 1100px; perspective-origin: 50% 0%; }
 .hero-stage { position: relative; width: var(--pw); --fade: 0%; }
 .hero-ptilt { transform-style: preserve-3d; will-change: transform; }
 .hero-tilt { position: relative; transform-origin: 50% 100%; will-change: transform; }
 
 /* light from the upper left: a tight contact shadow and a long, soft cast to the lower right */
+.hero-shadows { position: absolute; z-index: -1; inset: 0; pointer-events: none; filter: opacity(0); transition: filter .6s ease; }
+.hero-tilt:has(.phone3d.is-ready, .phone3d.is-failed) .hero-shadows { filter: opacity(1); }
 .hero-shadow { position: absolute; z-index: -1; inset: 0; border-radius: calc(var(--pw) * .17); pointer-events: none; will-change: transform, opacity; }
 .hero-shadow--contact { background: rgba(31, 27, 58, .34); filter: blur(calc(var(--pw) * .06)); transform: translate(5%, 3%) scale(.97); }
 .hero-shadow--cast { background: linear-gradient(160deg, rgba(59, 36, 112, .26), rgba(59, 36, 112, .08) 70%); filter: blur(calc(var(--pw) * .22)); transform-origin: 50% 100%; transform: translate(34%, 10%) skewX(-14deg) scale(1.05, 1.02); }
@@ -75,8 +77,11 @@
 /* the 3D phone: the canvas is larger than the body so the lean and the turn never crop.
    The fade lives on the canvas alone (body spans 13%–87% of its height), so it never boxes the shadow. */
 .phone3d { position: relative; width: var(--pw); aspect-ratio: 1 / 2.0745; }
-.phone3d-fallback { transition: opacity .5s ease; }
-.phone3d.is-ready .phone3d-fallback { opacity: 0; }
+/* the 3D phone fades in once drawn; the flat one only appears if WebGL is missing or slow (.is-failed) */
+.phone3d-fallback { opacity: 0; visibility: hidden; transition: opacity .5s ease; }
+.phone3d.is-failed .phone3d-fallback { opacity: 1; visibility: visible; }
+.phone3d-canvas { opacity: 0; transition: opacity .6s ease; }
+.phone3d.is-ready .phone3d-canvas { opacity: 1; }
 .phone3d-canvas { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: calc(var(--pw) * 1.8); height: calc(var(--pw) * 2.0745 * 1.35); pointer-events: none;
   -webkit-mask-image: linear-gradient(#000 calc(87% - var(--fade) * .74), transparent calc(106% - var(--fade) * .74));
           mask-image: linear-gradient(#000 calc(87% - var(--fade) * .74), transparent calc(106% - var(--fade) * .74)); }
@@ -99,32 +104,63 @@
 .hero-notif p { margin: 0; font-size: 14px; line-height: 1.35; }
 .hero-notif strong { font-weight: 600; }
 
-.hero-task { padding: 12px 14px 12px 12px; border-radius: 20px; min-width: clamp(230px, 17vw, 280px); }
-.hero-task .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--lilac-50); color: var(--violet-deep); flex: none; }
-.hero-task .txt { flex: 1; display: grid; gap: 5px; }
-.hero-task .title { font-size: 15px; font-weight: 500; position: relative; justify-self: start; transition: color .3s; }
-.hero-task .title::after { content: ""; position: absolute; left: 0; top: 55%; height: 1.5px; width: 100%; background: var(--ink-3); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.2, .9, .25, 1); }
-.hero-tag { justify-self: start; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+/* The cards below copy the app's v2 components (apps/mobile/src/ui/v2): Glass, TaskRow, StreakCard, the pantry low row */
+.hero-task, .hero-streak, .hero-pantry {
+  background: rgba(252, 251, 255, .62); border-color: rgba(252, 251, 255, .9);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3); backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow: 0 8px 24px rgba(89, 71, 140, .1), 0 30px 60px -36px rgba(59, 36, 112, .3);
+  color: var(--ink);
+}
+
+/* TaskRow: padding 16, gap 14, 44 emoji tile at radius 13, Body/Row title, Tag, 28 gradient check */
+.hero-task { padding: 16px; gap: 14px; border-radius: 24px; min-width: clamp(260px, 20vw, 320px); }
+/* the done fade lives on the contents: gsap owns the card's own opacity for the entrance */
+.hero-task > * { transition: opacity .35s ease; }
+.hero-task .ico { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: rgba(252, 251, 255, .8); flex: none; }
+.hero-task .ico img { width: 26px; height: 26px; }
+.hero-task .txt { flex: 1; display: grid; gap: 6px; }
+.hero-task .title { font-size: 16px; line-height: 21px; font-weight: 500; position: relative; justify-self: start; transition: color .3s; }
+.hero-task .title::after { content: ""; position: absolute; left: 0; top: 55%; height: 1.5px; width: 100%; background: var(--muted); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.2, .9, .25, 1); }
+.hero-tag { justify-self: start; display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: 999px; font-size: 12px; line-height: 16px; font-weight: 600; }
 .hero-tag--light { background: var(--light-bg); color: var(--light-fg); }
 .hero-tag--medium { background: var(--med-bg); color: var(--med-fg); }
-.hero-check { width: 28px; height: 28px; border-radius: 50%; border: 1.75px solid #C9B4F5; display: grid; place-items: center; flex: none; padding: 0; cursor: pointer; background: transparent; transition: background .35s cubic-bezier(.2, .9, .25, 1), border-color .35s; }
-.hero-check svg { width: 15px; height: 15px; stroke: var(--offwhite); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .4s .1s cubic-bezier(.2, .9, .25, 1); }
-.hero-check:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.hero-check {
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; padding: 0; cursor: pointer;
+  border: 1.75px solid transparent;
+  background: linear-gradient(var(--offwhite), var(--offwhite)) padding-box, linear-gradient(135deg, var(--grad-start), var(--grad-end)) border-box;
+}
+.hero-check svg { width: 16px; height: 16px; stroke: var(--offwhite); stroke-width: 2.75; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .4s .1s cubic-bezier(.2, .9, .25, 1); }
+.hero-check:focus-visible, .hero-pantry button:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+/* the app's sizes (28 ring, 34 pill) stay; an invisible ring around each lifts the tap area to 44 */
+.hero-check, .hero-pantry button { position: relative; }
+.hero-check::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+.hero-pantry button::before { content: ""; position: absolute; inset: -5px -2px; }
+.hero-task.is-done > * { opacity: .55; }
 .hero-task.is-done .hero-check { background: var(--violet); border-color: var(--violet); }
 .hero-task.is-done .hero-check svg { stroke-dashoffset: 0; }
-.hero-task.is-done .title { color: var(--ink-3); }
+.hero-task.is-done .title { color: var(--muted); }
 .hero-task.is-done .title::after { transform: scaleX(1); }
 
-.hero-streak { padding: 10px 18px 10px 12px; border-radius: 24px; gap: 8px; }
-.hero-streak img { width: 52px; height: 52px; object-fit: contain; }
-.hero-streak .n { font-size: 40px; font-weight: 300; line-height: 1; color: var(--num, #3B2470); letter-spacing: -.02em; }
-.hero-streak .u { font-size: 13px; font-weight: 500; line-height: 1.2; color: var(--num, #3B2470); }
+/* StreakCard: Tag label, Numeral/Streak 81 Light, Body/Button "days strong", Sunday-first 19×30 pills, the plant */
+.hero-streak { padding: 20px; gap: 8px; border-radius: 24px; color: var(--plum); zoom: .82; }
+.hero-streak .left { display: grid; gap: 16px; align-content: center; align-self: center; }
+.hero-streak .lbl { font-size: 12px; line-height: 16px; font-weight: 600; margin-bottom: -10px; }
+.hero-streak .num { display: flex; align-items: center; gap: 8px; }
+.hero-streak .n { font-size: 81px; line-height: 92px; font-weight: 300; letter-spacing: -3.24px; font-variant-numeric: tabular-nums; }
+.hero-streak .u { font-size: 17px; line-height: 22px; font-weight: 500; }
+.hero-streak .days { display: flex; gap: 6px; height: 30px; }
+.hero-streak .days i { width: 19px; height: 30px; border-radius: 999px; display: grid; place-items: center; font: 600 12px/16px var(--sans); font-style: normal; background: var(--line); color: var(--muted); }
+.hero-streak .days i.done { background: var(--violet); color: var(--offwhite); }
+.hero-streak .days i.today { color: var(--violet-deep); border: 1.75px solid transparent; background: linear-gradient(rgba(252, 251, 255, .95), rgba(252, 251, 255, .95)) padding-box, linear-gradient(135deg, var(--grad-start), var(--grad-end)) border-box; }
+.hero-streak img { width: 132px; height: 150px; object-fit: contain; margin: -8px -12px -10px 0; }
 
-.hero-pantry { padding: 10px 10px 10px 16px; border-radius: 999px; gap: 10px; }
-.hero-pantry .dot { width: 8px; height: 8px; border-radius: 50%; background: #F39A80; }
-.hero-pantry > span:not(.dot) { font-size: 14px; font-weight: 500; }
-.hero-pantry button { border: 0; font: 600 13px var(--sans); color: var(--offwhite); background: var(--violet); padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: background .3s; }
-.hero-pantry button.is-got { background: var(--light-fg); }
+/* Pantry low row: radius 22, 40 tile on a lifted disc, Body/Row name, Low tag, 34-tall violet pill */
+.hero-pantry { padding: 12px 6px 12px 10px; gap: 8px; border-radius: 22px; background: rgba(252, 251, 255, .9); }
+.hero-pantry .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--offwhite); box-shadow: 0 2px 6px rgba(59, 36, 112, .1); flex: none; }
+.hero-pantry .ico img { width: 24px; height: 24px; }
+.hero-pantry .name { font-size: 16px; line-height: 21px; font-weight: 500; }
+.hero-pantry button { margin-left: 16px; height: 34px; padding: 0 12px; border: 0; border-radius: 17px; font: 500 13px/18px var(--sans); color: var(--offwhite); background: var(--violet); cursor: pointer; transition: background .3s, color .3s; }
+.hero-pantry button.is-got { background: var(--light-bg); color: var(--light-fg); }
 
 /* first four sit around the tilted phone, the rest arrive from below */
 .hero-b1 { left: 8%;  top: 4svh; }
@@ -137,14 +173,16 @@
 .hero-b8 { right: 6%; top: 98svh; }
 
 /* the promise lands under the dissolving phone */
-.hero-end { position: relative; z-index: 4; margin-top: calc(var(--pw) * 2.0745 * -.34); padding-bottom: 18svh; display: grid; justify-items: center; text-align: center; gap: 18px; }
-.hero-end h1 { margin: 0; padding: 0 16px; font: 600 clamp(44px, 6vw, 104px)/1.02 var(--serif); font-variation-settings: "SOFT" 100, "opsz" 144; letter-spacing: -.035em; color: var(--ink); text-wrap: balance; }
+.hero-end { position: relative; z-index: 4; margin-top: calc(var(--pw) * 2.0745 * -.34); padding-bottom: 18svh; display: grid; justify-items: center; text-align: center; gap: 0; }
+.hero-end h1 { margin: 0; padding: 0 16px; font: 600 clamp(44px, 5.6vw, 96px)/1.02 var(--serif); font-variation-settings: "SOFT" 100, "opsz" 144; letter-spacing: -.035em; color: var(--ink); text-wrap: balance; }
 .hero-end h1 em { font-style: italic; color: var(--violet-deep); font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
 /* each word rises out of its own mask; ordinary spaces keep normal word spacing */
 .hero-end .w { display: inline-block; overflow: hidden; vertical-align: top; padding: .02em .03em .3em; margin-bottom: -.28em; }
 .hero-end .w > span { display: inline-block; }
-.hero-end .lede { max-width: 34em; margin: 0; padding: 0 20px; }
-.hero-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; margin-top: 8px; }
+/* three steps, each further apart: the promise, what it means, then the one action */
+.hero-end .lede { max-width: 36em; margin: clamp(20px, 2vw, 28px) 0 0; padding: 0 20px; font-size: clamp(18px, 1.5vw, 22px); line-height: 1.5; text-wrap: balance; }
+@media (min-width: 640px) { .hero-end .lede .l2 { display: block; } }
+.hero-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; margin-top: clamp(28px, 2.6vw, 36px); }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
@@ -156,7 +194,11 @@
   .hero-bit { scale: .78; }
   .hero-b1 { left: 2%; transform-origin: left top; }
   .hero-b3 { right: 2%; transform-origin: right top; }
+  .hero-streak { zoom: .58; }
   .hero-b5, .hero-b6, .hero-b7, .hero-b8 { display: none; }
+}
+@media (max-width: 370px) {
+  .hero-b3 { top: 16svh; }
 }
 /* No motion: everything shown in its resting place, nothing tilts */
 @media (prefers-reduced-motion: reduce) {

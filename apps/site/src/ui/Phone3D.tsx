@@ -24,12 +24,15 @@ export function Phone3D({ src, alt, pose, className = "", children }: {
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const el = host.current;
     if (!el) return;
     let disposed = false;
     let cleanup = () => {};
+    // The flat CSS phone is only a fallback: showing it while the 3D one loads made two phones cross-fade, upright into leaning.
+    const giveUp = window.setTimeout(() => setFailed(true), 6000);
 
     (async () => {
       const THREE = await import("three");
@@ -41,7 +44,8 @@ export function Phone3D({ src, alt, pose, className = "", children }: {
       try {
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
       } catch {
-        return; // no WebGL: the CSS phone stays
+        setFailed(true); // no WebGL: the CSS phone takes over
+        return;
       }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -163,6 +167,8 @@ export function Phone3D({ src, alt, pose, className = "", children }: {
         renderer.render(scene, camera);
       };
       gsap.ticker.add(tick);
+      tick(0); // draw the first frame before the canvas fades in, so it never shows empty
+      window.clearTimeout(giveUp);
       setReady(true);
 
       cleanup = () => {
@@ -175,13 +181,13 @@ export function Phone3D({ src, alt, pose, className = "", children }: {
         tex.dispose(); env.dispose(); pmrem.dispose(); renderer.dispose();
         canvas.remove();
       };
-    })();
+    })().catch(() => setFailed(true));
 
-    return () => { disposed = true; cleanup(); };
+    return () => { disposed = true; window.clearTimeout(giveUp); cleanup(); };
   }, [src, pose]);
 
   return (
-    <div ref={host} className={`phone3d ${ready ? "is-ready" : ""} ${className}`} role="img" aria-label={alt}>
+    <div ref={host} className={`phone3d ${ready ? "is-ready" : ""} ${failed && !ready ? "is-failed" : ""} ${className}`} role="img" aria-label={alt}>
       <div className="phone3d-fallback">{children}</div>
     </div>
   );
