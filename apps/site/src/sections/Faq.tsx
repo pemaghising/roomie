@@ -1,6 +1,6 @@
 import "./faq.css";
 
-const PROTOTYPE = "https://roomie-app-v2-delta.vercel.app";
+const PROTOTYPE = "https://roomie-mobile.vercel.app";
 
 const FAQS: { q: string; a: string[] }[] = [
   {

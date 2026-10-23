@@ -20,7 +20,7 @@ const cards = [
     icon: "rocket-launch",
     tone: "green",
     title: "A focused V1, ready to test",
-    body: "62 hi-fi screens across onboarding, home, chores, pantry and settings, on one design system. Money and AI features are planned for Phase 2. It hasn't been tested yet; the plan is in section 05.",
+    body: "73 hi-fi screens across onboarding, home, chores, pantry and settings, on one design system. Money and AI features are planned for Phase 2. It hasn't been tested yet; the plan is in section 05.",
   },
 ];
 

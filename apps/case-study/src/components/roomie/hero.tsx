@@ -40,7 +40,7 @@ export function Hero() {
         <div><dt>Role</dt><dd>Lead Graphic Designer, leading research, UX, UI and brand</dd></div>
         <div><dt>Timeline</dt><dd>2 weeks</dd></div>
         <div><dt>Tools</dt><dd>Figma, Mobbin, Notion and AI tools</dd></div>
-        <div><dt>Delivered</dt><dd>60+ hi-fi screens, a 50+ component library, a 36-page brand book and a marketing site</dd></div>
+        <div><dt>Delivered</dt><dd>70+ hi-fi screens, a 50+ component library, a 36-page brand book and a marketing site</dd></div>
       </dl>
       {/* Tentative (#10): reading time + skim path. Delete this <p> to drop it. */}
       <p className="skim">
