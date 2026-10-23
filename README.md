@@ -135,13 +135,6 @@ The app reads `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` fro
 | Android test build | `cd apps/mobile && npx eas-cli build --profile preview --platform android` |
 | Websites | `npx vercel deploy --prod` from `apps/site` or `apps/case-study` |
 
-## Design
-
-- **Type:** Fraunces for headlines, Geist for everything else.
-- **Colour:** lilac mist backgrounds, roof violet `#7A5FD6` for actions, lavender off-white `#FCFBFF` instead of pure white.
-- **Tone:** calm, never alarmist. No points, no leaderboards, no all caps.
-- **Source of truth:** the Figma file "Final app v2" and its v2 design system; the app's tokens map one to one.
-
 ## Author
 
 **Pema Ghising**, Lead Graphic Designer at Leapfrog Technology, Kathmandu.
