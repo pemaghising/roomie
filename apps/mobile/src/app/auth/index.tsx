@@ -12,7 +12,7 @@ import { color, layout } from '@/ui/tokens';
 import { AppleMark, Button, GoogleMark, MeshBackground, Sheet, Stagger, Tap, Txt } from '@/ui/v2';
 import { useToast } from '@/ui/toast';
 
-const SITE = 'https://roomie-site-sigma.vercel.app/';
+const SITE = 'https://meetroomie.vercel.app/';
 
 export function Legal() {
   return (

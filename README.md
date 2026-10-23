@@ -5,7 +5,7 @@
 
 **Fair chores and a shared pantry for roommates. No nagging.**
 
-[**Try the app**](https://roomie-app-v2-delta.vercel.app) · [**Website**](https://roomie-site-sigma.vercel.app) · [**Case study**](https://roomie-case-study.vercel.app)
+[**Try the app**](https://roomie-app-v2-delta.vercel.app) · [**Website**](https://meetroomie.vercel.app) · [**Case study**](https://roomie-case-study.vercel.app)
 
 ![Expo](https://img.shields.io/badge/Expo-SDK%2057-1F1B3A?style=flat-square&logo=expo&logoColor=white)
 ![React Native](https://img.shields.io/badge/React%20Native-0.86-1F1B3A?style=flat-square&logo=react&logoColor=61DAFB)
@@ -27,7 +27,7 @@ It is a UX case study and product design project by **Pema Ghising**, taken all 
 | --- | --- | --- |
 | [`apps/mobile`](apps/mobile) | The Roomie app for iPhone and Android (Expo, React Native). Also runs on the web inside a phone frame | [roomie-app-v2-delta.vercel.app](https://roomie-app-v2-delta.vercel.app) · Expo Go |
 | [`supabase`](supabase) | The backend: a Postgres database where each person only sees their own home, a server check on every change, the job that plans the week and sends reminders, and the chore-splitting logic the app shares | Supabase |
-| [`apps/site`](apps/site) | The marketing website: features, a week in a shared flat, the pantry | [roomie-site-sigma.vercel.app](https://roomie-site-sigma.vercel.app) |
+| [`apps/site`](apps/site) | The marketing website: features, a week in a shared flat, the pantry | [meetroomie.vercel.app](https://meetroomie.vercel.app) |
 | [`apps/case-study`](apps/case-study) | The design-thinking case study, from research to reflection | [roomie-case-study.vercel.app](https://roomie-case-study.vercel.app) |
 | [`research`](research) | The written case study, decisions log, evidence map and research sources | |
 

@@ -35,7 +35,7 @@ export const reflectHtml = `
     <h3>Beyond the app</h3>
     <p class="muted narrow">A product also has to be found and trusted before anyone opens it, so I took Roomie past the screens.</p>
     <div class="beyond">
-      <a class="card" href="https://roomie-site-sigma.vercel.app/" target="_blank" rel="noopener"><b>Marketing website</b><p>Sells the same three ideas as the app: effort, the shared pool and the nudge. Written for flatmates, not designers.</p><span>See the website →</span></a>
+      <a class="card" href="https://meetroomie.vercel.app/" target="_blank" rel="noopener"><b>Marketing website</b><p>Sells the same three ideas as the app: effort, the shared pool and the nudge. Written for flatmates, not designers.</p><span>See the website →</span></a>
       <a class="card" href="/roomie-brand-guidelines.pdf" target="_blank" rel="noopener"><b>Brand guidelines</b><p>36 pages of logo, colour, type, voice and photography rules, so the app, site and store listing speak with one voice.</p><span>Open the PDF →</span></a>
     </div>
   </div>

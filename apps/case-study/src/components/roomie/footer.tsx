@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 // The Roomie marketing site (roomie-site).
-const ROOMIE_SITE = "https://roomie-site-sigma.vercel.app/";
+const ROOMIE_SITE = "https://meetroomie.vercel.app/";
 
 export function Footer() {
   return (

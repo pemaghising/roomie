@@ -6,7 +6,7 @@ import { Heading, Page, PlainRow, SettingsCard } from '@/ui/v2';
 
 // the same pages the sign-in screen links to
 const PRIVACY = 'https://roomie-theta.vercel.app/privacy.html';
-const TERMS = 'https://roomie-site-sigma.vercel.app/';
+const TERMS = 'https://meetroomie.vercel.app/';
 
 export default withHousehold(Privacy);
 

@@ -5,7 +5,7 @@
 
 ### The Roomie website
 
-**Live:** [roomie-site-sigma.vercel.app](https://roomie-site-sigma.vercel.app)
+**Live:** [meetroomie.vercel.app](https://meetroomie.vercel.app)
 
 </div>
 
