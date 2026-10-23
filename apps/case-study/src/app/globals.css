@@ -351,7 +351,9 @@ tbody tr:last-child td{border-bottom:0}
 .journey{min-width:860px;display:grid;grid-template-columns:120px repeat(5,1fr);font-size:14px}
 .journey > div{padding:16px 18px;border-bottom:1px solid #f1f1f4}
 .journey .rh{font:600 11px/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted-text);background:color-mix(in oklab,var(--bg,transparent) 12%,#FCFBFF)}
-.journey .st{font:700 17px/1.2 var(--serif);font-variant-numeric:lining-nums;background:var(--bg);color:var(--fg)}
+/* header row stub matches column-header background — one unified strip */
+.journey > .rh:first-child,.tjourney > .rh:first-child{background:var(--t3)}
+.journey .st{font:700 17px/1.2 var(--serif);font-variant-numeric:lining-nums;background:var(--bg);color:var(--fg);border-radius:0;margin:0;padding:16px 18px;display:block}
 .journey .th{font-style:italic;font-family:var(--serif);font-size:15px}
 .journey .pain{color:var(--rose-ink)}
 .journey .opp{color:var(--mint-ink);font-weight:500}.journey .curve{grid-column:2/-1;padding:0;height:110px;position:relative;margin-block:10px}
@@ -647,7 +649,7 @@ details.orig img{max-width:none;width:auto;height:auto;transform-origin:0 0;user
 .tjourney{display:grid;grid-template-columns:110px repeat(5,minmax(150px,1fr));min-width:880px;font-size:14px}
 .tjourney > div{padding:16px;border-bottom:1px solid #f1f1f4}
 .tjourney .rh{font:600 11px/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted-text);background:color-mix(in oklab,var(--bg,transparent) 12%,#FCFBFF)}
-.tjourney .st{font:700 16px/1.2 var(--serif);font-variant-numeric:lining-nums;background:var(--bg);color:var(--fg)}
+.tjourney .st{font:700 16px/1.2 var(--serif);font-variant-numeric:lining-nums;background:var(--bg);color:var(--fg);border-radius:0;margin:0;display:block}
 .tjourney .st small{display:block;font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;margin-top:6px;opacity:.85}
 .tjourney .feel{font-weight:600}
 .tjourney .feel span{display:block;font-weight:400;color:var(--ink-2);font-size:13px;margin-top:2px}
